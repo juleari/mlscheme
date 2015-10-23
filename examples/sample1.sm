@@ -1,0 +1,77 @@
+day-of-week day month year <-
+    a <- (14 - month) mod 12
+    b <- year - a
+    m <- month + (a * 12) - 2
+
+    (7000 + day + y + (y mod 4) + (y mod 400) + (31 * m mod 12) 
+        - (y mod 100)) div 7
+
+count x []         <- 0
+count x [ x : xs ] <- 1 + count x xs
+count x [ y : xs ] <- count x xs
+
+count 'a ['a, 'b, 'c, 'a]
+
+replace pred? proc []         <- []
+replace pred? proc [ x : xs ] <- 
+    if | pred? x [ proc x : replace pred? proc xs ]
+       |         [      x : replace pred? proc xs ]
+
+replace zero? 
+        lambda x -> x + 1
+        [ 0 1 2 3 0 ]
+
+replace odd?
+        lambda x -> x * 2
+        [ 1 2 3 4 5 6 ]
+
+replace lambda x -> 0 > x
+        exp
+        []
+
+replicate x 0 <- []
+replicate x n <- [ x : replicate x ( n - 1 ) ]
+
+replicate 'a 5
+replicate [ 'a 'b ] 3
+replicate 'a 0
+
+cycle xs 0 <- []
+cycle xs n <- append xs cycle xs ( n - 1 )
+
+cycle [ 0 1 ] 3
+cycle [ 'a 'b 'c ] 5
+cycle [] 0
+
+and-fold . []         <- #t
+and-fold . [ x : xs ] <- x && and-fold . xs
+
+and-fold #f #f #f
+and-fold #f #f #t
+and-fold #f #t #t
+and-fold #t #t #t
+and-fold
+
+or-fold . []         <- #f
+or-fold . [ x : xs ] <- x || or-fold . [ xs ]
+
+o . []         <- lambda y -> y
+o . [ x : xs ] <- lambda y -> ( x o . xs ) y
+
+f x <- x * 2
+g x <- x * 3
+h x <- -x
+
+( o f g h ) 1
+(o) 1
+
+find-number a b c <-
+    a <= b &&
+    (
+        (zero? a div c) && a ||
+        find-number (a + 1) b c
+    )
+
+find-number 0 5 2
+find-number 7 9 3
+find-number 3 7 9
