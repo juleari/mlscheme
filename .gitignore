@@ -7,3 +7,10 @@ r5rs*
 python/
 tz/*
 *.scm~
+*.aux
+*.synctex.gz
+*.log
+*.key
+*.doc
+*.ppt
+*.pptx
