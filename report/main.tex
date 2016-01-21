@@ -1,0 +1,86 @@
+\documentclass[12pt]{article}
+
+\usepackage{ucs}
+\usepackage{amsmath}                    % gather* для вывода формул по центру страницы
+\usepackage[utf8x]{inputenc}        % Включаем поддержку UTF8
+\usepackage[russian]{babel}         % Включаем пакет для поддержки русского языка
+
+\usepackage[
+    left=2cm,           % Поле левое : 200 мм
+    right=2cm,          % Поле правое : 200 мм
+    top=2cm,            % Поле верхнее: 200 мм
+    bottom=2cm,         % Поле нижнее : 200 мм
+    bindingoffset=0cm]{geometry}
+
+\setlength{\parindent}{1.25cm}          % Абзацный отступ: 1,25 см
+\usepackage{indentfirst}                % 1-й абзац имеет отступ
+
+\usepackage[pdftex]{graphicx, color}
+\usepackage{color}
+\usepackage{tikz}
+\usepackage{url}            % использование URL в библиографии
+\usepackage{listings}           % использование листингов кода
+\usepackage[nooneline]{caption}
+\captionsetup[table]{justification=raggedleft}
+\captionsetup[figure]{justification=centering,labelsep=endash}
+%\usepackage{array}
+
+\usepackage[nodisplayskipstretch]{setspace}
+\setstretch{1.5}
+
+\usepackage{caption}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{cases}
+\usepackage{placeins}
+\usepackage{longtable} 
+\usepackage{multirow}
+\usepackage{hhline}
+
+\renewcommand{\baselinestretch}{1.5}
+
+\definecolor{grey}{HTML}{EEEEEE}
+% вставка листингов с кодом
+\lstset{inputencoding=utf8x,
+        extendedchars=false,
+        keepspaces=true,
+        basicstyle=\small\sffamily,
+        numbers=left,
+        numberstyle=\tiny,
+        numbersep=5pt,
+        stepnumber=1,                   % размер шага между двумя номерами строк
+        backgroundcolor=\color{white},
+        showspaces=false,            % показывать или нет пробелы специальными отступами
+        showstringspaces=false,      % показывать или нет пробелы в строках
+        showtabs=false,             % показывать или нет табуляцию в строках
+        frame=none,
+        tabsize=2,                 % размер табуляции по умолчанию равен 2 пробелам
+        captionpos=t,              % позиция заголовка вверху [t] или внизу [b] 
+        breaklines=true,           % автоматически переносить строки (да\нет)
+        breakatwhitespace=false} % переносить строки только если есть пробел
+        
+%\input{listings-python.prf}
+\renewcommand{\lstlistingname}{Листинг}
+
+\setcounter{tocdepth}{4}    % chapter, section, subsection, subsubsection и paragraph
+\setcounter{secnumdepth}{4}
+
+\parindent=1,25cm               % красная строка = 1 см
+\usepackage{enumitem}
+\setlist[enumerate,1]{leftmargin=2.25cm}
+\setlist[itemize]{leftmargin=2.25cm}
+\graphicspath{{pics/}}
+\DeclareGraphicsExtensions{{.jpg}}
+\usepackage{color, colortbl}
+
+\begin{document}
+    %\include{titlepage}
+
+    \tableofcontents
+    \clearpage
+
+    \include{part1}
+    \include{bible}
+
+\clearpage
+\end{document}

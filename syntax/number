@@ -1,0 +1,8 @@
+fdigit  ::= '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'.
+digit   ::= '0' | fdigit.
+hexd    ::= 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'a' | 'b' | 'c' | 'd' | 'e' | 'f'.
+dec     ::= '0' | (fdigit digit*).
+hex     ::= '0x' ('0' | (fdigit | hexd) (digit | hexd)*).
+pow     ::= 'e' ( '+' | '-' )? dec.
+real    ::= dec '.' digit+ pow?.
+number  ::= '+inf' | '-inf' | dec | hex | real.
