@@ -4,3 +4,6 @@ lactose*
 langs*
 qrcs*
 r5rs*
+python/
+tz/*
+*.scm~
