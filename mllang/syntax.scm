@@ -2,29 +2,72 @@
 (define T-COORDS 1)
 (define T-VALUE 2)
 
-(define tokens '(#(tag-sym (2 1) "day-of-week")
-                 #(tag-num (2 13) 555)
-                 #(tag-lbrk (2 17) "month")
-                 #(tag-rbrk (2 23) "year")
-                 #(tag-end (2 27) "eof")))
+(define ERROR_NO_FUNC_BODY "there is no body")
+(define ERROR_NO_EOF       "no end of file")
+
+(define-syntax neq?
+  (syntax-rules ()
+    ((_ x y) (not (eqv? x y)))))
+
+(define tokens '(#(tag-sym #(2 1) "day-of-week")
+                 #(tag-sym #(2 13) "day")
+                 #(tag-sym #(2 17) "month")
+                 #(tag-sym #(2 23) "year")
+                 #(tag-to #(2 28) "<-")
+                 #(tag-sym #(3 5) "a")
+                 #(tag-to #(3 7) "<-")
+                 #(tag-sym #(4 5) "e")
+                 #(tag-end #(2 27) "eof")))
 
 (define (get-token)
-  (let ((token (car tokens)))
-    (set! tokens (cdr tokens))
-    token))
+  (if (null? tokens)
+      #(tag-end #(2 27) "eof")
+      (let ((token (car tokens)))
+        (set! tokens (cdr tokens))
+        token)))
 
-(define syntax-program
+(define (get-token-tag token)
+  (vector-ref token T-TAG))
+
+(define (get-token-coords token)
+  (vector-ref token T-COORDS))
+
+(define (get-token-value token)
+  (vector-ref token T-VALUE))
+
+(define syntax
   (let ((errors '())
         (token (get-token))
         (ast '()))
     (lambda ()
+      
+      (define (add-error error-type)
+        (set! errors
+              (cons (vector 'error: (get-token-coords token) '- error-type)
+                    errors))
+        '())
+      
+      (define (add-error-rule rule)
+        (set! errors
+              (cons (vector 'error: (get-token-coords token) '- 'expected `,rule)
+                    errors))
+        '())
+      
+      (define (print-errors)
+        (if (null? errors)
+            (display "SYNTAX OK!")
+            (begin (display "SYNTAX ERRORS:")
+                   (newline)
+                   (display errors)))
+        (newline)
+        (newline))
       
       (define (next-token)
         (set! token (get-token)))
       
       (define (is-type? . types)
         (and (not (null? types))
-             (or (eqv? (vector-ref token T-TAG) (car types))
+             (or (eqv? (get-token-tag token) (car types))
                  (apply is-type? (cdr types)))))
       
       (define (syntax-rule? rule)
@@ -38,11 +81,22 @@
                 (reverse ast-list))))
         (helper '()))
       
+      (define (syntax-rule+ rule)
+        (define (helper ast-list)
+          (let ((ast-elem (rule)))
+            (if ast-elem
+                (helper (cons ast-elem ast-list))
+                (reverse ast-list))))
+        
+        (let ((first (rule)))
+          (and first
+               (cons first (helper '())))))
+      
       (define (simple-rule rule-name . tags)
         (let ((t token))
           (and (apply is-type? tags)
                (next-token)
-               `(,rule-name ,t))))
+               (vector `,rule-name `,t))))
       
       (define (syntax-array-simple)
         (define ast-list '())
@@ -54,14 +108,14 @@
                      (and last-rule
                           (set! ast-list (append ast-list (list last-rule)))))
                    (add-error ERR_NO_CLOSE_BRK))
-               (list 'array-simple ast-list))))
+               (vector 'array-simple ast-list))))
       
       (define (syntax-continious)
         (let ((first-rule (simple-rule 'colon 'tag-cln)))
           (and first-rule
                (let ((last-rule (simple-rule 'list 'tag-sym)))
-                 (list 'continious
-                       (list first-rule last-rule))))))
+                 (vector 'continious
+                         (list first-rule last-rule))))))
       
       (define (syntax-arg-continious)
         (let ((cont (syntax-continious)))
@@ -71,10 +125,11 @@
                (set! ast-list (list cont)))))
       
       (define (syntax-argument)
-        (let ((arg (or (simple-rule 'simple-argument 'tag-num 'tag-sym)
-                       (syntax-array-simple)
-                       (syntax-arg-continious))))
-          (and arg (list 'argument arg))))
+        (let* ((arg (or (simple-rule 'simple-argument 'tag-num 'tag-sym)
+                        (syntax-array-simple)
+                        (syntax-arg-continious)))
+               (larg (if (list? arg) arg (list arg))))
+          (and arg (vector 'argument larg))))
       
       (define (syntax-arguments)
         (define (helper ast-list)
@@ -86,25 +141,36 @@
       (define (syntax-func-declaration)
         (let ((first-rule (simple-rule 'func-name 'tag-sym)))
           (and first-rule
-               (list 'func-decl
-                     (cons first-rule
-                           (syntax-rule? syntax-arguments))))))
+               (vector 'func-decl
+                       (cons first-rule
+                             (syntax-rule? syntax-arguments))))))
       
-      (define (syntax-rule1 rule)
-        (or (and (symbol? rule)
-                 (eqv? rule (car t))
-                 s)
-            (rule)))
+      (define (syntax-func-body)
+        (let ((first-rule (simple-rule 'func-to 'tag-to)))
+          (and first-rule
+               (cons first-rule
+                     (or (syntax-rule+ syntax-program)
+                         (add-error ERROR_NO_FUNC_BODY))))))
       
-      (define (syntax-def-func ast)
-        (and (syntax-rule1 'tag-sym)
-             (syntax-rule* arg)
-             (syntax-rule1 'tag-to)
-             (syntax-rule+ expr)))
+      (define (syntax-expr)
+        (and (neq? (get-token-tag token) 'tag-end)
+             (get-token))
+        #(expr))
       
-      (define (ast-program ast tokens)
-        (or (and ast (null? tokens) (list 'program (reverse ast)))
-            (apply ast-program (or (syntax-def-func ast tokens)
-                                   (syntax-scheme   ast tokens)
-                                   (syntax-expr     ast tokens)))))
-      (syntax-func-declaration))))
+      (define (syntax-program)
+        (let ((func-decl (syntax-func-declaration)))
+          (or (and func-decl
+                   (let ((func-body (syntax-func-body)))
+                     (or (and func-body
+                              (vector 'func-def
+                                      (cons func-decl func-body)))
+                         (syntax-expr))))
+              (syntax-expr))))
+      
+      ; (syntax-rule+ syntax-program)
+      ; (syntax-func-declaration)
+      (let ((ast (syntax-program)))
+        (and (neq? (get-token-tag token) 'tag-end)
+             (add-error ERROR_NOT_EOF))
+        (print-errors)
+        ast))))
