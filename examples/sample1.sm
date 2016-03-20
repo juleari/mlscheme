@@ -1,11 +1,11 @@
 ; count days of week
 day-of-week day month year <-
-    a <- (14 - month) mod 12
-    b <- year - a
+    a <- (14 - month) // 12
+    y <- year - a
     m <- month + (a * 12) - 2
 
-    (7000 + day + y + (y mod 4) + (y mod 400) + (31 * m mod 12) 
-        - (y mod 100)) div 7
+    (7000 + day + y + (y // 4) + (y // 400) + (31 * m // 12) 
+        - (y // 100)) % 7
 
 ; count x in xs
 count x []         <- 0
