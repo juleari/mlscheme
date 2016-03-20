@@ -6,7 +6,13 @@
 (define T-COORDS 1)
 (define T-VALUE 2)
 
+(define C-LINE 0)
+(define C-POSITION 1)
+
 (define A-NAME 0)
+(define A-RULES 1)
+
+(define R-TOKEN 1)
 
 (define ERROR_NO_FUNC_BODY "there is no body")
 (define ERROR_NO_EOF       "no end of file")
@@ -22,10 +28,11 @@
     ((_ x) (not (null? x)))))
 
 (define (print . xs)
-  (and (not-null? xs)
-       (display (car xs))
-       (newline)
-       (apply print (cdr xs))))
+  (or (and (not-null? xs)
+           (display (car xs))
+           (newline)
+           (apply print (cdr xs)))
+      (newline)))
 
 (define tokens '(#(tag-sym #(2 1) "day-of-week")
                  #(tag-sym #(2 13) "day")
@@ -35,11 +42,11 @@
                  #(tag-sym #(3 5) "a")
                  #(tag-to #(3 7) "<-")
                  #(tag-lprn #(3 10) #\()
-                 #(tag-sym #(3 11) "14")
+                 #(tag-num #(3 11) 14)
                  #(tag-mns #(3 14) "-")
                  #(tag-sym #(3 16) "month")
                  #(tag-rprn #(3 21) #\))
-                 #(tag-kw #(3 23) "mod")
+                 #(tag-div #(3 23) "\\")
                  #(tag-num #(3 27) 12)))
 
 (define (get-token)
@@ -57,6 +64,22 @@
 
 (define (get-token-value token)
   (vector-ref token T-VALUE))
+
+(define (get-token-pos token)
+  (let ((coords (get-token-coords token)))
+    (vector-ref coords C-POSITION)))
+
+(define (get-rule-list ast)
+  (vector-ref ast A-RULES))
+
+(define (get-simple-rule-token rule)
+  (vector-ref rule R-TOKEN))
+
+(define (get-expr-start-pos func-decl)
+  (let* ((rule-list        (get-rule-list func-decl))
+         (func-name-rule   (car rule-list))
+         (func-name-token  (get-simple-rule-token func-name-rule)))
+    (get-token-pos token)))
 
 (define syntax
   (let ((errors '())
@@ -179,23 +202,15 @@
                          (add-error ERROR_NO_FUNC_BODY))))))
       
       (define (syntax-expr . xs-func-decl)
+        ;(print "expr" xs-func-decl)
         (and (neq? (get-token-tag token) 'tag-end)
-             (apply shunting-yard xs-func-decl)))
-      #|      (get-token)
-                 #(expr))
-            (and (not-null? xs-func-decl)
-                 (car xs-func-decl)))|#
+             (if (null? xs-func-decl)
+                 (shunting-yard 0)
+                 (apply shunting-yard xs-func-decl))))
       
-      (define (shunting-yard . out)
+      (define (shunting-yard start . out)
+        ;(print "shunting-yard" out)
         (define stack '())
-        
-        (define (get-name ast)
-          (and (vector? ast)
-               (> (vector-length ast) 0)
-               (vector-ref ast A-NAME)))
-        
-        (define (proc? cur)
-          (eq? (get-name cur) 'func-decl))
         
         (define (op? t)
           (x-in-xs? (get-token-tag t)
@@ -234,6 +249,7 @@
                   (else                                                0))))
         
         (define (try-get)
+          (if (> (get-token-pos token) start)
           (let ((tag  (get-token-tag token))
                 (op   (prior token))
                 (proc (syntax-func-declaration))
@@ -250,7 +266,7 @@
                 (try-get)
                 (and (next-token)
                      (neq? (get-token-tag token) 'tag-end)
-                     (try-get)))))
+                     (try-get))))))
         
         (define (op-before-laren-to-out p)
           (if (not-null? stack)
@@ -282,7 +298,7 @@
         
         (try-get)
         (ops-to-out 0)
-        (reverse out))
+        (vector 'expr (reverse out)))
       
       (define (syntax-program)
         (let ((func-decl (syntax-func-declaration)))
@@ -291,11 +307,9 @@
                      (or (and func-body
                               (vector 'func-def
                                       (cons func-decl func-body)))
-                         (syntax-expr func-decl))))
+                         (syntax-expr (get-expr-start-pos func-decl) func-decl))))
               (syntax-expr))))
       
-      ; (syntax-rule+ syntax-program)
-      ; (syntax-func-declaration)
       (let ((ast (syntax-program)))
         (and (neq? (get-token-tag token) 'tag-end)
              (add-error ERROR_NOT_EOF))
