@@ -23,3 +23,7 @@ tz/*
 *.sm~
 
 examples/sample1.sm~
+
+mllang/build.scm
+
+mllang/runtests.scm
