@@ -8,6 +8,11 @@
 
 (define kw '(scheme mod div if zero? eval))
 
+(define (trim? s)
+  (or (eqv? s #\space)
+      (eqv? s #\newline)
+      (eqv? s #\tab)))
+
 (define (get-cut-tag word)
   (assq word '((#\( tag-lprn)
                (#\) tag-rprn)
@@ -59,65 +64,6 @@
                      (tag-hghr tag-heq)
                      (tag-not  tag-neq)
                      (#f       tag-eq))))))
-
-(define (neq? a b)
-  (not (eq? a b)))
-
-(define (x-not-in-list x xs)
-  (or (null? xs)
-      (and (neq? x (car xs))
-           (x-not-in-list x (cdr xs)))))
-
-(define mod quotient)
-(define div remainder)
-(define ** expt)
-
-(define T-TAG 0)
-(define T-COORDS 1)
-(define T-VALUE 2)
-
-(define C-LINE 0)
-(define C-POSITION 1)
-
-(define-syntax neq?
-  (syntax-rules ()
-    ((_ x y) (not (eqv? x y)))))
-
-(define-syntax not-null?
-  (syntax-rules ()
-    ((_ x) (not (null? x)))))
-
-(define (print . xs)
-  (or (and (not-null? xs)
-           (display (car xs))
-           (newline)
-           (apply print (cdr xs)))
-      (newline)))
-
-(define (get-token-tag token)
-  (vector-ref token T-TAG))
-
-(define (get-token-coords token)
-  (vector-ref token T-COORDS))
-
-(define (get-token-value token)
-  (vector-ref token T-VALUE))
-
-(define (get-token-pos token)
-  (let ((coords (get-token-coords token)))
-    (vector-ref coords C-POSITION)))
-
-(define (set-token-tag token tag)
-  (vector-set! token T-TAG tag)
-  token)
-
-(define (set-token-coords token coords)
-  (vector-set! token T-COORDS coords)
-  token)
-
-(define (set-token-value token value)
-  (vector-set! token T-VALUE value)
-  token)
 
 (define tokenize
   (let ((line 1)
@@ -243,13 +189,6 @@
           (isnumber?)
           (helper (string->list word) (vector #f (vector line position) word))))))
 
-(define (trim? s)
-  (or (eqv? s #\space)
-      (eqv? s #\newline)
-      (eqv? s #\tab)))
-
-(define port (open-input-file "/Users/juleari/Desktop/иу9/диплом/examples/sample1.sm"))
-
 (define (tokenize-file file)
   (define (add-word word words)
     (if (null? word)
@@ -271,5 +210,7 @@
           (tokenize-words (cdr words) (append tokens t)))))
   
   (tokenize-words (reverse (read-words '() '())) '()))
+
+(define port (open-input-file "/Users/juleari/Desktop/иу9/диплом/examples/sample1.sm"))
 
 (define tokens (tokenize-file port))
