@@ -1,0 +1,7 @@
+day-of-week day month year <-
+    a <- (14 - month) // 12
+    y <- year - a
+    m <- month + (a * 12) - 2
+
+    (7000 + day + y + (y // 4) + (y // 400) + (31 * m // 12) 
+        - (y // 100)) % 7
