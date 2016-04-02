@@ -17,17 +17,20 @@ REPLACE_TESTS_OUT= '###TESTS-OUTPUT###'
 PATH_TESTS_IN  = '../tests/in'
 PATH_TESTS_OUT = '../tests/out'
 
-DEFAULT_GENERAL = '../examples/sample1.sm'
-DEFAULT_MODULES = 'build/modules'
-DEFAULT_BUILD   = 'build/compile.scm'
-DEFAULT_TESTS   = 'build/tests.scm'
+DEFAULT_IN     = '../examples/sample1.sm'
+DEFAULT_OUT    = 'build/compile.scm'
+DEFAULT_MODULE = 'build/modules'
+DEFAULT_TESTS  = 'build/tests.scm'
+
+ARG_INDEX = 2
 
 class Arg(object):
     """docstring for Arg"""
-    def __init__(self, name, default):
+    def __init__(self, name, default, many=''):
         super(Arg, self).__init__()
         self.name = name
-        self.default = default
+        self.value = default
+        self.many = many
 
 DESCS = {
     '-g': 'compile path_in file to path_out',
@@ -42,9 +45,8 @@ ARGS = {
     '-m': [ Arg('module_name', DEFAULT_MODULE, '*') ],
     '-t': []
 }
-
 FUNCS = {
-    '-g': 'global_concat',
+    '-g': 'compile_file',
     '-h': 'print_usage',
     '-m': 'module_concat',
     '-t': 'run_tests'
@@ -59,13 +61,16 @@ class CompilerType(object):
         self.args = ARGS[name]
         self.func = FUNCS[name]
 
-    def run(self, args):
-        call_str = '(%s)' % ', '.join(args)
+    def run(self):
+        call_str = '(%s)' % ', '.join(['"' + a.value + '"' for a in self.args])
         eval(self.func + call_str)
 
     def __str__(self):
         args = ' '.join([a.name for a in self.args])
         return '%s %s: %s' % (self.name, args, self.desc)
+
+def get_normal_path(path):
+    return os.path.normpath(os.path.join(os.getcwd(), path))
 
 def get_file_inner(path):
     return open(path).read()
@@ -73,19 +78,22 @@ def get_file_inner(path):
 def get_files_inner(files):
     return map(get_file_inner, files)
 
-def module_concat(compile_):
-    return False
+def get_compile(path):
+    return get_file_inner(PATH_COMPILE).replace(REPLACE_PATH, '\"%s\"' % path)
 
 def global_concat(compile_):
     files = get_files_inner(re.findall(RE_INCLUE, compile_))
     files.append(compile_)
     return '\n\n'.join(files)
 
-def get_normal_path(path):
-    return os.path.normpath(os.path.join(os.getcwd(), path))
+def compile_file(path_in, path_out):
+    compile_ = get_compile( get_normal_path(path_in) )
+    output = open(path_out, 'w')
 
-def get_compile(path):
-    return get_file_inner(PATH_COMPILE).replace(REPLACE_PATH, '\"%s\"' % path)
+    output.write( global_concat(compile_) )
+
+def module_concat(compile_):
+    return False
 
 def get_tests_list(list_dir, path_in=PATH_TESTS_IN):
     return ' '.join(map(
@@ -100,13 +108,12 @@ def get_tests():
                      .replace(REPLACE_TESTS_OUT, get_tests_list(PATH_TESTS_OUT))
 
 def print_usage():
-    print './compiler.py key args\n\n'\
-          'keys:\n' +\
-          '\n'.join['%s %s: %s' % (
+    print 'usage: ./compiler.py <key> <args>\n' +\
+          '\n'.join(['                     %s %s: %s' % (
                 key,
-                ' '.join([a.name for a in ARGS[key]]),
+                ' '.join(['<' + a.name + '>' for a in ARGS[key]]),
                 DESCS[key]
-            ) for key in KEYS]
+            ) for key in KEYS])
 
 def run_tests(compile_):
     tests = get_tests()
@@ -114,28 +121,22 @@ def run_tests(compile_):
     files.append(tests)
     return '\n\n'.join(files)
 
-KEYS = ['-g', '-m', '-t', '-h']
+KEYS = ['-h', '-g', '-m', '-t']
 
 def main():
-    type = sys.argv[1]
+    argv = sys.argv
+    num_of_args = len(argv)
+
+    type = '' if num_of_args == 1 else argv[1]
 
     if type in KEYS:
         compiler = CompilerType(type)
+        for i in range(ARG_INDEX, num_of_args):
+            compiler.args[i - ARG_INDEX].value = argv[i]
+
+        compiler.run()
     else:
         print_usage()
-"""
-    path_to_file = get_normal_path(sys.argv[2])
 
-    path_build = path_to_file if type == '-t' else \
-                 PATH_BUILD if len(sys.argv) == 3 else sys.argv[3]
-
-    compile_ = get_compile(path_to_file)
-
-    build = open(path_build, 'w')
-    if type in KEYS:
-        build.write(KEYS[ type ](compile_))
-    else:
-        print_usage()
-"""
 if __name__ == '__main__':
-    main()
+    main();

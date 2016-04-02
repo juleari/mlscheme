@@ -29,3 +29,5 @@ mllang/build.scm
 mllang/runtests.scm
 
 tests/out/*
+
+mllang/build/*
