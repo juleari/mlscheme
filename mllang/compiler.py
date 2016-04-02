@@ -17,6 +17,56 @@ REPLACE_TESTS_OUT= '###TESTS-OUTPUT###'
 PATH_TESTS_IN  = '../tests/in'
 PATH_TESTS_OUT = '../tests/out'
 
+DEFAULT_GENERAL = '../examples/sample1.sm'
+DEFAULT_MODULES = 'build/modules'
+DEFAULT_BUILD   = 'build/compile.scm'
+DEFAULT_TESTS   = 'build/tests.scm'
+
+class Arg(object):
+    """docstring for Arg"""
+    def __init__(self, name, default):
+        super(Arg, self).__init__()
+        self.name = name
+        self.default = default
+
+DESCS = {
+    '-g': 'compile path_in file to path_out',
+    '-h': 'help',
+    '-m': 'make modules',
+    '-t': 'run tests'
+}
+ARGS = {
+    '-g': [ Arg('path_in', DEFAULT_IN),
+            Arg('path_out', DEFAULT_OUT) ],
+    '-h': [],
+    '-m': [ Arg('module_name', DEFAULT_MODULE, '*') ],
+    '-t': []
+}
+
+FUNCS = {
+    '-g': 'global_concat',
+    '-h': 'print_usage',
+    '-m': 'module_concat',
+    '-t': 'run_tests'
+}
+
+class CompilerType(object):
+    """description, args, func for CompilerType"""
+    def __init__(self, name):
+        super(CompilerType, self).__init__()
+        self.name = name
+        self.desc = DESCS[name]
+        self.args = ARGS[name]
+        self.func = FUNCS[name]
+
+    def run(self, args):
+        call_str = '(%s)' % ', '.join(args)
+        eval(self.func + call_str)
+
+    def __str__(self):
+        args = ' '.join([a.name for a in self.args])
+        return '%s %s: %s' % (self.name, args, self.desc)
+
 def get_file_inner(path):
     return open(path).read()
 
@@ -49,28 +99,43 @@ def get_tests():
     return tests_file.replace(REPLACE_TESTS_IN, get_tests_list(PATH_TESTS_IN))\
                      .replace(REPLACE_TESTS_OUT, get_tests_list(PATH_TESTS_OUT))
 
+def print_usage():
+    print './compiler.py key args\n\n'\
+          'keys:\n' +\
+          '\n'.join['%s %s: %s' % (
+                key,
+                ' '.join([a.name for a in ARGS[key]]),
+                DESCS[key]
+            ) for key in KEYS]
+
 def run_tests(compile_):
     tests = get_tests()
     files = get_files_inner(re.findall(RE_INCLUE, compile_))
     files.append(tests)
     return '\n\n'.join(files)
 
-KEYS = {
-    '-g': global_concat,
-    '-m': module_concat,
-    '-t': run_tests
-}
+KEYS = ['-g', '-m', '-t', '-h']
 
 def main():
     type = sys.argv[1]
+
+    if type in KEYS:
+        compiler = CompilerType(type)
+    else:
+        print_usage()
+"""
     path_to_file = get_normal_path(sys.argv[2])
 
-    path_build = PATH_BUILD if len(sys.argv) == 3 else sys.argv[3]
+    path_build = path_to_file if type == '-t' else \
+                 PATH_BUILD if len(sys.argv) == 3 else sys.argv[3]
 
     compile_ = get_compile(path_to_file)
 
     build = open(path_build, 'w')
-    build.write(KEYS[ type ](compile_))
-
+    if type in KEYS:
+        build.write(KEYS[ type ](compile_))
+    else:
+        print_usage()
+"""
 if __name__ == '__main__':
     main()
