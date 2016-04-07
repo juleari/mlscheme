@@ -15,6 +15,7 @@
 (define A-NAME 0)
 (define A-RULES 1)
 
+(define R-NAME 0)
 (define R-TOKEN 1)
 
 (define ERROR_NO_FUNC_BODY   "no expression in body")

@@ -71,3 +71,28 @@
         ((list? x)   (list-to-string x))
         ((vector? x) (vect-to-string x))
         (else        x)))
+
+(define (get-true-expr)
+  #(expr (#(tag-true #(0 0) "#t"))))
+
+(define (get-token)
+  (if (null? tokens)
+      #(tag-end #(2 27) "eof")
+      (let ((token (car tokens)))
+        (set! tokens (cdr tokens))
+        token)))
+
+(define (get-rule-list ast)
+  (vector-ref ast A-RULES))
+
+(define (get-simple-rule-token rule)
+  (vector-ref rule R-TOKEN))
+
+(define (get-simple-start-pos rule)
+  (let ((func-name-token (get-simple-rule-token rule)))
+    (get-token-pos func-name-token)))
+
+(define (get-expr-start-pos func-decl)
+  (let* ((rule-list        (get-rule-list func-decl))
+         (func-name-rule   (car rule-list)))
+    (get-simple-start-pos func-name-rule)))
