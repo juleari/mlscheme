@@ -17,6 +17,7 @@
 
 (define R-NAME 0)
 (define R-TOKEN 1)
+(define R-TERMS 1)
 
 (define ERROR_NO_FUNC_BODY   "no expression in body")
 (define ERROR_NO_EOF         "no end of file")
@@ -26,3 +27,14 @@
 (define ERROR_NO_IF_ACT      "no expression in if")
 (define ERR_AFTER_CONTINIOUS "uncorrect after continious")
 (define ERR_NO_CONTINIOUS    "no continious")
+
+(define TYPE-ARGS 0)
+(define TYPE-ARGS-NUM 0)
+(define TYPE-ARGS-CHECK 1)
+(define TYPE-ARGS-NAMES 2)
+(define TYPE-DEFS 1)
+(define TYPE-EXPRS 2)
+(define TYPE-ARGS-NAMES 2)
+
+(define ERROR_NUM_OF_ARGS "the expected number of arguments does not match the given number")
+(define ERROR_UNDEFINED_VARIABLE "cannot reference undefined identifier")

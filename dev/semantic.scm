@@ -232,6 +232,11 @@
         alist
         (helper (cdr xs) (cons (list (car xs) (make-arg-type)) alist))))
   (helper xs '()))
+
+(define (remove-first n xs)
+  (if (zero? n)
+      xs
+      (remove-first (- n 1) (cdr xs))))
 ;; end lib
 
 #|
@@ -265,8 +270,9 @@
         (newline))
       
       (define (semantic-func-body func-def-terms names-of-args model)
-        (let ((b-list (cddr func-def-terms)))
-          (semantic-program b-list (cons (make-alist names-of-args) model) '())))
+        (let* ((b-list (cddr func-def-terms))
+               (body (semantic-program b-list (cons (make-alist names-of-args) model) '())))
+          (cons (remove-first (length names-of-args) (car body)) (cdr body))))
       
       (define (semantic-func-def func-def-terms model)
         (let* ((func-decl (car func-def-terms))

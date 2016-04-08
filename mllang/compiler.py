@@ -17,7 +17,7 @@ REPLACE_TESTS_OUT= '###TESTS-OUTPUT###'
 PATH_TESTS_IN  = '../tests/in'
 PATH_TESTS_OUT = '../tests/out'
 
-DEFAULT_IN     = '../examples/sample1.sm'
+DEFAULT_IN     = '../examples/1.sm'
 DEFAULT_OUT    = 'build/compile.scm'
 DEFAULT_MODULE = 'build/modules'
 DEFAULT_TESTS  = 'build/tests.scm'
