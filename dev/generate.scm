@@ -115,6 +115,26 @@
                             (cddr stack))
                       s)))))
   (helper '() xs))
+  
+(define (is-variable types)
+  (and (eq? (length types) 1)
+       (zero? (length (get-args-names-from-type (car types))))))
+       
+(define (generate-let-var name exprs inner)
+  `(let-rec ((,name ,exprs))
+     ,inner))
+  
+(define (generate-let defs exprs)
+  (if (null? defs)
+      exprs
+      (let* ((def (car defs))
+             (name (string->symbol (car def)))
+             (types (cdr def)))
+        (if (is-variable types)
+            (generate-let-var name
+                              (get-exprs-from-type (car type))
+                              (generate-let (cdr defs) exprs))
+            (generate-let-func name types (generate-let (cdr defs) exprs))))))
 
 (define (generate-def def)
   (let* ((name (string->symbol (car def)))
@@ -123,8 +143,10 @@
               (cond ,(map (lambda (type)
                             `(and (,(get-args-num-from-type type) (length :args))
                                   (,(hash (get-args-check-from-type type) :args)))
-                            (lambda ,(to-sym (get-args-names-from-type type))
-                              ())))
+                            ((lambda ,(to-sym (get-args-names-from-type type))
+                               (generate-let (get-defs-from-type type)
+                                             ,(map generate-expr (get-exprs-from-type type))))
+                             :args)))
                           types)))))
 
 (define (generate-defs defs)
