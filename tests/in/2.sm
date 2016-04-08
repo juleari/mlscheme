@@ -1,0 +1,4 @@
+; count x in xs
+count x []         <- 0
+count x [ x : xs ] <- 1 + count x xs
+count x [ y : xs ] <- count x xs
