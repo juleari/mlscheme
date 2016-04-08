@@ -85,6 +85,9 @@
 
 (define (get-args-names-from-type type)
   (vector-ref (get-args-from-type type) TYPE-ARGS-NAMES))
+  
+(define (get-args-check-from-type type)
+  (vector-ref (get-args-from-type type) TYPE-ARGS-CHECK))
 
 (define (to-sym xs)
   (map string->symbol xs))
@@ -92,6 +95,11 @@
 (define (multy-apply funcs arrs)
   (or (null? funcs)
       (cons ((car funcs) (car arrs)) (multy-apply (cdr funcs) (cdr arrs)))))
+      
+(define (hash f-list a-list)
+  (or (null? f-list)
+      (and ((car f-list) (car a-list))
+           (hash (cdr f-list) (cdr a-list)))))
 ;; end lib
 
 (define (calc-rpn xs)
@@ -114,10 +122,10 @@
     (write `(define (,name . :args)
               (cond ,(map (lambda (type)
                             `(and (,(get-args-num-from-type type) (length :args))
-                                  (,()))
+                                  (,(hash (get-args-check-from-type type) :args)))
                             (lambda ,(to-sym (get-args-names-from-type type))
                               ())))
-                          types))))))
+                          types)))))
 
 (define (generate-defs defs)
   (map generate-def defs))
