@@ -1,0 +1,3 @@
+fub [0 : xs] <- [1 : fub xs]
+fub [x : xs] <- [x : fub xs]
+fub [] <- []
