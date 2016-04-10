@@ -55,6 +55,7 @@
                 (cdr model))))
       
       (define (semantic-func-call name-token args func-types)
+        (print 'semantic-func-call name-token args)
         (let* ((name (get-token-value name-token))
                (arg-len (length args))
                (correct-types (filter (lambda (type)
@@ -64,7 +65,7 @@
                    (add-error ERROR_NUM_OF_ARGS name-token))
               (and (zero? arg-len)
                    name)
-              (cons name (map get-simple-arg-name args)))))
+              (cons name (map get-name-of-arg args)))))
       
       (define (semantic-var func-decl-terms model)
         (let* ((s-rule (car func-decl-terms))
@@ -85,6 +86,7 @@
               (get-token-value elem))))
       
       (define (semantic-expr terms model)
+        ;(print terms)
         (map (lambda (x) (semantic-expr-elem x model)) terms))
       
       (define (semantic-program ast model exprs)
