@@ -72,6 +72,10 @@
         ((vector? x) (vect-to-string x))
         (else        x)))
 
+(define (toSymb x)
+  (cond ((string? x) (string->symbol x))
+        (else        x)))
+
 (define (get-true-expr)
   #(expr (#(tag-true #(0 0) "#t"))))
 

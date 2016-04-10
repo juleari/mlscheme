@@ -10,7 +10,9 @@
                   (helper (cons `(,(string->symbol x) ,(cadr stack) ,(car stack))
                                 (cddr stack))
                           s)
-                  (helper (cons (string->symbol x) stack) s))))))
+                  (if (list? x)
+                      (helper (cons (map toSymb x) stack) s)
+                      (helper (cons (string->symbol x) stack) s)))))))
   (helper '() xs))
 
 (define (is-variable types)
@@ -73,6 +75,14 @@
 (define (generate-defs defs)
   (map generate-def defs))
 
+(define (calc-expr expr)
+  (eval-i (generate-expr expr)))
+
+(define (calc-exprs exprs)
+  (map calc-expr exprs))
+
 (define (generate model)
-  (let* ((defs (car model)))
-    (generate-defs defs)))
+  (let* ((defs (car model))
+         (exprs (cadr model)))
+    (generate-defs defs)
+    (calc-exprs exprs)))

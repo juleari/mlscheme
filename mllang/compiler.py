@@ -18,9 +18,10 @@ PATH_TESTS_IN  = '../tests/in'
 PATH_TESTS_OUT = '../tests/out'
 
 DEFAULT_IN     = '../examples/1.sm'
+DEFAULT_OUT_DIR= 'build'
 DEFAULT_OUT    = 'build/compile.scm'
-DEFAULT_MODULE = 'build/modules'
-DEFAULT_TESTS  = 'build/tests.scm'
+DEFAULT_MODULE = 'modules'
+DEFAULT_TESTS  = 'tests.scm'
 
 ARG_INDEX = 2
 

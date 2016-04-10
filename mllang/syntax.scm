@@ -205,7 +205,7 @@
         (let ((start-pos (car args)))
           (if (eq? (get-token-tag token) 'tag-end)
               (and (not-null? (cdr args))
-                   (vector 'expr (cadr args)))
+                   (vector 'expr (list (cadr args))))
               (or (let ((arr (syntax-array-simple start-pos)))
                     ;(print "arr" arr)
                     (and (not-null? arr)

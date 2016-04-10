@@ -7,4 +7,7 @@ day-of-week day month year <-
     (7000 + day + y + (y // 4) + (y // 400) + (31 * m // 12) 
         - (y // 100)) % 7
 
+day-of-week 17 5 2016
 day-of-week 10 4 2016
+day-of-week 29 3 2016
+day-of-week 20 4 2016

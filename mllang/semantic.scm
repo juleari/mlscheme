@@ -55,7 +55,7 @@
                 (cdr model))))
       
       (define (semantic-func-call name-token args func-types)
-        (print 'semantic-func-call name-token args)
+        ;(print 'semantic-func-call name-token args)
         (let* ((name (get-token-value name-token))
                (arg-len (length args))
                (correct-types (filter (lambda (type)
