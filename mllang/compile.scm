@@ -3,8 +3,10 @@
 ;(import "lexer.scm")
 ;(import "syntax.scm")
 ;(import "semantic.scm")
+;(import "generate.scm")
 
 (define port (open-input-file ###PATH-TO-INPUT-FILE###))
 (define tokens (tokenize-file port))
 (define ast (syntax))
-(semantic ast)
+(define model (semantic ast))
+(generate model)
