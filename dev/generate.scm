@@ -67,6 +67,9 @@
 ;; end defs
 
 ;; lib
+(define (// a b) (quotient a b))
+(define (% a b) (remainder a b))
+
 (define-syntax eval-i
   (syntax-rules ()
     ((_ x) (eval x (interaction-environment)))))
@@ -86,12 +89,48 @@
 (define (get-args-names-from-type type)
   (vector-ref (get-args-from-type type) TYPE-ARGS-NAMES))
 
+(define (get-args-check-from-type type)
+  (vector-ref (get-args-from-type type) TYPE-ARGS-CHECK))
+
+(define (get-defs-from-type type)
+  (vector-ref type TYPE-DEFS))
+
+(define (get-exprs-from-type type)
+  (vector-ref type TYPE-EXPRS))
+
 (define (to-sym xs)
   (map string->symbol xs))
 
 (define (multy-apply funcs arrs)
   (or (null? funcs)
       (cons ((car funcs) (car arrs)) (multy-apply (cdr funcs) (cdr arrs)))))
+
+(define (hash f-list a-list)
+  (or (null? f-list)
+      (and ((car f-list) (car a-list))
+           (hash (cdr f-list) (cdr a-list)))))
+
+(define-syntax not-null?
+  (syntax-rules ()
+    ((_ x) (not (null? x)))))
+
+(define (print . xs)
+  (or (and (not-null? xs)
+           (display (car xs))
+           (newline)
+           (apply print (cdr xs)))
+      (newline)))
+
+(define (op? t)
+  (x-in-xs? t "+" "-" "/" "%" "*" "//"))
+
+(define (x-in-xs? x . xs)
+  (and (not-null? xs)
+       (or (eqv? x (car xs))
+           (apply x-in-xs? (cons x (cdr xs))))))
+
+(define (is-str-op? s)
+  (procedure? (eval-i (string->symbol s))))
 ;; end lib
 
 (define (calc-rpn xs)
@@ -102,21 +141,49 @@
               (s (cdr xs)))
           (if (number? x)
               (helper (cons x stack) s)
-              (helper (cons (eval `(,x ,(cadr stack) ,(car stack))
-                                  (interaction-environment))
-                            (cddr stack))
-                      s)))))
+              (if (op? x)
+                  (helper (cons `(,(string->symbol x) ,(cadr stack) ,(car stack))
+                                (cddr stack))
+                          s)
+                  (helper (cons (string->symbol x) stack) s))))))
   (helper '() xs))
+
+(define (is-variable types)
+  (and (eq? (length types) 1)
+       (zero? (length (get-args-names-from-type (car types))))))
+
+(define (generate-let-var name exprs inner)
+  ;(print name exprs)
+  `(letrec ((,name ,(calc-rpn (car exprs))))
+            ,inner))
+
+(define (generate-let defs type)
+  (if (null? defs)
+      (cons 'begin
+            (map generate-expr (get-exprs-from-type type)))
+      (let* ((def (car defs))
+             (name (string->symbol (car def)))
+             (types (cdr def)))
+        (if (is-variable types)
+            (generate-let-var name
+                              (get-exprs-from-type (car types))
+                              (generate-let (cdr defs) type))
+            (generate-let-func name types (generate-let (cdr defs) type))))))
+
+(define (generate-expr expr)
+  (calc-rpn expr))
 
 (define (generate-def def)
   (let* ((name (string->symbol (car def)))
          (types (cdr def)))
-    (write `(define (,name . :args)
+    (eval-i `(define (,name . :args)
               (cond ,(map (lambda (type)
                             `(and (,(get-args-num-from-type type) (length :args))
-                                  (,()))
-                            (lambda ,(to-sym (get-args-names-from-type type))
-                              ())))
+                                  ((hash (get-args-check-from-type type) :args)))
+                            `(apply (lambda ,(to-sym (get-args-names-from-type type))
+                                ,(generate-let (get-defs-from-type type)
+                                               type))
+                              :args))
                           types))))))
 
 (define (generate-defs defs)
