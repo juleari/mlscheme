@@ -88,6 +88,9 @@
 
 (define (get-args-names-from-type type)
   (vector-ref (get-args-from-type type) TYPE-ARGS-NAMES))
+  
+(define (get-args-check-from-type type)
+  (vector-ref (get-args-from-type type) TYPE-ARGS-CHECK))
 
 (define (get-args-check-from-type type)
   (vector-ref (get-args-from-type type) TYPE-ARGS-CHECK))
@@ -101,14 +104,12 @@
 (define (to-sym xs)
   (map string->symbol xs))
 
-(define (multy-apply funcs arrs)
-  (or (null? funcs)
-      (cons ((car funcs) (car arrs)) (multy-apply (cdr funcs) (cdr arrs)))))
 
 (define (hash f-list a-list)
   (or (null? f-list)
       (and ((car f-list) (car a-list))
            (hash (cdr f-list) (cdr a-list)))))
+
 
 (define-syntax not-null?
   (syntax-rules ()
@@ -121,7 +122,7 @@
            (apply print (cdr xs)))
       (newline)))
 
-(define (op? t)
+(define (is-op? t)
   (x-in-xs? t "+" "-" "/" "%" "*" "//"))
 
 (define (x-in-xs? x . xs)
@@ -131,17 +132,20 @@
 
 (define (is-str-op? s)
   (procedure? (eval-i (string->symbol s))))
+
 ;; end lib
 
 (define (calc-rpn xs)
   (define (helper stack xs)
+    ;(print stack xs)
     (if (null? xs)
         (car stack)
         (let ((x (car xs))
               (s (cdr xs)))
+          ;(print x (string? x) (list x) (is-op? x))
           (if (number? x)
               (helper (cons x stack) s)
-              (if (op? x)
+              (if (is-op? x)
                   (helper (cons `(,(string->symbol x) ,(cadr stack) ,(car stack))
                                 (cddr stack))
                           s)
@@ -153,9 +157,29 @@
        (zero? (length (get-args-names-from-type (car types))))))
 
 (define (generate-let-var name exprs inner)
+  `(letrec ((,name ,exprs))
+     ,inner))
+
+(define (generate-let defs exprs)
+  (if (null? defs)
+      exprs
+      (let* ((def (car defs))
+             (name (string->symbol (car def)))
+             (types (cdr def)))
+        (if (is-variable types)
+            (generate-let-var name
+                              (get-exprs-from-type (car type))
+                              (generate-let (cdr defs) exprs))
+            (generate-let-func name types (generate-let (cdr defs) exprs))))))
+
+(define (is-variable types)
+  (and (eq? (length types) 1)
+       (zero? (length (get-args-names-from-type (car types))))))
+
+(define (generate-let-var name exprs inner)
   ;(print name exprs)
   `(letrec ((,name ,(calc-rpn (car exprs))))
-            ,inner))
+     ,inner))
 
 (define (generate-let defs type)
   (if (null? defs)
@@ -178,12 +202,12 @@
          (types (cdr def)))
     (eval-i `(define (,name . :args)
               (cond ,(map (lambda (type)
-                            `(and (,(get-args-num-from-type type) (length :args))
-                                  ((hash (get-args-check-from-type type) :args)))
-                            `(apply (lambda ,(to-sym (get-args-names-from-type type))
-                                ,(generate-let (get-defs-from-type type)
-                                               type))
-                              :args))
+                            `(and (and (,(get-args-num-from-type type) (length :args))
+                                       (hash ',(get-args-check-from-type type) :args))
+                                  (apply (lambda ,(to-sym (get-args-names-from-type type))
+                                           ,(generate-let (get-defs-from-type type)
+                                                          type))
+                                         :args)))
                           types))))))
 
 (define (generate-defs defs)
