@@ -244,3 +244,69 @@
   (if (zero? n)
       xs
       (remove-first (- n 1) (cdr xs))))
+
+(define (// a b) (quotient a b))
+(define (% a b) (remainder a b))
+
+(define-syntax eval-i
+  (syntax-rules ()
+    ((_ x) (eval x (interaction-environment)))))
+
+(define (get-rule-name rule)
+  (vector-ref rule R-NAME))
+
+(define (get-rule-terms rule)
+  (vector-ref rule R-TERMS))
+
+(define (get-args-from-type type)
+  (vector-ref type TYPE-ARGS))
+
+(define (get-args-num-from-type type)
+  (vector-ref (get-args-from-type type) TYPE-ARGS-NUM))
+
+(define (get-args-names-from-type type)
+  (vector-ref (get-args-from-type type) TYPE-ARGS-NAMES))
+  
+(define (get-args-check-from-type type)
+  (vector-ref (get-args-from-type type) TYPE-ARGS-CHECK))
+
+(define (get-args-check-from-type type)
+  (vector-ref (get-args-from-type type) TYPE-ARGS-CHECK))
+
+(define (get-defs-from-type type)
+  (vector-ref type TYPE-DEFS))
+
+(define (get-exprs-from-type type)
+  (vector-ref type TYPE-EXPRS))
+
+(define (to-sym xs)
+  (map string->symbol xs))
+
+
+(define (hash f-list a-list)
+  (or (null? f-list)
+      (and ((car f-list) (car a-list))
+           (hash (cdr f-list) (cdr a-list)))))
+
+
+(define-syntax not-null?
+  (syntax-rules ()
+    ((_ x) (not (null? x)))))
+
+(define (print . xs)
+  (or (and (not-null? xs)
+           (display (car xs))
+           (newline)
+           (apply print (cdr xs)))
+      (newline)))
+
+(define (is-op? t)
+  (op-in-xs? t "+" "-" "/" "%" "*" "//"))
+
+(define (op-in-xs? x . xs)
+  (and (not-null? xs)
+       (or (equal? x (car xs))
+           (apply op-in-xs? (cons x (cdr xs))))))
+
+(define (is-str-op? s)
+  (procedure? (eval-i (string->symbol s))))
