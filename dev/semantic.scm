@@ -237,6 +237,24 @@
   (if (zero? n)
       xs
       (remove-first (- n 1) (cdr xs))))
+;; new lib
+(define (compare-args arg1 arg2)
+  ())
+
+(define (find-similar-in-args args)
+  (let* ((len (length args))
+         (vec (list->vector args))
+         (similar '())
+         (ind-source 0)
+         (ind-target 1)
+         (get-arg (lambda (ind) (vector-ref vec ind))))
+    (letrec ((helper ind-source ind-target similar))
+      (or (and (eq? ind-source len) similar)
+          (and (>= ind-target len)
+               (helper (+ 1 ind-source) (+ 2 ind-target) similar))
+          (helper ind-source (+ 1 ind-target) (cons (compare-args (get-arg ind-target)
+                                                                  (get-arg ind-source))
+                                                    similar))))))
 ;; end lib
 
 #|
