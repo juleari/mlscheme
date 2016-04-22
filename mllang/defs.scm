@@ -1,9 +1,12 @@
 (define TAB 4)
 (define TAB1 (- TAB 1))
 
-(define % quotient)
-(define // remainder)
+(define // quotient)
+(define % remainder)
 (define ** expt)
+
+(define ARGS-CAN-BE-FUNCS #t)
+(define ARGS-CANT-BE-FUNCS #f)
 
 (define T-TAG 0)
 (define T-COORDS 1)
@@ -25,8 +28,8 @@
 (define ERROR_EXPR           "expr is not correct")
 (define ERROR_NO_IF_CONDS    "no conditions in if")
 (define ERROR_NO_IF_ACT      "no expression in if")
-(define ERR_AFTER_CONTINIOUS "uncorrect after continious")
-(define ERR_NO_CONTINIOUS    "no continious")
+(define ERR_AFTER_CONTINUOUS "uncorrect after continuous")
+(define ERR_NO_CONTINUOUS    "no continuous")
 
 (define TYPE-ARGS 0)
 (define TYPE-ARGS-NUM 0)

@@ -172,14 +172,20 @@
                     ((eqv? w #\space)   '())
                     ((eqv? w #\;)       (and (set! iscomment #t)
                                              '()))
-                    (sont               (sym-or-new-tag s token (cadr sont)))
-                    (ssont              (sym-old-or-new-tag s token (cadr ssont)))
+                    (sont               (sym-or-new-tag s
+                                                        token 
+                                                        (cadr sont)))
+                    (ssont              (sym-old-or-new-tag s
+                                                            token
+                                                            (cadr ssont)))
                     (ctag               (cut-by-tag w s token (cadr ctag)))
-                    (else               (helper s (set-token-tag token 'tag-sym)))))))
+                    (else               (helper s (set-token-tag token 
+                                                                 'tag-sym)))))))
       
       (or (iskw?)
           (isnumber?)
-          (helper (string->list word) (vector #f (vector line position) word))))))
+          (helper (string->list word)
+                  (vector #f (vector line position) word))))))
 
 (define (tokenize-file file)
   (define (add-word word words)

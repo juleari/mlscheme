@@ -101,17 +101,6 @@
          (func-name-rule   (car rule-list)))
     (get-simple-start-pos func-name-rule)))
 
-(define-syntax not-null?
-  (syntax-rules ()
-    ((_ x) (not (null? x)))))
-
-(define (print . xs)
-  (or (and (not-null? xs)
-           (display (car xs))
-           (newline)
-           (apply print (cdr xs)))
-      (newline)))
-
 (define-syntax cdns
   (syntax-rules ()
     ((_ x xs) (append xs (list x)))))
@@ -123,15 +112,6 @@
         (if (pred? x)
             (cons x (filter pred? (cdr xs)))
             (filter pred? (cdr xs))))))
-
-(define (get-token-tag token)
-  (vector-ref token T-TAG))
-
-(define (get-token-coords token)
-  (vector-ref token T-COORDS))
-
-(define (get-token-value token)
-  (vector-ref token T-VALUE))
 
 (define (get-rule-name rule)
   (vector-ref rule R-NAME))
@@ -167,7 +147,8 @@
   (let* ((terms (get-rule-terms arg-rule))
          (first-term (car terms))
          (first-type (get-rule-name first-term)))
-    (cond ((eq? first-type 'simple-argument) (get-simple-arg-type first-term)))))
+    (cond ((eq? first-type 'simple-argument) 
+           (get-simple-arg-type first-term)))))
 
 (define (get-types-of-args func-args)
   (map get-type-of-arg func-args))
@@ -176,7 +157,8 @@
   (let* ((terms (get-rule-terms arg-rule))
          (first-term (car terms))
          (first-type (get-rule-name first-term)))
-    (cond ((eq? first-type 'simple-argument) (get-simple-arg-name first-term)))))
+    (cond ((eq? first-type 'simple-argument)
+           (get-simple-arg-name first-term)))))
 
 (define (get-names-of-args func-args)
   (map get-name-of-arg func-args))
@@ -189,7 +171,7 @@
              (term (car terms))
              (type (get-rule-name term))
              (num  (length func-args)))
-        (if (eq? type 'continious)
+        (if (eq? type 'continuous)
             (lambda (x) (>= x (- num 1)))
             (lambda (x) (eq? x num))))))
 
@@ -206,7 +188,6 @@
 #|find-in model symbol-func-name '<model>|#
 (define (find-in-model func-name model)
   (and (not-null? model)
-       ;(print 'find-in-model func-name (not (not (assoc func-name (car model)))) (car model))
        (let ((car-model (car model)))
          (or (assoc func-name car-model)
              (and (find-in-params func-name car-model)
@@ -248,32 +229,7 @@
   (if (zero? n)
       xs
       (remove-first (- n 1) (cdr xs))))
-
-(define (// a b) (quotient a b))
-(define (% a b) (remainder a b))
-
-(define-syntax eval-i
-  (syntax-rules ()
-    ((_ x) (eval x (interaction-environment)))))
-
-(define (get-rule-name rule)
-  (vector-ref rule R-NAME))
-
-(define (get-rule-terms rule)
-  (vector-ref rule R-TERMS))
-
-(define (get-args-from-type type)
-  (vector-ref type TYPE-ARGS))
-
-(define (get-args-num-from-type type)
-  (vector-ref (get-args-from-type type) TYPE-ARGS-NUM))
-
-(define (get-args-names-from-type type)
-  (vector-ref (get-args-from-type type) TYPE-ARGS-NAMES))
   
-(define (get-args-check-from-type type)
-  (vector-ref (get-args-from-type type) TYPE-ARGS-CHECK))
-
 (define (get-args-check-from-type type)
   (vector-ref (get-args-from-type type) TYPE-ARGS-CHECK))
 
@@ -291,18 +247,6 @@
   (or (null? f-list)
       (and ((car f-list) (car a-list))
            (hash (cdr f-list) (cdr a-list)))))
-
-
-(define-syntax not-null?
-  (syntax-rules ()
-    ((_ x) (not (null? x)))))
-
-(define (print . xs)
-  (or (and (not-null? xs)
-           (display (car xs))
-           (newline)
-           (apply print (cdr xs)))
-      (newline)))
 
 (define (is-op? t)
   (op-in-xs? t "+" "-" "/" "%" "*" "//"))
