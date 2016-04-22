@@ -30,6 +30,7 @@
 (define ERROR_NO_IF_ACT      "no expression in if")
 (define ERR_AFTER_CONTINUOUS "uncorrect after continuous")
 (define ERR_NO_CONTINUOUS    "no continuous")
+(define ERROR_NO_TAG_TO      "no '->' in lambda")
 
 (define TYPE-ARGS 0)
 (define TYPE-ARGS-NUM 0)
@@ -184,9 +185,9 @@
       (define (syntax-rule? rule . args)
         (or (apply rule args) '()))
       
-      (define (syntax-rule* rule)
+      (define (syntax-rule* rule . args)
         (define (helper ast-list)
-          (let ((ast-elem (rule)))
+          (let ((ast-elem (apply rule args)))
             (if ast-elem
                 (helper (cons ast-elem ast-list))
                 (reverse ast-list))))
@@ -227,6 +228,11 @@
       (define (get-program-rule start-pos)
         `(or (,syntax-rule+ ,syntax-program ,start-pos)
              (,add-error ,ERROR_NO_FUNC_BODY)))
+      
+      (define (get-lambda-rules start-pos)
+        `(append (,syntax-rule* ,(simple-rule 'simple-argument 'tag-sym) ,start-pos)
+                 (or (,simple-rule 'to 'tag-to)
+                     (,add-error ,ERROR_NO_TAG_TO))))
       
       (define (syntax-partional-rule start-pos
                                      first-rule-expr
@@ -376,6 +382,12 @@
                            syntax-if-cond
                            ERROR_NO_IF_CONDS))
       
+      ;; надо сделать так, чтобы в lambda-rules передавался новый start-pos
+      (define (syntax-lambda start-pos)
+        (syntax-partional-rule start-pos
+                               `(,simple-rule 'lambda-symb 'tag-lmbd)
+                               (get-lambda-rules start-pos)))
+      
       (define (syntax-expr . args)
         ;(print "expr" token args)
         (let ((start-pos (car args)))
@@ -387,6 +399,7 @@
                     (and (not-null? arr)
                          arr))
                   (syntax-if start-pos)
+                  (syntax-lambda start-pos)
                   (apply shunting-yard args)))))
       
       (define (shunting-yard start-pos . out)
