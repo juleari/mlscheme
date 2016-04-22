@@ -1,6 +1,12 @@
-(define % quotient)
-(define // remainder)
+(define TAB 4)
+(define TAB1 (- TAB 1))
+
+(define // quotient)
+(define % remainder)
 (define ** expt)
+
+(define ARGS-CAN-BE-FUNCS #t)
+(define ARGS-CANT-BE-FUNCS #f)
 
 (define T-TAG 0)
 (define T-COORDS 1)
@@ -12,7 +18,9 @@
 (define A-NAME 0)
 (define A-RULES 1)
 
+(define R-NAME 0)
 (define R-TOKEN 1)
+(define R-TERMS 1)
 
 (define ERROR_NO_FUNC_BODY   "no expression in body")
 (define ERROR_NO_EOF         "no end of file")
@@ -20,8 +28,19 @@
 (define ERROR_EXPR           "expr is not correct")
 (define ERROR_NO_IF_CONDS    "no conditions in if")
 (define ERROR_NO_IF_ACT      "no expression in if")
-(define ERR_AFTER_CONTINIOUS "uncorrect after continious")
-(define ERR_NO_CONTINIOUS    "no continious")
+(define ERR_AFTER_CONTINUOUS "uncorrect after continuous")
+(define ERR_NO_CONTINUOUS    "no continuous")
+
+(define TYPE-ARGS 0)
+(define TYPE-ARGS-NUM 0)
+(define TYPE-ARGS-CHECK 1)
+(define TYPE-ARGS-NAMES 2)
+(define TYPE-DEFS 1)
+(define TYPE-EXPRS 2)
+(define TYPE-ARGS-NAMES 2)
+
+(define ERROR_NUM_OF_ARGS "the expected number of arguments does not match the given number")
+(define ERROR_UNDEFINED_VARIABLE "cannot reference undefined identifier")
 
 (define-syntax neq?
   (syntax-rules ()
@@ -42,71 +61,38 @@
            (apply print (cdr xs)))
       (newline)))
 
-(define tokens '(#(tag-sym #(2 1) "day-of-week")
-                 #(tag-sym #(2 13) "day")
-                 #(tag-sym #(2 17) "month")
-                 #(tag-sym #(2 23) "year")
-                 #(tag-to #(2 28) "<-")
-                 #(tag-sym #(3 5) "a")
-                 #(tag-to #(3 7) "<-")
-                 #(tag-lprn #(3 10) #\()
-                 #(tag-num #(3 11) 14)
-                 #(tag-mns #(3 12) "-")
-                 #(tag-sym #(3 14) "month")
-                 #(tag-rprn #(3 19) #\))
-                 #(tag-div #(3 21) "//")
-                 #(tag-num #(3 24) 12)
-                 #(tag-sym #(4 5) "y")
-                 #(tag-to #(4 7) "<-")
-                 #(tag-sym #(4 10) "year")
-                 #(tag-mns #(4 15) "-")
-                 #(tag-sym #(4 17) "a")
-                 #(tag-sym #(5 5) "m")
-                 #(tag-to #(5 7) "<-")
-                 #(tag-sym #(5 10) "month")
-                 #(tag-pls #(5 16) "+")
-                 #(tag-lprn #(5 18) #\()
-                 #(tag-sym #(5 19) "a")
-                 #(tag-mul #(5 21) "*")
-                 #(tag-num #(5 23) 12)
-                 #(tag-rprn #(5 25) #\))
-                 #(tag-mns #(5 27) "-")
-                 #(tag-num #(5 29) 2)
-                 #(tag-lprn #(7 5) #\()
-                 #(tag-num #(7 6) 7000)
-                 #(tag-pls #(7 7) "+")
-                 #(tag-sym #(7 9) "day")
-                 #(tag-pls #(7 13) "+")
-                 #(tag-sym #(7 15) "y")
-                 #(tag-pls #(7 17) "+")
-                 #(tag-lprn #(7 19) #\()
-                 #(tag-sym #(7 20) "y")
-                 #(tag-div #(7 22) "//")
-                 #(tag-num #(7 25) 4)
-                 #(tag-rprn #(7 26) #\))
-                 #(tag-pls #(7 28) "+")
-                 #(tag-lprn #(7 30) #\()
-                 #(tag-sym #(7 31) "y")
-                 #(tag-div #(7 33) "//")
-                 #(tag-num #(7 36) 400)
-                 #(tag-rprn #(7 39) #\))
-                 #(tag-pls #(7 41) "+")
-                 #(tag-lprn #(7 43) #\()
-                 #(tag-num #(7 44) 31)
-                 #(tag-mul #(7 45) "*")
-                 #(tag-sym #(7 47) "m")
-                 #(tag-div #(7 49) "//")
-                 #(tag-num #(7 52) 12)
-                 #(tag-rprn #(7 54) #\))
-                 #(tag-mns #(8 9) "-")
-                 #(tag-lprn #(8 11) #\()
-                 #(tag-sym #(8 12) "y")
-                 #(tag-div #(8 14) "//")
-                 #(tag-num #(8 17) 100)
-                 #(tag-rprn #(8 20) #\))
-                 #(tag-rprn #(8 21) #\))
-                 #(tag-mod #(8 23) "%")
-                 #(tag-num #(8 25) 7)))
+(define tokens '(#(tag-sym #(1 1) "fub")
+                 #(tag-lbrk #(1 5) #\[)
+                 #(tag-num #(1 6) 0)
+                 #(tag-cln #(1 7) #\:)
+                 #(tag-sym #(1 9) "xs")
+                 #(tag-rbrk #(1 11) #\])
+                 #(tag-to #(1 13) "<-")
+                 #(tag-lbrk #(1 16) #\[)
+                 #(tag-num #(1 17) 1)
+                 #(tag-cln #(1 18) #\:)
+                 #(tag-sym #(1 20) "fub")
+                 #(tag-sym #(1 24) "xs")
+                 #(tag-rbrk #(1 26) #\])
+                 #(tag-sym #(2 1) "fub")
+                 #(tag-lbrk #(2 5) #\[)
+                 #(tag-sym #(2 6) "x")
+                 #(tag-cln #(2 8) #\:)
+                 #(tag-sym #(2 10) "xs")
+                 #(tag-rbrk #(2 12) #\])
+                 #(tag-to #(2 14) "<-")
+                 #(tag-lbrk #(2 17) #\[)
+                 #(tag-sym #(2 18) "x")
+                 #(tag-cln #(2 20) #\:)
+                 #(tag-sym #(2 22) "fub")
+                 #(tag-sym #(2 26) "xs")
+                 #(tag-rbrk #(2 28) #\])
+                 #(tag-sym #(3 1) "fub")
+                 #(tag-lbrk #(3 5) #\[)
+                 #(tag-rbrk #(3 6) #\])
+                 #(tag-to #(3 8) "<-")
+                 #(tag-lbrk #(3 11) #\[)
+                 #(tag-rbrk #(3 12) #\])))
 
 (define (get-true-expr)
   #(expr (#(tag-true #(0 0) "#t"))))
@@ -160,7 +146,11 @@
       
       (define (add-error-rule rule)
         (set! errors
-              (cons (vector 'error: (get-token-coords token) '- 'expected `,rule)
+              (cons (vector 'error: 
+                            (get-token-coords token)
+                            '-
+                            'expected
+                            `,rule)
                     errors))
         '())
       
@@ -169,7 +159,7 @@
             (display "SYNTAX OK!")
             (begin (display "SYNTAX ERRORS:")
                    (newline)
-                   (apply print errors)))
+                   (apply print (reverse errors))))
         (newline)
         (newline))
       
@@ -250,14 +240,15 @@
                                  start-pos
                                  first-rule-expr
                                  syntax-rule-type
-                                 second-rule
+                                 second-rule-expr
                                  error-name)
         (let ((first-rule (get-first-rule start-pos first-rule-expr)))
           (and first-rule
                (vector rule-name
                        (cons first-rule
-                             (or (syntax-rule-type second-rule
-                                                   (get-simple-start-pos first-rule))
+                             (or (list (syntax-rule-type second-rule-expr
+                                                         (get-simple-start-pos 
+                                                          first-rule)))
                                  (add-error error-name)))))))
       
       (define (syntax-array-simple start-pos)
@@ -267,49 +258,84 @@
               ;(print "syntax-array-simple" token ast-list first-rule)
               (and first-rule
                    (set! ast-list (cons first-rule
-                                        (syntax-arguments (get-simple-start-pos first-rule))))
+                                        (syntax-arguments (get-simple-start-pos 
+                                                           first-rule)
+                                                          ARGS-CANT-BE-FUNCS)))
                    (or (let ((last-rule (simple-rule 'close-braket 'tag-rbrk)))
                          (and last-rule
-                              (set! ast-list (append ast-list (list last-rule)))))
+                              (set! ast-list (append ast-list 
+                                                     (list last-rule)))))
                        (add-error ERR_NO_CLOSE_BRK))
                    (list (vector 'array-simple ast-list))))
             ast-list))
       
-      (define (syntax-continious-simple start-pos)
-        (syntax-whole-rule 'continious
+      (define (syntax-array start-pos)
+        (define ast-list '())
+        (if (start-in? start-pos)
+            (let ((first-rule (simple-rule 'open-braket 'tag-lbrk)))
+              ;(print "syntax-array" token ast-list first-rule)
+              (and first-rule
+                   (set! ast-list (cons first-rule
+                                        (syntax-arguments (get-simple-start-pos 
+                                                           first-rule)
+                                                          ARGS-CAN-BE-FUNCS)))
+                   (or (let ((last-rule (simple-rule 'close-braket 'tag-rbrk)))
+                         (and last-rule
+                              (set! ast-list (append ast-list 
+                                                     (list last-rule)))))
+                       (add-error ERR_NO_CLOSE_BRK))
+                   (list (vector 'array-simple ast-list))))
+            ast-list))
+      
+      (define (syntax-continuous-simple start-pos)
+        (syntax-whole-rule 'continuous
                            start-pos
                            `(,simple-rule 'colon 'tag-cln)
                            syntax-rule
                            `(,simple-rule 'list 'tag-sym)
-                           ERR_NO_CONTINIOUS))
+                           ERR_NO_CONTINUOUS))
       
-      (define (syntax-arg-continious start-pos)
+      (define (syntax-continuous start-pos)
+        (syntax-whole-rule 'continuous
+                           start-pos
+                           `(,simple-rule 'colon 'tag-cln)
+                           syntax-rule
+                           `(,syntax-program 0)
+                           ERR_NO_CONTINUOUS))
+      
+      (define (syntax-arg-continuous start-pos args-can-be-funcs?)
         (and (start-in? start-pos)
-             (let ((cont (syntax-continious-simple start-pos)))
-               (and cont
-                    (or (not (syntax-argument start-pos))
-                        (add-error ERR_AFTER_CONTINIOUS))
-                    (list cont)))))
+             (if args-can-be-funcs?
+                 (let ((cont (syntax-continuous start-pos)))
+                   (and cont (list cont)))
+                 (let ((cont (syntax-continuous-simple start-pos)))
+                   (and cont
+                        (or (not (syntax-argument start-pos args-can-be-funcs?))
+                            (add-error ERR_AFTER_continuous))
+                        (list cont))))))
       
-      (define (syntax-argument start-pos)
+      (define (syntax-argument start-pos args-can-be-funcs?)
         (and (start-in? start-pos)
              (let* ((arg (or (simple-rule 'simple-argument 'tag-num 'tag-sym)
-                             (syntax-array-simple start-pos)
-                             (syntax-arg-continious start-pos)))
+                             ;(if args-can-be-funcs?
+                             ;    (syntax-array start-pos)
+                             ;    (syntax-array-simple start-pos))
+                             (syntax-array start-pos)
+                             (syntax-arg-continuous start-pos args-can-be-funcs?)))
                     (larg (if (list? arg) arg (list arg))))
                ;(print "syntax-argument" arg)
                (and arg (vector 'argument larg)))))
       
-      (define (syntax-arguments start-pos)
-        ;(print "syntax-arguments" start-pos)
+      (define (syntax-arguments start-pos args-can-be-funcs?)
+        ;(print "syntax-arguments" token args-can-be-funcs?)
         (define (helper ast-list)
-          (let ((arg (syntax-argument start-pos)))
+          (let ((arg (syntax-argument start-pos args-can-be-funcs?)))
             (or (and arg (helper (cons arg ast-list)))
                 (reverse ast-list))))
         (helper '()))
       
-      (define (syntax-func-declaration start-pos)
-        ;(print "syntax-func-declaration" start-pos)
+      (define (syntax-func-declaration start-pos args-can-be-funcs?)
+        ;(print "syntax-func-declaration" token args-can-be-funcs?)
         (and (start-in? start-pos)
              (let ((first-rule (simple-rule 'func-name 'tag-sym)))
                ;(print "syntax-func-declaration-first" first-rule)
@@ -317,7 +343,9 @@
                     (vector 'func-decl
                             (cons first-rule
                                   (syntax-rule? syntax-arguments
-                                                (get-simple-start-pos first-rule))))))))
+                                                (get-simple-start-pos
+                                                 first-rule)
+                                                args-can-be-funcs?)))))))
       
       (define (syntax-func-body start-pos)
         (syntax-partional-rule start-pos
@@ -353,8 +381,8 @@
         (let ((start-pos (car args)))
           (if (eq? (get-token-tag token) 'tag-end)
               (and (not-null? (cdr args))
-                   (vector 'expr (cadr args)))
-              (or (let ((arr (syntax-array-simple start-pos)))
+                   (vector 'expr (list (cadr args))))
+              (or (let ((arr (syntax-array start-pos)))
                     ;(print "arr" arr)
                     (and (not-null? arr)
                          arr))
@@ -389,33 +417,34 @@
         
         (define (prior t)
           (let ((tag (get-token-tag t)))
-            (cond #|((x-in-xs? tag 'tag-bor)                             1)|#
-              ((x-in-xs? tag 'tag-band)                            2)
-              ((x-in-xs? tag 'tag-or)                              3)
-              ((x-in-xs? tag 'tag-xor)                             4)
-              ((x-in-xs? tag 'tag-and)                             5)
-              ((x-in-xs? tag 'tag-neq 'tag-eq)                     6)
-              ((x-in-xs? tag 'tag-lwr 'tag-leq 'tag-hghr 'tag-heq) 7)
-              ((x-in-xs? tag 'tag-pls 'tag-mns)                    8)
-              ((x-in-xs? tag 'tag-mul 'tag-div 'tag-mod 'tag-rem)  9)
-              ((x-in-xs? tag 'tag-pow)                            10)
-              ((or (x-in-xs? tag 'tag-not) (trigonometric))       11)
-              (else                                                0))))
+            (cond ((x-in-xs? tag 'tag-band)                            2)
+                  ((x-in-xs? tag 'tag-or)                              3)
+                  ((x-in-xs? tag 'tag-xor)                             4)
+                  ((x-in-xs? tag 'tag-and)                             5)
+                  ((x-in-xs? tag 'tag-neq 'tag-eq)                     6)
+                  ((x-in-xs? tag 'tag-lwr 'tag-leq 'tag-hghr 'tag-heq) 7)
+                  ((x-in-xs? tag 'tag-pls 'tag-mns)                    8)
+                  ((x-in-xs? tag 'tag-mul 'tag-div 'tag-mod 'tag-rem)  9)
+                  ((x-in-xs? tag 'tag-pow)                            10)
+                  ((or (x-in-xs? tag 'tag-not) (trigonometric))       11)
+                  (else                                                0))))
         
         (define (try-get)
           (set! start-flag (> (get-token-pos token) start-pos))
           (and start-flag
                (let ((tag  (get-token-tag token))
                      (op   (prior token))
-                     (proc (syntax-func-declaration start-pos))
+                     (proc (syntax-func-declaration start-pos ARGS-CAN-BE-FUNCS))
                      (flag #f))
                  ;(print "try-get" tag op proc)
                  (and (cond ((> op 0)             (op-to-out op)
-                                                  (set! stack (cons token stack)))
+                                                  (set! stack 
+                                                        (cons token stack)))
                             (proc                 (set! flag #t)
                                                   (set! out (cons proc out)))
                             ((eqv? tag 'tag-num)  (set! out (cons token out)))
-                            ((eqv? tag 'tag-lprn) (set! stack (cons token stack)))
+                            ((eqv? tag 'tag-lprn) (set! stack 
+                                                        (cons token stack)))
                             ((eqv? tag 'tag-rprn) (op-before-laren-to-out 0))
                             (else                 (set! start-flag #f) #f))
                       ;(print stack out "\n")
@@ -432,7 +461,9 @@
                 ;(print "op-before-laren-to-out" (get-token-tag cur) "\n")
                 (cond ((eqv? (get-token-tag cur) 'tag-lprn)
                        (set! stack (cdr stack)))
-                      ((op? cur) (from-stack-to-out cur op-before-laren-to-out p))
+                      ((op? cur) (from-stack-to-out cur 
+                                                    op-before-laren-to-out
+                                                    p))
                       (else      (add-error ERROR_EXPR_ARENS))))))
         
         (define (from-stack-to-out cur callback p)
@@ -462,14 +493,16 @@
       
       (define (syntax-program start-pos)
         ;(print "syntax-program" start-pos)
-        (let ((func-decl (syntax-func-declaration start-pos)))
+        (let ((func-decl (syntax-func-declaration start-pos ARGS-CANT-BE-FUNCS)))
           (or (and func-decl
-                   (let ((func-body (syntax-func-body (get-expr-start-pos func-decl))))
+                   (let ((func-body (syntax-func-body (get-expr-start-pos 
+                                                       func-decl))))
                      ;(print func-decl "syntax-program-func-body" func-body)
                      (or (and func-body
                               (vector 'func-def
                                       (cons func-decl func-body)))
-                         (syntax-expr (get-expr-start-pos func-decl) func-decl))))
+                         (syntax-expr (get-expr-start-pos func-decl)
+                                      func-decl))))
               (syntax-expr start-pos))))
       
       (let ((ast (syntax-rule+ syntax-program 0)))
