@@ -12,7 +12,11 @@
       
       (define (add-error-rule rule)
         (set! errors
-              (cons (vector 'error: (get-token-coords token) '- 'expected `,rule)
+              (cons (vector 'error: 
+                            (get-token-coords token)
+                            '-
+                            'expected
+                            `,rule)
                     errors))
         '())
       
@@ -21,7 +25,7 @@
             (display "SYNTAX OK!")
             (begin (display "SYNTAX ERRORS:")
                    (newline)
-                   (apply print errors)))
+                   (apply print (reverse errors))))
         (newline)
         (newline))
       
@@ -102,14 +106,15 @@
                                  start-pos
                                  first-rule-expr
                                  syntax-rule-type
-                                 second-rule
+                                 second-rule-expr
                                  error-name)
         (let ((first-rule (get-first-rule start-pos first-rule-expr)))
           (and first-rule
                (vector rule-name
                        (cons first-rule
-                             (or (syntax-rule-type second-rule
-                                                   (get-simple-start-pos first-rule))
+                             (or (list (syntax-rule-type second-rule-expr
+                                                         (get-simple-start-pos 
+                                                          first-rule)))
                                  (add-error error-name)))))))
       
       (define (syntax-array-simple start-pos)
@@ -119,49 +124,84 @@
               ;(print "syntax-array-simple" token ast-list first-rule)
               (and first-rule
                    (set! ast-list (cons first-rule
-                                        (syntax-arguments (get-simple-start-pos first-rule))))
+                                        (syntax-arguments (get-simple-start-pos 
+                                                           first-rule)
+                                                          ARGS-CANT-BE-FUNCS)))
                    (or (let ((last-rule (simple-rule 'close-braket 'tag-rbrk)))
                          (and last-rule
-                              (set! ast-list (append ast-list (list last-rule)))))
+                              (set! ast-list (append ast-list 
+                                                     (list last-rule)))))
                        (add-error ERR_NO_CLOSE_BRK))
                    (list (vector 'array-simple ast-list))))
             ast-list))
       
-      (define (syntax-continious-simple start-pos)
-        (syntax-whole-rule 'continious
+      (define (syntax-array start-pos)
+        (define ast-list '())
+        (if (start-in? start-pos)
+            (let ((first-rule (simple-rule 'open-braket 'tag-lbrk)))
+              ;(print "syntax-array" token ast-list first-rule)
+              (and first-rule
+                   (set! ast-list (cons first-rule
+                                        (syntax-arguments (get-simple-start-pos 
+                                                           first-rule)
+                                                          ARGS-CAN-BE-FUNCS)))
+                   (or (let ((last-rule (simple-rule 'close-braket 'tag-rbrk)))
+                         (and last-rule
+                              (set! ast-list (append ast-list 
+                                                     (list last-rule)))))
+                       (add-error ERR_NO_CLOSE_BRK))
+                   (list (vector 'array-simple ast-list))))
+            ast-list))
+      
+      (define (syntax-continuous-simple start-pos)
+        (syntax-whole-rule 'continuous
                            start-pos
                            `(,simple-rule 'colon 'tag-cln)
                            syntax-rule
                            `(,simple-rule 'list 'tag-sym)
-                           ERR_NO_CONTINIOUS))
+                           ERR_NO_CONTINUOUS))
       
-      (define (syntax-arg-continious start-pos)
+      (define (syntax-continuous start-pos)
+        (syntax-whole-rule 'continuous
+                           start-pos
+                           `(,simple-rule 'colon 'tag-cln)
+                           syntax-rule
+                           `(,syntax-program 0)
+                           ERR_NO_CONTINUOUS))
+      
+      (define (syntax-arg-continuous start-pos args-can-be-funcs?)
         (and (start-in? start-pos)
-             (let ((cont (syntax-continious-simple start-pos)))
-               (and cont
-                    (or (not (syntax-argument start-pos))
-                        (add-error ERR_AFTER_CONTINIOUS))
-                    (list cont)))))
+             (if args-can-be-funcs?
+                 (let ((cont (syntax-continuous start-pos)))
+                   (and cont (list cont)))
+                 (let ((cont (syntax-continuous-simple start-pos)))
+                   (and cont
+                        (or (not (syntax-argument start-pos args-can-be-funcs?))
+                            (add-error ERR_AFTER_continuous))
+                        (list cont))))))
       
-      (define (syntax-argument start-pos)
+      (define (syntax-argument start-pos args-can-be-funcs?)
         (and (start-in? start-pos)
              (let* ((arg (or (simple-rule 'simple-argument 'tag-num 'tag-sym)
-                             (syntax-array-simple start-pos)
-                             (syntax-arg-continious start-pos)))
+                             ;(if args-can-be-funcs?
+                             ;    (syntax-array start-pos)
+                             ;    (syntax-array-simple start-pos))
+                             (syntax-array start-pos)
+                             (syntax-arg-continuous start-pos args-can-be-funcs?)))
                     (larg (if (list? arg) arg (list arg))))
                ;(print "syntax-argument" arg)
                (and arg (vector 'argument larg)))))
       
-      (define (syntax-arguments start-pos)
-        ;(print "syntax-arguments" start-pos)
+      (define (syntax-arguments start-pos args-can-be-funcs?)
+        ;(print "syntax-arguments" token args-can-be-funcs?)
         (define (helper ast-list)
-          (let ((arg (syntax-argument start-pos)))
+          (let ((arg (syntax-argument start-pos args-can-be-funcs?)))
             (or (and arg (helper (cons arg ast-list)))
                 (reverse ast-list))))
         (helper '()))
       
-      (define (syntax-func-declaration start-pos)
-        ;(print "syntax-func-declaration" start-pos)
+      (define (syntax-func-declaration start-pos args-can-be-funcs?)
+        ;(print "syntax-func-declaration" token args-can-be-funcs?)
         (and (start-in? start-pos)
              (let ((first-rule (simple-rule 'func-name 'tag-sym)))
                ;(print "syntax-func-declaration-first" first-rule)
@@ -169,7 +209,9 @@
                     (vector 'func-decl
                             (cons first-rule
                                   (syntax-rule? syntax-arguments
-                                                (get-simple-start-pos first-rule))))))))
+                                                (get-simple-start-pos
+                                                 first-rule)
+                                                args-can-be-funcs?)))))))
       
       (define (syntax-func-body start-pos)
         (syntax-partional-rule start-pos
@@ -206,10 +248,11 @@
           (if (eq? (get-token-tag token) 'tag-end)
               (and (not-null? (cdr args))
                    (vector 'expr (list (cadr args))))
-              (or (let ((arr (syntax-array-simple start-pos)))
+              (or (let ((arr (syntax-array start-pos)))
                     ;(print "arr" arr)
-                    (and (not-null? arr)
-                         arr))
+                    (and arr
+                         (not-null? arr)
+                         (vector 'expr arr)))
                   (syntax-if start-pos)
                   (apply shunting-yard args)))))
       
@@ -241,33 +284,34 @@
         
         (define (prior t)
           (let ((tag (get-token-tag t)))
-            (cond #|((x-in-xs? tag 'tag-bor)                             1)|#
-              ((x-in-xs? tag 'tag-band)                            2)
-              ((x-in-xs? tag 'tag-or)                              3)
-              ((x-in-xs? tag 'tag-xor)                             4)
-              ((x-in-xs? tag 'tag-and)                             5)
-              ((x-in-xs? tag 'tag-neq 'tag-eq)                     6)
-              ((x-in-xs? tag 'tag-lwr 'tag-leq 'tag-hghr 'tag-heq) 7)
-              ((x-in-xs? tag 'tag-pls 'tag-mns)                    8)
-              ((x-in-xs? tag 'tag-mul 'tag-div 'tag-mod 'tag-rem)  9)
-              ((x-in-xs? tag 'tag-pow)                            10)
-              ((or (x-in-xs? tag 'tag-not) (trigonometric))       11)
-              (else                                                0))))
+            (cond ((x-in-xs? tag 'tag-band)                            2)
+                  ((x-in-xs? tag 'tag-or)                              3)
+                  ((x-in-xs? tag 'tag-xor)                             4)
+                  ((x-in-xs? tag 'tag-and)                             5)
+                  ((x-in-xs? tag 'tag-neq 'tag-eq)                     6)
+                  ((x-in-xs? tag 'tag-lwr 'tag-leq 'tag-hghr 'tag-heq) 7)
+                  ((x-in-xs? tag 'tag-pls 'tag-mns)                    8)
+                  ((x-in-xs? tag 'tag-mul 'tag-div 'tag-mod 'tag-rem)  9)
+                  ((x-in-xs? tag 'tag-pow)                            10)
+                  ((or (x-in-xs? tag 'tag-not) (trigonometric))       11)
+                  (else                                                0))))
         
         (define (try-get)
           (set! start-flag (> (get-token-pos token) start-pos))
           (and start-flag
                (let ((tag  (get-token-tag token))
                      (op   (prior token))
-                     (proc (syntax-func-declaration start-pos))
+                     (proc (syntax-func-declaration start-pos ARGS-CAN-BE-FUNCS))
                      (flag #f))
                  ;(print "try-get" tag op proc)
                  (and (cond ((> op 0)             (op-to-out op)
-                                                  (set! stack (cons token stack)))
+                                                  (set! stack 
+                                                        (cons token stack)))
                             (proc                 (set! flag #t)
                                                   (set! out (cons proc out)))
                             ((eqv? tag 'tag-num)  (set! out (cons token out)))
-                            ((eqv? tag 'tag-lprn) (set! stack (cons token stack)))
+                            ((eqv? tag 'tag-lprn) (set! stack 
+                                                        (cons token stack)))
                             ((eqv? tag 'tag-rprn) (op-before-laren-to-out 0))
                             (else                 (set! start-flag #f) #f))
                       ;(print stack out "\n")
@@ -284,7 +328,9 @@
                 ;(print "op-before-laren-to-out" (get-token-tag cur) "\n")
                 (cond ((eqv? (get-token-tag cur) 'tag-lprn)
                        (set! stack (cdr stack)))
-                      ((op? cur) (from-stack-to-out cur op-before-laren-to-out p))
+                      ((op? cur) (from-stack-to-out cur 
+                                                    op-before-laren-to-out
+                                                    p))
                       (else      (add-error ERROR_EXPR_ARENS))))))
         
         (define (from-stack-to-out cur callback p)
@@ -314,14 +360,16 @@
       
       (define (syntax-program start-pos)
         ;(print "syntax-program" start-pos)
-        (let ((func-decl (syntax-func-declaration start-pos)))
+        (let ((func-decl (syntax-func-declaration start-pos ARGS-CANT-BE-FUNCS)))
           (or (and func-decl
-                   (let ((func-body (syntax-func-body (get-expr-start-pos func-decl))))
+                   (let ((func-body (syntax-func-body (get-expr-start-pos 
+                                                       func-decl))))
                      ;(print func-decl "syntax-program-func-body" func-body)
                      (or (and func-body
                               (vector 'func-def
                                       (cons func-decl func-body)))
-                         (syntax-expr (get-expr-start-pos func-decl) func-decl))))
+                         (syntax-expr (get-expr-start-pos func-decl)
+                                      func-decl))))
               (syntax-expr start-pos))))
       
       (let ((ast (syntax-rule+ syntax-program 0)))
