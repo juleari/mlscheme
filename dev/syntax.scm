@@ -395,11 +395,10 @@
               (and (not-null? (cdr args))
                    (vector 'expr (list (cadr args))))
               (or (let ((arr (syntax-array start-pos)))
-                    ;(print "arr" arr)
                     (and (not-null? arr)
-                         arr))
+                         (vector 'expr arr)))
                   (syntax-if start-pos)
-                  (syntax-lambda start-pos)
+                  ;(syntax-lambda start-pos)
                   (apply shunting-yard args)))))
       
       (define (shunting-yard start-pos . out)
