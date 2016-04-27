@@ -173,21 +173,32 @@
   (let ((token (get-token-from-simple-rule arg-rule)))
     (if (eq? 'tag-sym (get-token-tag token))
         `(lambda (x) #t)
-        `(lambda (x) (eqv? x (,get-token-value ,token))))))
+        `(lambda (x) (eqv? x ,(get-token-value token))))))
 
+(define (and-fold xs)
+  (or (null? xs)
+      (and (car xs)
+           (and-fold (cdr xs)))))
+
+;; для списков :x с continuous насоздавать (lambda (x) #t) на всю оставшуюся длину :x
 (define (get-array-type arr-rule)
   (let* ((arr-terms (get-rule-terms arr-rule))
          (inner     (get-list-inner arr-terms))
          (l-inner   (length inner)))
-    `(lambda (x) (and (list? x)
-                      ,(if (null? inner)
-                           `(null? x)
-                           `(and ,(if (eq? 'continuous (get-rule-name (car (get-rule-terms (car (reverse inner))))))
-                                      `(>= (length x) ,(- l-inner 1))
-                                      `(= (length x) ,l-inner))
-                                 (map (lambda (i xi)
-                                        ((,get-type-of-arg i) xi))
-                                      ,inner x)))))))
+    `(lambda (:x) (and (list? :x)
+                       ,(if (null? inner)
+                            `(null? :x)
+                            `(and ,(if (eq? 'continuous
+                                            (get-rule-name (car (get-rule-terms
+                                                                 (car (reverse inner))))))
+                                       `(>= (length :x) ,(- l-inner 1))
+                                       `(= (length :x) ,l-inner))
+                                  (and-fold (map (lambda (:lambda-i :xi)
+                                                   ((eval-i :lambda-i) :xi))
+                                                 ,(map (lambda (:i)
+                                                         (get-type-of-arg :i))
+                                                       inner)
+                                                 :x))))))))
 
 (define (get-type-of-arg arg-rule)
   (let* ((terms (get-rule-terms arg-rule))
@@ -272,6 +283,15 @@
       xs
       (remove-first (- n 1) (cdr xs))))
 ;; new lib
+(define-syntax for
+  (syntax-rules (in as)
+    ((_ (item ...) in (items ...) proc ...)
+     (for-each (lambda (item ...) (begin proc ...)) items ...))
+    ((_ item in items proc ...)
+     (for-each (lambda (item) (begin proc ...)) items))
+    ((_ (items ...) as (item ...) . procs) (for (item ...) in (items ...) . procs))
+    ((_ items as item . procs) (for item in items . procs))))
+
 (define (compare-args arg1 arg2)
   (print 'compare-args arg1 arg2))
 
@@ -393,7 +413,7 @@
               (cons name (map (lambda (arg)
                                 (get-simple-arg-value (car (get-rule-terms arg))))
                               args)))))
-
+      
       ;; проверять, что текущая функция используется
       (define (semantic-var func-decl-terms model)
         (let* ((s-rule (car func-decl-terms))
