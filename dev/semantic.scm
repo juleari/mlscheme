@@ -212,7 +212,7 @@
          (first-type (get-rule-name first-term)))
     (cond ((eq? first-type 'simple-argument) (get-simple-arg-type first-term))
           ((eq? first-type 'array-simple)    (get-array-type first-term))
-          ((eq? first-type 'continuous)      'continuous))))
+          ((eq? first-type 'continuous)      `(lambda :x #t)))))
 
 (define (get-types-of-args func-args)
   (map get-type-of-arg func-args))
