@@ -180,6 +180,15 @@
       (and (car xs)
            (and-fold (cdr xs)))))
 
+(define (get-array-args-rules l-lambda inner x)
+  `(and-fold (cons ,l-lambda
+                   (map (lambda (:lambda-i :xi)
+                          ((eval-i :lambda-i) :xi))
+                        ,(map (lambda (:i)
+                                (get-type-of-arg :i))
+                              inner)
+                        ,x))))
+
 ;; TRY!!!
 (define (get-array-type arr-rule)
   (let* ((arr-terms (get-rule-terms arr-rule))
@@ -190,20 +199,12 @@
                             `(null? :x)
                             (if (eq? 'continuous
                                      (get-rule-name (car (get-rule-terms (car (reverse inner))))))
-                                `(and-fold (cons (>= (length :x) ,(- l-inner 1))
-                                                 (map (lambda (:lambda-i :xi)
-                                                        ((eval-i :lambda-i) :xi))
-                                                      ,(map (lambda (:i)
-                                                              (get-type-of-arg :i))
-                                                            inner)
-                                                      (reverse (cdr (reverse :x))))))
-                                `(and-fold (cons (= (length :x) ,l-inner)
-                                                 (map (lambda (:lambda-i :xi)
-                                                        ((eval-i :lambda-i) :xi))
-                                                      ,(map (lambda (:i)
-                                                              (get-type-of-arg :i))
-                                                            inner)
-                                                      :x)))))))))
+                                (get-array-args-rules `(>= (length :x) ,(- l-inner 1))
+                                                      inner
+                                                      `(reverse (cdr (reverse :x))))
+                                (get-array-args-rules `(= (length :x) ,l-inner)
+                                                      inner
+                                                      `:x)))))))
 
 (define (get-type-of-arg arg-rule)
   (let* ((terms (get-rule-terms arg-rule))
