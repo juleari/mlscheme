@@ -180,7 +180,7 @@
       (and (car xs)
            (and-fold (cdr xs)))))
 
-;; для списков :x с continuous насоздавать (lambda (x) #t) на всю оставшуюся длину :x
+;; TRY!!!
 (define (get-array-type arr-rule)
   (let* ((arr-terms (get-rule-terms arr-rule))
          (inner     (get-list-inner arr-terms))
@@ -188,17 +188,22 @@
     `(lambda (:x) (and (list? :x)
                        ,(if (null? inner)
                             `(null? :x)
-                            `(and ,(if (eq? 'continuous
-                                            (get-rule-name (car (get-rule-terms
-                                                                 (car (reverse inner))))))
-                                       `(>= (length :x) ,(- l-inner 1))
-                                       `(= (length :x) ,l-inner))
-                                  (and-fold (map (lambda (:lambda-i :xi)
-                                                   ((eval-i :lambda-i) :xi))
-                                                 ,(map (lambda (:i)
-                                                         (get-type-of-arg :i))
-                                                       inner)
-                                                 :x))))))))
+                            (if (eq? 'continuous
+                                     (get-rule-name (car (get-rule-terms (car (reverse inner))))))
+                                `(and-fold (cons (>= (length :x) ,(- l-inner 1))
+                                                 (map (lambda (:lambda-i :xi)
+                                                        ((eval-i :lambda-i) :xi))
+                                                      ,(map (lambda (:i)
+                                                              (get-type-of-arg :i))
+                                                            inner)
+                                                      (reverse (cdr (reverse :x))))))
+                                `(and-fold (cons (= (length :x) ,l-inner)
+                                                 (map (lambda (:lambda-i :xi)
+                                                        ((eval-i :lambda-i) :xi))
+                                                      ,(map (lambda (:i)
+                                                              (get-type-of-arg :i))
+                                                            inner)
+                                                      :x)))))))))
 
 (define (get-type-of-arg arg-rule)
   (let* ((terms (get-rule-terms arg-rule))
