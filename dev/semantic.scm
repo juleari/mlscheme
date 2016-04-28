@@ -403,8 +403,11 @@
                            add-func-in-model)
                        add-list)
                 (cdr model))))
-      ;; надо связывать индексы в списке с функциями сравнения
-      ;; для тех элементов, которые являются символами нужно хранить имена... ЖИЗНЬ БОЛЬ
+      
+      ;; проверять, что текущая функция используется
+      ;; сначала просто проходим по определениям,
+      ;; когда встречаем expr сохраняем его в список выражений для текущей области видимости
+      ;; после того как все определения сформировались идём по выражениям и проверяем, что всё ок
       (define (semantic-func-call name-token args func-types)
         ;(print 'semantic-func-call args)
         (let* ((name (get-token-value name-token))
@@ -420,7 +423,8 @@
                                 (get-simple-arg-value (car (get-rule-terms arg))))
                               args)))))
       
-      ;; проверять, что текущая функция используется
+      ;; надо связывать индексы в списке с функциями сравнения
+      ;; для тех элементов, которые являются символами нужно хранить имена... ЖИЗНЬ БОЛЬ
       (define (semantic-var func-decl-terms model)
         (let* ((s-rule (car func-decl-terms))
                (name-token (get-token-from-simple-rule s-rule))
@@ -460,10 +464,17 @@
       (define (semantic-expr terms model)
         (map (lambda (x) (semantic-expr-elem x model)) terms))
       
+      ;; need to make semantic-model-exprs
+      (define (semantic-model-exprs model)
+        ())
+      
+      ;; parse exprs after defs
       (define (semantic-program ast model exprs)
         ;(print 'semantic-program ast)
         (if (null? ast)
-            (list (car model) (reverse exprs))
+            (list (semantic-model-exprs (car model))
+                  (map (lambda (expr) (semantic-expr expr model))
+                       (reverse exprs)))
             (let* ((rule (car ast))
                    (name (get-rule-name rule))
                    (terms (get-rule-terms rule)))
@@ -474,7 +485,7 @@
                     ((eq? name 'expr)
                      (semantic-program (cdr ast)
                                        model
-                                       (cons (semantic-expr terms model) exprs)))))))
+                                       (cons terms exprs)))))))
       
       (let ((m (semantic-program ast '(()) '())))
         (and (print-errors) m)))))
