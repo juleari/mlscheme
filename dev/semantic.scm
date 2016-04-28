@@ -229,8 +229,8 @@
              (type (get-rule-name term))
              (num  (length func-args)))
         (if (eq? type 'continious)
-            `(lambda (x) (>= x (- ,num 1)))
-            `(lambda (x) (eq? x ,num))))))
+            `(lambda (:x) (>= :x (- ,num 1)))
+            `(lambda (:x) (= :x ,num))))))
 
 (define (add-func-in-model model name obj)
   (cdns (list name obj) model))
