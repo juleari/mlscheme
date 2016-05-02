@@ -275,7 +275,7 @@
                    (list (vector 'array-simple ast-list))))
             ast-list))
       
-      (define (syntax-array start-pos)
+      (define (syntax-array start-pos args-can-be-funcs?)
         (define ast-list '())
         (if (start-in? start-pos)
             (let ((first-rule (simple-rule 'open-braket 'tag-lbrk)))
@@ -284,7 +284,7 @@
                    (set! ast-list (cons first-rule
                                         (syntax-arguments (get-simple-start-pos 
                                                            first-rule)
-                                                          ARGS-CAN-BE-FUNCS)))
+                                                          args-can-be-funcs?)))
                    (or (let ((last-rule (simple-rule 'close-braket 'tag-rbrk)))
                          (and last-rule
                               (set! ast-list (append ast-list 
@@ -298,7 +298,7 @@
                            start-pos
                            `(,simple-rule 'colon 'tag-cln)
                            syntax-rule
-                           `(,simple-rule 'list 'tag-sym)
+                           `(,simple-rule 'continuous-list 'tag-sym)
                            ERR_NO_CONTINUOUS))
       
       (define (syntax-continuous start-pos)
@@ -326,7 +326,7 @@
                              ;(if args-can-be-funcs?
                              ;    (syntax-array start-pos)
                              ;    (syntax-array-simple start-pos))
-                             (syntax-array start-pos)
+                             (syntax-array start-pos args-can-be-funcs?)
                              (syntax-arg-continuous start-pos args-can-be-funcs?)))
                     (larg (if (list? arg) arg (list arg))))
                ;(print "syntax-argument" arg)
@@ -394,8 +394,9 @@
           (if (eq? (get-token-tag token) 'tag-end)
               (and (not-null? (cdr args))
                    (vector 'expr (list (cadr args))))
-              (or (let ((arr (syntax-array start-pos)))
-                    (and (not-null? arr)
+              (or (let ((arr (syntax-array start-pos ARGS-CAN-BE-FUNCS)))
+                    (and arr
+                         (not-null? arr)
                          (vector 'expr arr)))
                   (syntax-if start-pos)
                   ;(syntax-lambda start-pos)
