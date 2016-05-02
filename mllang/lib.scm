@@ -137,8 +137,8 @@
 (define (get-simple-arg-type arg-rule)
   (let ((token (get-token-from-simple-rule arg-rule)))
     (if (eq? 'tag-sym (get-token-tag token))
-        (lambda (x) #t)
-        (lambda (x) (eqv? x (get-token-value first-term))))))
+        `(lambda (x) #t)
+        `(lambda (x) (eqv? x ,(get-token-value token))))))
 
 (define (get-simple-arg-name arg-rule)
   (get-token-value (get-token-from-simple-rule arg-rule)))
@@ -147,8 +147,9 @@
   (let* ((terms (get-rule-terms arg-rule))
          (first-term (car terms))
          (first-type (get-rule-name first-term)))
-    (cond ((eq? first-type 'simple-argument) 
-           (get-simple-arg-type first-term)))))
+    (cond ((eq? first-type 'simple-argument) (get-simple-arg-type first-term))
+          ((eq? first-type 'array-simple)    (get-array-type first-term))
+          ((eq? first-type 'continuous)      `(lambda :x #t)))))
 
 (define (get-types-of-args func-args)
   (map get-type-of-arg func-args))
@@ -165,44 +166,40 @@
 
 (define (get-num-of-args func-args)
   (if (null? func-args)
-      (lambda (x) (zero? x))
+      `(lambda (x) (zero? x))
       (let* ((last (car (reverse func-args)))
              (terms (get-rule-terms last))
              (term (car terms))
              (type (get-rule-name term))
              (num  (length func-args)))
         (if (eq? type 'continuous)
-            (lambda (x) (>= x (- num 1)))
-            (lambda (x) (eq? x num))))))
+            `(lambda (:x) (>= :x (- ,num 1)))
+            `(lambda (:x) (= :x ,num))))))
 
 (define (add-func-in-model model name obj)
   (cons (list name obj) model))
 
 (define (add-type-in-model model name val)
-  (let* ((pair (car model))
-         (p-name (car pair))
-         (p-vals (cadr pair)))
-    (if (equal? p-name name)
-        (cons (list name (cdns val p-vals)) (cdr model)))))
+  (map (lambda (model-func)
+         (let ((f-name (car model-func)))
+           (if (equal? name f-name)
+               (cdns val model-func)
+               model-func)))
+       model))
 
-#|find-in model symbol-func-name '<model>|#
 (define (find-in-model func-name model)
   (and (not-null? model)
-       (let ((car-model (car model)))
+       ;(let ((car-model (car model)))
+       (let ((car-model model))
          (or (assoc func-name car-model)
              (and (find-in-params func-name car-model)
                   (print '!!!in-params!!!)
                   func-name)
              (find-in-model func-name (cdr model))))))
 
+
 (define (get-args-from-type type)
   (vector-ref type TYPE-ARGS))
-
-(define (get-args-num-from-type type)
-  (vector-ref (get-args-from-type type) TYPE-ARGS-NUM))
-
-(define (get-args-names-from-type type)
-  (vector-ref (get-args-from-type type) TYPE-ARGS-NAMES))
 
 (define (x-in-xs x xs)
   (and (not-null? xs)
@@ -216,7 +213,7 @@
          (x-in-xs func-name get-args-names-from-type))))
 
 (define (make-arg-type)
-  (vector (vector (lambda (x) (zero? x)) (list) (list)) (list) (list)))
+  (vector (vector `(lambda (:x) (zero? :x)) (list) (list)) (list) (list)))
 
 (define (make-alist xs)
   (define (helper xs alist)
@@ -258,3 +255,93 @@
 
 (define (is-str-op? s)
   (procedure? (eval-i (string->symbol s))))
+
+;; new lib
+(define (get-list-inner xs)
+  (if (>= (length xs) 2)
+      (reverse (cdr (reverse (cdr xs))))
+      xs))
+
+(define (and-fold xs)
+  (or (null? xs)
+      (and (car xs)
+           (and-fold (cdr xs)))))
+
+(define (get-array-args-rules l-lambda inner x)
+  `(and-fold (cons ,l-lambda
+                   (map (lambda (:lambda-i :xi)
+                          ((eval-i :lambda-i) :xi))
+                        ,(map (lambda (:i)
+                                (get-type-of-arg :i))
+                              inner)
+                        ,x))))
+
+;; TRY!!!
+(define (get-array-type arr-rule)
+  (let* ((arr-terms (get-rule-terms arr-rule))
+         (inner     (get-list-inner arr-terms))
+         (l-inner   (length inner)))
+    `(lambda (:x) (and (list? :x)
+                       ,(if (null? inner)
+                            `(null? :x)
+                            (if (eq? 'continuous
+                                     (get-rule-name (car (get-rule-terms (car (reverse inner))))))
+                                (get-array-args-rules `(>= (length :x) ,(- l-inner 1))
+                                                      inner
+                                                      `(reverse (cdr (reverse :x))))
+                                (get-array-args-rules `(= (length :x) ,l-inner)
+                                                      inner
+                                                      `:x)))))))
+
+(define (get-simple-arg-value arg-rule)
+  (get-token-value (get-token-from-simple-rule arg-rule)))
+
+(define (get-args-num-from-type type)
+  (eval-i (vector-ref (get-args-from-type type) TYPE-ARGS-NUM)))
+
+(define (get-args-names-from-type type)
+  (eval-i (vector-ref (get-args-from-type type) TYPE-ARGS-NAMES)))
+
+(define (remove-last xs . ns)
+  (let ((rxs (reverse xs))
+        (n   (if (null? ns) 1 (car ns))))
+    (reverse (remove-first n rxs))))
+
+(define-syntax for
+  (syntax-rules (in as)
+    ((_ (item ...) in (items ...) proc ...)
+     (for-each (lambda (item ...) (begin proc ...)) items ...))
+    ((_ item in items proc ...)
+     (for-each (lambda (item) (begin proc ...)) items))
+    ((_ (items ...) as (item ...) . procs) (for (item ...) in (items ...) . procs))
+    ((_ items as item . procs) (for item in items . procs))))
+
+(define (compare-args arg1 arg2)
+  (print 'compare-args arg1 arg2))
+
+(define (find-similar-in-args args)
+  ;(print 'find-similar-in-args args)
+  (let* ((len (length args))
+         (vec (list->vector args))
+         (similar '())
+         (ind-source 0)
+         (ind-target 1)
+         (get-arg (lambda (ind) (vector-ref vec ind))))
+    (letrec ((helper (lambda (ind-source ind-target similar)
+                       (or (and (eq? ind-source len) similar)
+                           (and (>= ind-target len)
+                                (helper (+ 1 ind-source) (+ 2 ind-target) similar))
+                           (helper ind-source (+ 1 ind-target) (cons (compare-args (get-arg ind-target)
+                                                                                   (get-arg ind-source))
+                                                                     similar))))))
+      (helper 0 0 '()))))
+
+(define (get-func-body f-inner)
+  (vector-ref f-inner F-BODY))
+
+(define (get-func-bodies model-func)
+  (let ((f-inners (cdr model-func)))
+    (map get-func-body f-inners)))
+
+(define (make-rec-model func-name args-vector)
+  (list func-name (vector args-vector (list) (list))))

@@ -22,6 +22,10 @@
 (define R-TOKEN 1)
 (define R-TERMS 1)
 
+(define F-ARGS 0)
+(define F-DEFS 1)
+(define F-BODY 2)
+
 (define ERROR_NO_FUNC_BODY   "no expression in body")
 (define ERROR_NO_EOF         "no end of file")
 (define ERROR_EXPR_ARENS     "arens not closed")
