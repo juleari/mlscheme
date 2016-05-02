@@ -239,10 +239,9 @@
 (define (to-sym xs)
   (map string->symbol xs))
 
-
 (define (hash f-list a-list)
   (or (null? f-list)
-      (and ((car f-list) (car a-list))
+      (and ((eval-i (car f-list)) (car a-list))
            (hash (cdr f-list) (cdr a-list)))))
 
 (define (is-op? t)
@@ -300,7 +299,7 @@
   (eval-i (vector-ref (get-args-from-type type) TYPE-ARGS-NUM)))
 
 (define (get-args-names-from-type type)
-  (eval-i (vector-ref (get-args-from-type type) TYPE-ARGS-NAMES)))
+  (vector-ref (get-args-from-type type) TYPE-ARGS-NAMES))
 
 (define (remove-last xs . ns)
   (let ((rxs (reverse xs))

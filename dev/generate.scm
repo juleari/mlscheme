@@ -110,9 +110,8 @@
 
 (define (hash f-list a-list)
   (or (null? f-list)
-      (and ((car f-list) (car a-list))
+      (and ((eval-i (car f-list)) (car a-list))
            (hash (cdr f-list) (cdr a-list)))))
-
 
 (define-syntax not-null?
   (syntax-rules ()
@@ -136,23 +135,27 @@
 (define (is-str-op? s)
   (procedure? (eval-i (string->symbol s))))
 
+(define (toSymb x)
+  (cond ((string? x) (string->symbol x))
+        (else        x)))
+
 ;; end lib
 
 (define (calc-rpn xs)
   (define (helper stack xs)
-    ;(print stack xs)
     (if (null? xs)
         (car stack)
         (let ((x (car xs))
               (s (cdr xs)))
-          (print 'calc x (string? x) (list? x) (is-op? x))
           (if (number? x)
               (helper (cons x stack) s)
               (if (is-op? x)
                   (helper (cons `(,(string->symbol x) ,(cadr stack) ,(car stack))
                                 (cddr stack))
                           s)
-                  (helper (cons (string->symbol x) stack) s))))))
+                  (if (list? x)
+                      (helper (cons (map toSymb x) stack) s)
+                      (helper (cons (string->symbol x) stack) s)))))))
   (helper '() xs))
 
 (define (is-variable types)
@@ -180,7 +183,6 @@
        (zero? (length (get-args-names-from-type (car types))))))
 
 (define (generate-let-var name exprs inner)
-  ;(print name exprs)
   `(letrec ((,name ,(calc-rpn (car exprs))))
      ,inner))
 
@@ -204,18 +206,26 @@
   (let* ((name (string->symbol (car def)))
          (types (cdr def)))
     (eval-i `(define (,name . :args)
-               (cond ,(map (lambda (type)
-                             `(and (and (,(get-args-num-from-type type) (length :args))
-                                        (hash ',(get-args-check-from-type type) :args))
-                                   (apply (lambda ,(to-sym (get-args-names-from-type type))
-                                            ,(generate-let (get-defs-from-type type)
-                                                           type))
-                                          :args)))
-                           types))))))
+              (cond ,(map (lambda (type)
+                            `(and (and (,(get-args-num-from-type type) (length :args))
+                                       (hash ',(get-args-check-from-type type) :args))
+                                  (apply (lambda ,(to-sym (get-args-names-from-type type))
+                                           ,(generate-let (get-defs-from-type type)
+                                                          type))
+                                         :args)))
+                          types))))))
 
 (define (generate-defs defs)
   (map generate-def defs))
 
+(define (calc-expr expr)
+  (eval-i (generate-expr (list expr))))
+
+(define (calc-exprs exprs)
+  (map calc-expr exprs))
+
 (define (generate model)
-  (let* ((defs (car model)))
-    (generate-defs defs)))
+  (let* ((defs (car model))
+         (exprs (cadr model)))
+    (generate-defs defs)
+    (calc-exprs exprs)))
