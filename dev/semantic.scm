@@ -9,9 +9,7 @@
                         #(argument
                           (#(continuous
                              (#(colon #(tag-cln #(1 7) #\:))
-                              #(expr
-                                (#(func-decl
-                                   (#(func-name #(tag-sym #(1 9) "xs"))))))))))
+                              #(continuous-list #(tag-sym #(1 9) "xs"))))))
                         #(close-braket #(tag-rbrk #(1 11) #\]))))))))
                #(func-to #(tag-to #(1 13) "<-"))
                #(expr
@@ -37,9 +35,7 @@
                         #(argument
                           (#(continuous
                              (#(colon #(tag-cln #(2 8) #\:))
-                              #(expr
-                                (#(func-decl
-                                   (#(func-name #(tag-sym #(2 10) "xs"))))))))))
+                              #(continuous-list #(tag-sym #(2 10) "xs"))))))
                         #(close-braket #(tag-rbrk #(2 12) #\]))))))))
                #(func-to #(tag-to #(2 14) "<-"))
                #(expr
@@ -93,6 +89,10 @@
 (define R-NAME 0)
 (define R-TOKEN 1)
 (define R-TERMS 1)
+
+(define F-ARGS 0)
+(define F-DEFS 1)
+(define F-BODY 2)
 
 (define TYPE-ARGS 0)
 (define TYPE-ARGS-NUM 0)
@@ -236,18 +236,18 @@
   (cdns (list name obj) model))
 
 (define (add-type-in-model model name val)
-  (let* ((pair (car model))
-         (p-name (car pair))
-         (p-vals (cadr pair)))
-    ;(print 'add-type-in-model pair val model)
-    (if (equal? p-name name)
-        (cons (cdns val pair) (cdr model)))))
+  (map (lambda (model-func)
+         (let ((f-name (car model-func)))
+           (if (eq? name f-name)
+               (cdns val model-func)
+               model-func)))
+       model))
 
 #|find-in model symbol-func-name '<model>|#
 (define (find-in-model func-name model)
   (and (not-null? model)
-       ;(print 'find-in-model func-name (not (not (assoc func-name (car model)))) (car model))
-       (let ((car-model (car model)))
+       ;(let ((car-model (car model)))
+       (let ((car-model model))
          (or (assoc func-name car-model)
              (and (find-in-params func-name car-model)
                   (print '!!!in-params!!!)
@@ -275,7 +275,7 @@
          (x-in-xs func-name get-args-names-from-type))))
 
 (define (make-arg-type)
-  (vector (vector (lambda (x) (zero? x)) (list) (list)) (list) (list)))
+  (vector (vector `(lambda (:x) (zero? :x)) (list) (list)) (list) (list)))
 
 (define (make-alist xs)
   (define (helper xs alist)
@@ -285,10 +285,17 @@
   (helper xs '()))
 
 (define (remove-first n xs)
+  ;(print 'remove-first n xs)
   (if (zero? n)
       xs
-      (remove-first (- n 1) (cdr xs))))
+      (remove-first (- n 1)(cdr xs))))
+
 ;; new lib
+(define (remove-last xs . ns)
+  (let ((rxs (reverse xs))
+        (n   (if (null? ns) 1 (car ns))))
+    (reverse (remove-first n rxs))))
+
 (define-syntax for
   (syntax-rules (in as)
     ((_ (item ...) in (items ...) proc ...)
@@ -302,7 +309,7 @@
   (print 'compare-args arg1 arg2))
 
 (define (find-similar-in-args args)
-  (print 'find-similar-in-args args)
+  ;(print 'find-similar-in-args args)
   (let* ((len (length args))
          (vec (list->vector args))
          (similar '())
@@ -317,6 +324,16 @@
                                                                                    (get-arg ind-source))
                                                                      similar))))))
       (helper 0 0 '()))))
+
+(define (get-func-body f-inner)
+  (vector-ref f-inner F-BODY))
+
+(define (get-func-bodies model-func)
+  (let ((f-inners (cdr model-func)))
+    (map get-func-body f-inners)))
+
+(define (make-rec-model func-name args-vector)
+  (list func-name (vector args-vector (list) (list))))
 ;; end lib
 
 #|
@@ -363,12 +380,26 @@
               (semantic-set-new-var-name)
               val)))
       
+      (define (get-array-name arr-rule)
+        (let* ((terms (get-rule-terms arr-rule))
+               (inner (get-list-inner terms)))
+          (map get-name-of-arg inner)))
+      
+      ;; проверить, что там должны быть expr
+      (define (get-continuous-name cont-rule)
+        (let* ((terms (get-rule-terms cont-rule))
+               ; terms : (list 'colon first-term)
+               (first-term (cadr terms)))
+          (list 'continuous (get-simple-arg-name first-term))))
+      
       (define (get-name-of-arg arg-rule)
         (let* ((terms (get-rule-terms arg-rule))
                (first-term (car terms))
                (first-type (get-rule-name first-term)))
+          ;(print 'get-name-of-arg first-term)
           (cond ((eq? first-type 'simple-argument) (get-simple-arg-name first-term))
-                ((eq? first-type 'array-simple)    (semantic-set-new-var-name)))))
+                ((eq? first-type 'array-simple)    (get-array-name first-term))
+                ((eq? first-type 'continuous)      (get-continuous-name first-term)))))
       
       (define (get-names-of-args func-args)
         (map get-name-of-arg func-args))
@@ -376,7 +407,8 @@
       (define (semantic-func-body func-def-terms names-of-args model)
         (let* ((b-list (cddr func-def-terms))
                (body (semantic-program b-list (cons (make-alist names-of-args) model) '())))
-          (cons (remove-first (length names-of-args) (car body)) (cdr body))))
+          ;(print 'semantic-func-body (car body))
+          (list '() (cdr body))))
       
       (define (semantic-func-def func-def-terms model)
         (let* ((func-decl (car func-def-terms))
@@ -384,7 +416,6 @@
                (func-name-token (get-token-name-from-decl func-decl))
                (func-name (get-token-value func-name-token))
                (in-model (find-in-model func-name model))
-               (this-model (car model))
                
                (func-args (get-args-from-decl func-decl))
                (num-of-args (get-num-of-args func-args))
@@ -392,17 +423,19 @@
                (names-of-args (get-names-of-args func-args))
                (args-vector (vector num-of-args types-of-args names-of-args))
                
-               (body-list (semantic-func-body func-def-terms names-of-args model))
+               (this-model (cons (make-rec-model func-name args-vector) model))
+               (body-list (semantic-func-body func-def-terms
+                                              names-of-args
+                                              this-model))
                (f-defs (car body-list))
                (f-exprs (cadr body-list))
                
                (func-val (vector args-vector f-defs f-exprs))
-               (add-list (list this-model func-name func-val)))
-          (cons (apply (if in-model
-                           add-type-in-model
-                           add-func-in-model)
-                       add-list)
-                (cdr model))))
+               (add-list (list model func-name func-val)))
+          (apply (if in-model
+                     add-type-in-model
+                     add-func-in-model)
+                 add-list)))
       
       ;; проверять, что текущая функция используется
       ;; сначала просто проходим по определениям,
@@ -448,33 +481,46 @@
         (let* ((terms       (get-rule-terms argument))
                (f-term      (car terms))
                (f-term-name (get-rule-name f-term)))
-          (cond ((eq? f-term-name 'simple-argument) (get-simple-arg-name f-term))
+          (cond ((eq? f-term-name 'simple-argument) (get-simple-arg-value f-term))
                 ((eq? f-term-name 'continuous)      (get-continuous-expr f-term model)))))
       
+      ;; возможно, нужно переделать continuous
       (define (semantic-expr-arr arr-terms model)
         (let ((inner (get-list-inner arr-terms)))
-          (map (lambda (x) (argument-to-expr x model)) inner)))
+          (if (null? inner)
+              `'()
+              (let* ((last (car (reverse inner)))
+                     (list-elems (remove-last inner))
+                     (terms       (get-rule-terms last))
+                     (f-term      (car terms))
+                     (f-term-name (get-rule-name f-term)))
+                (if (eq? f-term-name 'continuous)
+                    `(append ',(map (lambda (x) (argument-to-expr x model)) list-elems)
+                             ',(get-continuous-expr f-term model))
+                    `',(map (lambda (x) (argument-to-expr x model)) inner))))))
       
       (define (semantic-expr-elem elem model)
         (let ((type (get-rule-name elem)))
+          ;(print 'semantic-expr-elem type)
           (cond ((eq? type 'func-decl)    (semantic-var (get-rule-terms elem) model))
                 ((eq? type 'array-simple) (semantic-expr-arr (get-rule-terms elem) model))
                 (else                     (get-token-value elem)))))
       
       (define (semantic-expr terms model)
+        ;(print 'semantic-expr terms)
         (map (lambda (x) (semantic-expr-elem x model)) terms))
       
       ;; need to make semantic-model-exprs
       (define (semantic-model-exprs model)
-        ())
+        ;(print 'semantic-model-exprs )
+        ;(let* ((f-bodies (map get-func-bodies model))))
+        model)
       
       ;; parse exprs after defs
       (define (semantic-program ast model exprs)
         ;(print 'semantic-program ast)
         (if (null? ast)
-            (list (semantic-model-exprs (car model))
-                  (map (lambda (expr) (semantic-expr expr model))
-                       (reverse exprs)))
+            (list model (reverse exprs))
             (let* ((rule (car ast))
                    (name (get-rule-name rule))
                    (terms (get-rule-terms rule)))
@@ -485,7 +531,7 @@
                     ((eq? name 'expr)
                      (semantic-program (cdr ast)
                                        model
-                                       (cons terms exprs)))))))
+                                       (cons (semantic-expr terms model) exprs)))))))
       
-      (let ((m (semantic-program ast '(()) '())))
+      (let ((m (semantic-program ast '() '())))
         (and (print-errors) m)))))
