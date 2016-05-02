@@ -1,7 +1,7 @@
 ;; examp
 (define v
   '((("day-of-week"
-      #(#((lambda (x) (eq? x 3))
+      #(#((lambda (:x) (= :x 3))
           ((lambda (x) #t)
            (lambda (x) #t)
            (lambda (x) #t))
@@ -43,7 +43,10 @@
           "-"
           7
           "%")))))
-    ()))
+    (("day-of-week" 17 5 2016)
+     ("day-of-week" 10 4 2016)
+     ("day-of-week" 29 3 2016)
+     ("day-of-week" 20 4 2016))))
 ;; end examp
 
 ;; defs
@@ -88,7 +91,7 @@
 
 (define (get-args-names-from-type type)
   (vector-ref (get-args-from-type type) TYPE-ARGS-NAMES))
-  
+
 (define (get-args-check-from-type type)
   (vector-ref (get-args-from-type type) TYPE-ARGS-CHECK))
 
@@ -142,7 +145,7 @@
         (car stack)
         (let ((x (car xs))
               (s (cdr xs)))
-          ;(print x (string? x) (list x) (is-op? x))
+          (print 'calc x (string? x) (list? x) (is-op? x))
           (if (number? x)
               (helper (cons x stack) s)
               (if (is-op? x)
@@ -201,14 +204,14 @@
   (let* ((name (string->symbol (car def)))
          (types (cdr def)))
     (eval-i `(define (,name . :args)
-              (cond ,(map (lambda (type)
-                            `(and (and (,(get-args-num-from-type type) (length :args))
-                                       (hash ',(get-args-check-from-type type) :args))
-                                  (apply (lambda ,(to-sym (get-args-names-from-type type))
-                                           ,(generate-let (get-defs-from-type type)
-                                                          type))
-                                         :args)))
-                          types))))))
+               (cond ,(map (lambda (type)
+                             `(and (and (,(get-args-num-from-type type) (length :args))
+                                        (hash ',(get-args-check-from-type type) :args))
+                                   (apply (lambda ,(to-sym (get-args-names-from-type type))
+                                            ,(generate-let (get-defs-from-type type)
+                                                           type))
+                                          :args)))
+                           types))))))
 
 (define (generate-defs defs)
   (map generate-def defs))

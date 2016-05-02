@@ -181,7 +181,7 @@
       (define (semantic-program ast model exprs)
         ;(print 'semantic-program ast)
         (if (null? ast)
-            (list model (reverse exprs))
+            (list model exprs)
             (let* ((rule (car ast))
                    (name (get-rule-name rule))
                    (terms (get-rule-terms rule)))
@@ -192,7 +192,7 @@
                     ((eq? name 'expr)
                      (semantic-program (cdr ast)
                                        model
-                                       (cons (semantic-expr terms model) exprs)))))))
+                                       (append exprs (semantic-expr terms model))))))))
 
       (let ((m (semantic-program ast '() '())))
         (and (print-errors) m)))))
