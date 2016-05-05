@@ -1,52 +1,38 @@
 ;; examp
 (define v
-  '((("day-of-week"
-      #(#((lambda (:x) (= :x 3))
-          ((lambda (x) #t)
-           (lambda (x) #t)
-           (lambda (x) #t))
-          ("day" "month" "year"))
-        (("a"
-          #(#((lambda (x) (zero? x)) () ())
-            ()
-            ((14 "month" "-" 12 "//"))))
-         ("y"
-          #(#((lambda (x) (zero? x)) () ())
-            ()
-            (("year" "a" "-"))))
-         ("m"
-          #(#((lambda (x) (zero? x)) () ())
-            ()
-            (("month" "a" 12 "*" "+" 2 "-")))))
-        ((7000
-          "day"
-          "+"
-          "y"
-          "+"
-          "y"
-          4
-          "//"
-          "+"
-          "y"
-          400
-          "//"
-          "+"
-          31
-          "m"
-          "*"
-          12
-          "//"
-          "+"
-          "y"
-          100
-          "//"
-          "-"
-          7
-          "%")))))
-    (("day-of-week" 17 5 2016)
-     ("day-of-week" 10 4 2016)
-     ("day-of-week" 29 3 2016)
-     ("day-of-week" 20 4 2016))))
+  '((("fub"
+      #(#((lambda (:x) (= :x 1))
+          ((lambda (:x)
+             (and (list? :x)
+                  (and-fold
+                   (cons
+                    (>= (length :x) 1)
+                    (map
+                     (lambda (:lambda-i :xi) ((eval-i :lambda-i) :xi))
+                     ((lambda (x) (eqv? x 0)) (lambda :x #t))
+                     (reverse (cdr (reverse :x)))))))))
+          ((:_ (continuous "xs"))))
+        ()
+        (((append '(1) '(("fub" "xs"))))))
+      #(#((lambda (:x) (= :x 1))
+          ((lambda (:x)
+             (and (list? :x)
+                  (and-fold
+                   (cons
+                    (>= (length :x) 1)
+                    (map
+                     (lambda (:lambda-i :xi) ((eval-i :lambda-i) :xi))
+                     ((lambda (x) #t) (lambda :x #t))
+                     (reverse (cdr (reverse :x)))))))))
+          (("x" (continuous "xs"))))
+        ()
+        (((append '("x") '(("fub" "xs"))))))
+      #(#((lambda (:x) (= :x 1))
+          ((lambda (:x) (and (list? :x) (null? :x))))
+          (()))
+        ()
+        (('())))))
+    ()))
 ;; end examp
 
 ;; defs
@@ -104,9 +90,18 @@
 (define (get-exprs-from-type type)
   (vector-ref type TYPE-EXPRS))
 
-(define (to-sym xs)
-  (map string->symbol xs))
+(define get-new-name
+  (let ((name ":g"))
+    (lambda ()
+      (set! name (string-append name "_"))
+      (string->symbol name))))
 
+(define (to-sym xs)
+  (map (lambda (x)
+         (if (string? x)
+             (string->symbol x)
+             (get-new-name)))
+       xs))
 
 (define (hash f-list a-list)
   (or (null? f-list)
@@ -206,14 +201,14 @@
   (let* ((name (string->symbol (car def)))
          (types (cdr def)))
     (eval-i `(define (,name . :args)
-              (cond ,(map (lambda (type)
-                            `(and (and (,(get-args-num-from-type type) (length :args))
-                                       (hash ',(get-args-check-from-type type) :args))
-                                  (apply (lambda ,(to-sym (get-args-names-from-type type))
-                                           ,(generate-let (get-defs-from-type type)
-                                                          type))
-                                         :args)))
-                          types))))))
+               (cond ,(map (lambda (type)
+                             `(and (and (,(get-args-num-from-type type) (length :args))
+                                        (hash ',(get-args-check-from-type type) :args))
+                                   (apply (lambda ,(to-sym (get-args-names-from-type type))
+                                            ,(generate-let (get-defs-from-type type)
+                                                           type))
+                                          :args)))
+                           types))))))
 
 (define (generate-defs defs)
   (map generate-def defs))
