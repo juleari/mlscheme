@@ -315,9 +315,6 @@
     ((_ (items ...) as (item ...) . procs) (for (item ...) in (items ...) . procs))
     ((_ items as item . procs) (for item in items . procs))))
 
-(define (compare-args arg1 arg2)
-  (print 'compare-args arg1 arg2))
-
 (define (find-similar-in-args args)
   ;(print 'find-similar-in-args args)
   (let* ((len (length args))
@@ -325,15 +322,20 @@
          (similar '())
          (ind-source 0)
          (ind-target 1)
-         (get-arg (lambda (ind) (vector-ref vec ind))))
+         (get-arg (lambda (ind) (vector-ref vec ind)))
+         (compare-args (lambda (ind1 ind2)
+                         (if (equal? (get-arg ind1)
+                                     (get-arg ind2))
+                             (list (list ind1 ind2))
+                             (list)))))
     (letrec ((helper (lambda (ind-source ind-target similar)
                        (or (and (eq? ind-source len) similar)
                            (and (>= ind-target len)
-                                (helper (+ 1 ind-source) (+ 2 ind-target) similar))
-                           (helper ind-source (+ 1 ind-target) (cons (compare-args (get-arg ind-target)
-                                                                                   (get-arg ind-source))
-                                                                     similar))))))
-      (helper 0 0 '()))))
+                                (helper (+ 1 ind-source) (+ 2 ind-source) similar))
+                           (helper ind-source (+ 1 ind-target) (append similar
+                                                                       (compare-args ind-source
+                                                                                     ind-target)))))))
+      (helper ind-source ind-target '()))))
 
 (define (get-func-body f-inner)
   (vector-ref f-inner F-BODY))
