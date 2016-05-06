@@ -315,6 +315,7 @@
     ((_ (items ...) as (item ...) . procs) (for (item ...) in (items ...) . procs))
     ((_ items as item . procs) (for item in items . procs))))
 
+;; optimizing -- объединять все совпадающие, а не только пары
 (define (find-similar-in-args args)
   ;(print 'find-similar-in-args args)
   (let* ((len (length args))
@@ -336,6 +337,17 @@
                                                                        (compare-args ind-source
                                                                                      ind-target)))))))
       (helper ind-source ind-target '()))))
+
+(define (make-similar-args-tests args)
+  (let ((:similar-pairs (find-similar-in-args args)))
+    (if (not-null (length similar-pairs))
+        `(lambda :args
+           (let ((:v-args (list->vector :args)))
+             (and-fold ,(map (lambda (similar-pair)
+                               `(equal? (vector-ref :v-args ,(car similar-pair))
+                                        (vector-ref :v-args ,(cadr similar-pair))))
+                             :similar-pairs))))
+        `(lambda :args #t))))
 
 (define (get-func-body f-inner)
   (vector-ref f-inner F-BODY))
