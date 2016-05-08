@@ -63,6 +63,17 @@
   (syntax-rules ()
     ((_ x) (eval x (interaction-environment)))))
 
+(define (filter pred? xs)
+  (define (helper xs res)
+    (if (null? xs)
+        (reverse res)
+        (helper (cdr xs)
+                (let ((x (car xs)))
+                  (if (pred? x)
+                      (cons x res)
+                      res)))))
+  (helper xs '()))
+
 (define (get-rule-name rule)
   (vector-ref rule R-NAME))
 
@@ -77,6 +88,57 @@
 
 (define (get-args-names-from-type type)
   (vector-ref (get-args-from-type type) TYPE-ARGS-NAMES))
+
+(define (is-cont-name? name)
+  (and (list? last)
+       (not-null? last)
+       (eq? (car last) 'continuous)))
+
+(define (make-lambda-var-from-list xs)
+  (let* ((r-xs (reverse xs))
+         (last (car r-xs)))
+    (if (is-cont-name? last)
+        (if (> (length xs) 1)
+            (append (map make-lambda-var (reverse (cddr xs)))
+                    `(,(make-lambda-var (cadr r-xs)) . ,(cadr last)))
+            (cadr last))
+        (map make-lambda-var xs))))
+
+(define (make-lambda-var elem)
+  (if (list? elem)
+      (make-lambda-var-from-list elem)
+      (to-sym elem)))
+
+;; только один уровень вложенности
+(define (make-let-var-list names args-name)
+  #| Строит список определений для аргументов-списков
+   | @param {list of arg-names} n-list Список имён аргументов
+   | @param {symb} a-list Текущий остаток аргументов
+   | @param {alist} l-list let-list (name value) Список let-определений
+   | @returns {alist} l-list
+   |#
+  (define (helper n-list a-list l-list)
+    (if (null? n-list)
+        (reverse l-list)
+        (let ((cur-name (car n-list)))
+          (print 'make-let-var-list cur-name)
+          (helper (cdr n-list)
+                  `(cdr ,a-list)
+                  (cons `(,(cadr cur-name)
+                          ,(if (is-cont-name? cur-name)
+                              `(cdr ,a-list)
+                              `(car ,a-list)))
+                        l-list)))))
+  (helper names args-name '()))
+
+;; @returns (list lambda-var-list let-var-list)
+(define (make-var-lists type)
+  (let* ((names (get-args-names-from-type type))
+         (has-let? (null? (filter list? names))))
+    (if has-let?
+        (list (make-lambda-var-from-list names)
+              (make-let-var-list names ':g-args))
+        (list (to-sym names)))))
 
 (define (get-args-check-from-type type)
   (vector-ref (get-args-from-type type) TYPE-ARGS-CHECK))
@@ -153,10 +215,6 @@
                       (helper (cons (string->symbol x) stack) s)))))))
   (helper '() xs))
 
-(define (is-variable types)
-  (and (eq? (length types) 1)
-       (zero? (length (get-args-names-from-type (car types))))))
-
 (define (generate-let-var name exprs inner)
   `(letrec ((,name ,exprs))
      ,inner))
@@ -200,11 +258,22 @@
 (define (generate-def def)
   (let* ((name (string->symbol (car def)))
          (types (cdr def)))
+    (map (lambda (type) (print (get-args-names-from-type type))) types)
+    (print `(define (,name . :args)
+              (cond ,(map (lambda (type)
+                            `(and (and (,(get-args-num-from-type type) (length :args))
+                                       (hash ',(get-args-check-from-type type) :args))
+                                  (apply (lambda ,(to-sym (get-args-names-from-type type))
+                                           ,(generate-let (get-defs-from-type type)
+                                                          type))
+                                         :args)))
+                          types))))
     (eval-i `(define (,name . :args)
                (cond ,(map (lambda (type)
                              `(and (and (,(get-args-num-from-type type) (length :args))
                                         (hash ',(get-args-check-from-type type) :args))
-                                   (apply (lambda ,(to-sym (get-args-names-from-type type))
+                                   (apply (lambda ,(make-arg-name-list type)
+                                            ,(if ())
                                             ,(generate-let (get-defs-from-type type)
                                                            type))
                                           :args)))
