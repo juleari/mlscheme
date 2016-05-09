@@ -1,0 +1,23 @@
+(define-syntax eval-i
+  (syntax-rules ()
+    ((_ x) (eval x (interaction-environment)))))
+
+(define-syntax map-cond
+  (syntax-rules ()
+    ((_ ((cond-1 value-1) ...)) (cond (cond-1 value-1) ...))))
+
+(define (and-fold xs)
+  (or (null? xs)
+      (and (car xs)
+           (and-fold (cdr xs)))))
+
+(define (hash f-list a-list)
+  (or (null? f-list)
+      (and ((eval-i (car f-list)) (car a-list))
+           (hash (cdr f-list) (cdr a-list)))))
+
+(define (give-first xs n)
+  (if (or (zero? n)
+          (null? xs))
+      '()
+      (cons (car xs) (- n 1))))
