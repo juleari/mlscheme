@@ -107,7 +107,7 @@
         (let* ((name (get-token-value name-token))
                (arg-len (length args))
                (correct-types (filter (lambda (type)
-                                        ((get-args-num-from-type type) arg-len))
+                                        ((eval-i (get-args-num-from-type type)) arg-len))
                                       func-types)))
           (or (and (null? correct-types)
                    (add-error ERROR_NUM_OF_ARGS name-token))

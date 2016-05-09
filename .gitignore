@@ -35,3 +35,5 @@ mllang/build/*
 *.scm#2#
 
 dev/generated.sm
+
+*.sm#1#

@@ -9,4 +9,4 @@
 (define tokens (tokenize-file port))
 (define ast (syntax))
 (define model (semantic ast))
-;(generate model)
+(generate model)

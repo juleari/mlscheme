@@ -296,7 +296,7 @@
   (get-token-value (get-token-from-simple-rule arg-rule)))
 
 (define (get-args-num-from-type type)
-  (eval-i (vector-ref (get-args-from-type type) TYPE-ARGS-NUM)))
+  (vector-ref (get-args-from-type type) TYPE-ARGS-NUM))
 
 (define (get-args-names-from-type type)
   (vector-ref (get-args-from-type type) TYPE-ARGS-NAMES))
@@ -358,3 +358,111 @@
 
 (define (make-rec-model func-name args-vector)
   (list func-name (vector args-vector (list) (list))))
+
+(define-syntax map-cond
+  (syntax-rules ()
+    ((_ ((cond-1 value-1) ...)) (cond (cond-1 value-1) ...))))
+
+(define-syntax while
+  (syntax-rules ()
+    ((_ cond? proc ...)
+     (letrec ((iter (lambda () (if cond?
+                                   (begin (begin proc ...)
+                                          (iter))))))
+       (iter)))))
+
+(define get-new-name
+  (let ((name ":g"))
+    (lambda ()
+      (set! name (string-append name "_"))
+      (string->symbol name))))
+
+(define (get-sym-name name)
+  (if (string? name)
+      (string->symbol name)
+      (get-new-name)))
+
+#| make-names-list
+ | Создание списка имён.
+ |  Строки преобразуются к символам.
+ |  Для всех остальных типов генерируется новое имя
+ | @param {list of arg-names} names список имён
+ | @returns {list of names} список имён аргументов для lambda-функции
+ |#
+(define (make-names-list names)
+  (map get-sym-name names))
+
+#| Возвращает первые n элементов списка xs
+ | @param {list} xs
+ | @param {int} n
+ | @returns {list}
+ |#
+(define (give-first xs n)
+  (if (or (zero? n)
+          (null? xs))
+      '()
+      (cons (car xs) (- n 1))))
+
+(define (and-fold xs)
+  ; (print 'and-fold xs)
+  (or (null? xs)
+      (and (car xs)
+           (and-fold (cdr xs)))))
+
+(define (is-cont-name? name)
+  ;(print name)
+  (and (list? name)
+       (not-null? name)
+       (eq? (car name) 'continuous)))
+
+(define (make-lambda-var-from-list xs)
+  (if (null? xs)
+      xs
+      (let* ((r-xs (reverse xs))
+             (last (car r-xs)))
+        (if (is-cont-name? last)
+            (if (> (length xs) 1)
+                (append (map make-lambda-var (reverse (cddr xs)))
+                        `(,(make-lambda-var (cadr r-xs)) . ,(cadr last)))
+                (cadr last))
+            (map get-sym-name xs)))))
+
+(define (make-lambda-var elem)
+  (if (list? elem)
+      (make-lambda-var-from-list elem)
+      (get-sym-name elem)))
+
+;; только один уровень вложенности
+(define (make-let-var-list names cor-names)
+  #| Строит список определений для аргументов-списков
+   | @param {list of arg-names} n-list Список имён аргументов
+   | @param {symb} a-list Текущий остаток аргументов
+   | @param {alist} l-list let-list (name value) Список let-определений
+   | @returns {alist} l-list
+   |#
+  (define (helper n-list a-list l-list)
+    (if (null? n-list)
+        (reverse l-list)
+        (let ((cur-name (car n-list)))
+          (helper (cdr n-list)
+                  `(cdr ,a-list)
+                  (if (is-cont-name? cur-name)
+                      (cons `(,(get-sym-name (cadr cur-name)) ,a-list) l-list)
+                      (cons `(,(get-sym-name cur-name) (car ,a-list)) l-list))))))
+  
+  (apply append (map (lambda (name cor-name)
+                       (if (list? name)
+                           (helper name cor-name '())
+                           '()))
+                     names
+                     cor-names)))
+
+;; @returns (list lambda-var-list let-var-list)
+(define (make-var-lists type)
+  (let* ((names (get-args-names-from-type type))
+         (has-let? (not-null? (filter list? names))))
+    ;(print 'make-var-lists names)
+    (if has-let?
+        (let ((cor-names (make-lambda-var-from-list names)))
+          (list cor-names (make-let-var-list names cor-names)))
+        (list (make-names-list names)))))

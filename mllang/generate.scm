@@ -1,3 +1,17 @@
+(define gen-file (open-output-file "generated.sm"))
+
+;; в рабочей версии вместо genbase.sm должен быть задаваемый в compiler.py путь
+(define (prepare-gen-file)
+  (let ((lib-funcs-file (open-input-file "genbase.sm")))
+    (while (not (eof-object? (peek-char lib-funcs-file)))
+           (display (read-char lib-funcs-file) gen-file))))
+
+(prepare-gen-file)
+
+(define (to-gen-file text)
+  (display text gen-file)
+  (newline gen-file))
+
 (define (calc-rpn xs)
   (define (helper stack xs)
     (if (null? xs)
@@ -14,10 +28,6 @@
                       (helper (cons (map toSymb x) stack) s)
                       (helper (cons (string->symbol x) stack) s)))))))
   (helper '() xs))
-
-(define (is-variable types)
-  (and (eq? (length types) 1)
-       (zero? (length (get-args-names-from-type (car types))))))
 
 (define (generate-let-var name exprs inner)
   `(letrec ((,name ,exprs))
@@ -62,21 +72,28 @@
 (define (generate-def def)
   (let* ((name (string->symbol (car def)))
          (types (cdr def)))
-    (eval-i `(define (,name . :args)
-              (cond ,(map (lambda (type)
-                            `(and (and (,(get-args-num-from-type type) (length :args))
-                                       (hash ',(get-args-check-from-type type) :args))
-                                  (apply (lambda ,(to-sym (get-args-names-from-type type))
-                                           ,(generate-let (get-defs-from-type type)
-                                                          type))
-                                         :args)))
-                          types))))))
+    (to-gen-file `(define (,name . :args)
+                  (map-cond ,(map (lambda (type)
+                                    (let* ((lambda-and-let (make-var-lists type))
+                                           (lambda-list (car lambda-and-let))
+                                           (lambda-let  (cdr lambda-and-let)))
+                                      `((and (,(get-args-num-from-type type) (length :args))
+                                             (hash ',(get-args-check-from-type type) :args))
+                                        (apply (lambda ,lambda-list
+                                                 ,(if (not-null? lambda-let)
+                                                      `(let ,(car lambda-let)
+                                                         ,(generate-let (get-defs-from-type type)
+                                                                        type))
+                                                      (generate-let (get-defs-from-type type)
+                                                                    type)))
+                                               :args))))
+                                  types))))))
 
 (define (generate-defs defs)
   (map generate-def defs))
 
 (define (calc-expr expr)
-  (eval-i (generate-expr (list expr))))
+  (to-gen-file (generate-expr (list expr))))
 
 (define (calc-exprs exprs)
   (map calc-expr exprs))
@@ -85,4 +102,5 @@
   (let* ((defs (car model))
          (exprs (cadr model)))
     (generate-defs defs)
-    (calc-exprs exprs)))
+    (calc-exprs exprs)
+    (close-output-port gen-file)))

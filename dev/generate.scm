@@ -342,7 +342,7 @@
   (map generate-def defs))
 
 (define (calc-expr expr)
-  (eval-i (generate-expr (list expr))))
+  (to-gen-file (generate-expr (list expr))))
 
 (define (calc-exprs exprs)
   (map calc-expr exprs))

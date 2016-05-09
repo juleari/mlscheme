@@ -258,7 +258,7 @@
   (vector-ref type TYPE-ARGS))
 
 (define (get-args-num-from-type type)
-  (eval-i (vector-ref (get-args-from-type type) TYPE-ARGS-NUM)))
+  (vector-ref (get-args-from-type type) TYPE-ARGS-NUM))
 
 (define (get-args-names-from-type type)
   (eval-i (vector-ref (get-args-from-type type) TYPE-ARGS-NAMES)))
@@ -450,7 +450,7 @@
         (let* ((name (get-token-value name-token))
                (arg-len (length args))
                (correct-types (filter (lambda (type)
-                                        ((get-args-num-from-type type) arg-len))
+                                        ((eval-i (get-args-num-from-type type)) arg-len))
                                       func-types)))
           (or (and (null? correct-types)
                    (add-error ERROR_NUM_OF_ARGS name-token))
