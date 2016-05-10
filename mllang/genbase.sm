@@ -21,3 +21,7 @@
           (null? xs))
       '()
       (cons (car xs) (- n 1))))
+
+(define-syntax append-s
+  (syntax-rules ()
+    ((_ (x ...) (y ...)) (append (list x ...) y ...))))

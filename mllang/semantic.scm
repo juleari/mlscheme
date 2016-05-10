@@ -145,7 +145,6 @@
           (cond ((eq? f-term-name 'simple-argument) (get-simple-arg-value f-term))
                 ((eq? f-term-name 'continuous)      (get-continuous-expr f-term model)))))
 
-      ;; возможно, нужно переделать continuous
       (define (semantic-expr-arr arr-terms model)
         (let ((inner (get-list-inner arr-terms)))
           (if (null? inner)
@@ -156,8 +155,8 @@
                      (f-term      (car terms))
                      (f-term-name (get-rule-name f-term)))
                 (if (eq? f-term-name 'continuous)
-                    `(append ',(map (lambda (x) (argument-to-expr x model)) list-elems)
-                             ',(get-continuous-expr f-term model))
+                    `(append-s ,(map (lambda (x) (argument-to-expr x model)) list-elems)
+                               ,(get-continuous-expr f-term model))
                     `',(map (lambda (x) (argument-to-expr x model)) inner))))))
 
       (define (semantic-expr-elem elem model)
