@@ -225,7 +225,7 @@
   `(and-fold (cons ,l-lambda
                    (map (lambda (:lambda-i :xi)
                           ((eval-i :lambda-i) :xi))
-                        ,(map (lambda (:i)
+                        ',(map (lambda (:i)
                                 (get-type-of-arg :i))
                               inner)
                         ,x))))
@@ -241,7 +241,7 @@
                             (if (eq? 'continuous
                                      (get-rule-name (car (get-rule-terms (car (reverse inner))))))
                                 (get-array-args-rules `(>= (length :x) ,(- l-inner 1))
-                                                      inner
+                                                      (remove-last inner)
                                                       `(give-first :x ,(- l-inner 1)))
                                 (get-array-args-rules `(= (length :x) ,l-inner)
                                                       inner
@@ -259,7 +259,6 @@
   (map get-type-of-arg func-args))
 
 (define (get-simple-arg-value arg-rule)
-  (print 'get-simple-arg-value arg-rule)
   (get-token-value (get-token-from-simple-rule arg-rule)))
 
 (define (get-num-of-args func-args)
@@ -499,7 +498,6 @@
       ;; когда встречаем expr сохраняем его в список выражений для текущей области видимости
       ;; после того как все определения сформировались идём по выражениям и проверяем, что всё ок
       (define (semantic-func-call name-token args func-types)
-        (print 'semantic-func-call name-token args func-types)
         (let* ((name (get-token-value name-token))
                (arg-len (length args))
                (correct-types (filter (lambda (type)
@@ -559,9 +557,9 @@
                     `',(map (lambda (x) (argument-to-expr x model)) inner))))))
 
       (define (get-arg-value arg-rule model)
-        (print 'get-arg-value arg-rule)
+        ;(print 'get-arg-value arg-rule)
         (let ((name (get-rule-name arg-rule)))
-          (print 'get-arg-value--name name)
+          ;(print 'get-arg-value--name name)
           (cond ((eq? name 'simple-argument) (get-simple-arg-value arg-rule))
                 ((eq? name 'array-simple)    (semantic-expr-arr (get-rule-terms arg-rule) model)))))
 

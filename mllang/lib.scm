@@ -270,7 +270,7 @@
   `(and-fold (cons ,l-lambda
                    (map (lambda (:lambda-i :xi)
                           ((eval-i :lambda-i) :xi))
-                        ,(map (lambda (:i)
+                        ',(map (lambda (:i)
                                 (get-type-of-arg :i))
                               inner)
                         ,x))))
@@ -286,8 +286,8 @@
                             (if (eq? 'continuous
                                      (get-rule-name (car (get-rule-terms (car (reverse inner))))))
                                 (get-array-args-rules `(>= (length :x) ,(- l-inner 1))
-                                                      inner
-                                                      `(reverse (cdr (reverse :x))))
+                                                      (remove-last inner)
+                                                      `(give-first :x ,(- l-inner 1)))
                                 (get-array-args-rules `(= (length :x) ,l-inner)
                                                       inner
                                                       `:x)))))))

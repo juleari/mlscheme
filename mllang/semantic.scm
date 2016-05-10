@@ -103,7 +103,6 @@
       ;; когда встречаем expr сохраняем его в список выражений для текущей области видимости
       ;; после того как все определения сформировались идём по выражениям и проверяем, что всё ок
       (define (semantic-func-call name-token args func-types)
-        ;(print 'semantic-func-call args)
         (let* ((name (get-token-value name-token))
                (arg-len (length args))
                (correct-types (filter (lambda (type)
@@ -114,7 +113,9 @@
               (and (zero? arg-len)
                    name)
               (cons name (map (lambda (arg)
-                                (get-simple-arg-value (car (get-rule-terms arg))))
+                                ;(print 'semantic-func-call (car (get-rule-terms arg)))
+                                (get-arg-value (car (get-rule-terms arg))
+                                               (list (list name-token func-types))))
                               args)))))
 
       ;; надо связывать индексы в списке с функциями сравнения
@@ -145,6 +146,7 @@
           (cond ((eq? f-term-name 'simple-argument) (get-simple-arg-value f-term))
                 ((eq? f-term-name 'continuous)      (get-continuous-expr f-term model)))))
 
+      ;; возможно, нужно переделать continuous
       (define (semantic-expr-arr arr-terms model)
         (let ((inner (get-list-inner arr-terms)))
           (if (null? inner)
@@ -158,6 +160,13 @@
                     `(append-s ,(map (lambda (x) (argument-to-expr x model)) list-elems)
                                ,(get-continuous-expr f-term model))
                     `',(map (lambda (x) (argument-to-expr x model)) inner))))))
+
+      (define (get-arg-value arg-rule model)
+        ;(print 'get-arg-value arg-rule)
+        (let ((name (get-rule-name arg-rule)))
+          ;(print 'get-arg-value--name name)
+          (cond ((eq? name 'simple-argument) (get-simple-arg-value arg-rule))
+                ((eq? name 'array-simple)    (semantic-expr-arr (get-rule-terms arg-rule) model)))))
 
       (define (semantic-expr-elem elem model)
         (let ((type (get-rule-name elem)))
