@@ -39,6 +39,7 @@
 (define TYPE-ARGS-NUM 0)
 (define TYPE-ARGS-CHECK 1)
 (define TYPE-ARGS-NAMES 2)
+(define TYPE-ARGS-SIMILAR 3)
 (define TYPE-DEFS 1)
 (define TYPE-EXPRS 2)
 (define TYPE-ARGS-NAMES 2)

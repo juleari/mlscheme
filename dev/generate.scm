@@ -1,27 +1,16 @@
 ;; examp
 (define v
-  '((("fub"
-      #(#((lambda (:x) (= :x 1))
-          ((lambda (:x) (and (list? :x) (null? :x))))
-          (()))
+  '((("count"
+      #(#((lambda (:x) (= :x 2))
+          ((lambda (x) #t)
+           (lambda (:x) (and (list? :x) (null? :x))))
+          ("x" ())
+          (lambda :args #t))
         ()
-        (('())))
-      #(#((lambda (:x) (= :x 1))
-          ((lambda (:x)
-             (and (list? :x)
-                  (and-fold
-                   (cons
-                    (>= (length :x) 1)
-                    (map
-                     (lambda (:lambda-i :xi)
-                       ((eval-i :lambda-i) :xi))
-                     '((lambda (x) (eqv? x 0)))
-                     (give-first :x 1)))))))
-          ((:_ (continuous "xs"))))
-        ()
-        (((append-s (1) (("fub" "xs"))))))
-      #(#((lambda (:x) (= :x 1))
-          ((lambda (:x)
+        ((0)))
+      #(#((lambda (:x) (= :x 2))
+          ((lambda (x) #t)
+           (lambda (:x)
              (and (list? :x)
                   (and-fold
                    (cons
@@ -31,10 +20,32 @@
                        ((eval-i :lambda-i) :xi))
                      '((lambda (x) #t))
                      (give-first :x 1)))))))
-          (("x" (continuous "xs"))))
+          ("x" (:s_ (continuous "xs")))
+          (lambda :args
+            (let ((:v-args (multi-list->vector :args)))
+              (and-fold-s
+               ((equal?
+                 (vector-ref :v-args 0)
+                 (vector-ref :v-args 1)))))))
         ()
-        (((append-s ("x") (("fub" "xs"))))))))
-    (("fub" '(0 2 7 0 5)) ("fub" '(0 1 0 1 0)))))
+        ((1 ("count" "x" "xs") "+")))
+      #(#((lambda (:x) (= :x 2))
+          ((lambda (x) #t)
+           (lambda (:x)
+             (and (list? :x)
+                  (and-fold
+                   (cons
+                    (>= (length :x) 1)
+                    (map
+                     (lambda (:lambda-i :xi)
+                       ((eval-i :lambda-i) :xi))
+                     '((lambda (x) #t))
+                     (give-first :x 1)))))))
+          ("x" ("y" (continuous "xs")))
+          (lambda :args #t))
+        ()
+        ((("count" "x" "xs"))))))
+    (("count" "'a" '("'a" "'b" "'c" "'a")))))
 ;; end examp
 
 ;; defs
@@ -52,6 +63,7 @@
 (define TYPE-ARGS-NUM 0)
 (define TYPE-ARGS-CHECK 1)
 (define TYPE-ARGS-NAMES 2)
+(define TYPE-ARGS-SIMILAR 3)
 (define TYPE-DEFS 1)
 (define TYPE-EXPRS 2)
 (define TYPE-ARGS-NAMES 2)
@@ -94,8 +106,8 @@
 (define (get-args-check-from-type type)
   (vector-ref (get-args-from-type type) TYPE-ARGS-CHECK))
 
-(define (get-args-check-from-type type)
-  (vector-ref (get-args-from-type type) TYPE-ARGS-CHECK))
+(define (get-similar-from-type type)
+  (vector-ref (get-args-from-type type) TYPE-ARGS-SIMILAR))
 
 (define (get-defs-from-type type)
   (vector-ref type TYPE-DEFS))
@@ -326,7 +338,8 @@
                                              (lambda-list (car lambda-and-let))
                                              (lambda-let  (cdr lambda-and-let)))
                                         `((and (,(get-args-num-from-type type) (length :args))
-                                               (hash ',(get-args-check-from-type type) :args))
+                                               (hash ',(get-args-check-from-type type) :args)
+                                               (,(get-similar-from-type type) :args))
                                           (apply (lambda ,lambda-list
                                                    ,(if (not-null? lambda-let)
                                                         `(let ,(car lambda-let)

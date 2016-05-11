@@ -82,7 +82,8 @@
                (num-of-args (get-num-of-args func-args))
                (types-of-args (get-types-of-args func-args))
                (names-of-args (get-names-of-args func-args))
-               (args-vector (vector num-of-args types-of-args names-of-args))
+               (similar-args (make-similar-args-checks names-of-args))
+               (args-vector (vector num-of-args types-of-args names-of-args similar-args))
 
                (this-model (cons (make-rec-model func-name args-vector) model))
                (body-list (semantic-func-body func-def-terms

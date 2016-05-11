@@ -230,6 +230,9 @@
 (define (get-args-check-from-type type)
   (vector-ref (get-args-from-type type) TYPE-ARGS-CHECK))
 
+(define (get-similar-from-type type)
+  (vector-ref (get-args-from-type type) TYPE-ARGS-SIMILAR))
+
 (define (get-defs-from-type type)
   (vector-ref type TYPE-DEFS))
 
@@ -369,23 +372,26 @@
                                    (or (and (eq? ind-source len) similar)
                                        (and (>= ind-target len)
                                             (helper (+ 1 ind-source) (+ 2 ind-source) similar))
-                                       (helper ind-source (+ 1 ind-target) (append (compare-args ind-source
-                                                                                                 ind-target)
-                                                                                   similar))))))
+                                       (helper ind-source
+                                               (+ 1 ind-target)
+                                               (append (compare-args ind-source
+                                                                     ind-target)
+                                                       similar))))))
                   (let ((res (helper ind-source ind-target '())))
                     (set! args (vector->multi-list vec args))
                     res))))))
 
-(define (make-similar-args-tests args)
-  (let ((:similar-pairs (find-similar-in-args args)))
-    (if (not-null (length similar-pairs))
-        `(lambda :args
-           (let ((:v-args (list->vector :args)))
-             (and-fold ,(map (lambda (similar-pair)
-                               `(equal? (vector-ref :v-args ,(car similar-pair))
-                                        (vector-ref :v-args ,(cadr similar-pair))))
-                             :similar-pairs))))
-        `(lambda :args #t))))
+(define-syntax make-similar-args-checks
+  (syntax-rules ()
+    ((_ args) (let ((:similar-pairs (find-similar-in-args args)))
+                (if (not-null? :similar-pairs)
+                    `(lambda :args
+                       (let ((:v-args (multi-list->vector :args)))
+                         (and-fold-s ,(map (lambda (:similar-pair)
+                                             `(equal? (vector-ref :v-args ,(car :similar-pair))
+                                                      (vector-ref :v-args ,(cadr :similar-pair))))
+                                           :similar-pairs))))
+                    `(lambda :args #t))))))
 
 (define (get-func-body f-inner)
   (vector-ref f-inner F-BODY))
