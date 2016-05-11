@@ -315,28 +315,66 @@
     ((_ (items ...) as (item ...) . procs) (for (item ...) in (items ...) . procs))
     ((_ items as item . procs) (for item in items . procs))))
 
-;; optimizing -- объединять все совпадающие, а не только пары
-(define (find-similar-in-args args)
-  ;(print 'find-similar-in-args args)
-  (let* ((len (length args))
-         (vec (list->vector args))
-         (similar '())
-         (ind-source 0)
-         (ind-target 1)
-         (get-arg (lambda (ind) (vector-ref vec ind)))
-         (compare-args (lambda (ind1 ind2)
-                         (if (equal? (get-arg ind1)
-                                     (get-arg ind2))
-                             (list (list ind1 ind2))
-                             (list)))))
-    (letrec ((helper (lambda (ind-source ind-target similar)
-                       (or (and (eq? ind-source len) similar)
-                           (and (>= ind-target len)
-                                (helper (+ 1 ind-source) (+ 2 ind-source) similar))
-                           (helper ind-source (+ 1 ind-target) (append similar
-                                                                       (compare-args ind-source
-                                                                                     ind-target)))))))
-      (helper ind-source ind-target '()))))
+(define s-name
+  (let* ((:s-name ':s))
+    (lambda ()
+      (set! :s-name
+            (string->symbol (string-append (symbol->string :s-name) "_")))
+      :s-name)))
+
+(define (get-inner-length xs)
+  (if (list? xs)
+      (apply + (map get-inner-length xs))
+      1))
+
+(define (multi-list->vector xs)
+  (define (helper xs)
+    (if (list? xs)
+        (apply append (map helper xs))
+        (list xs)))
+  (list->vector (helper xs)))
+
+(define (vector->multi-list v xs)
+  (define (helper cur-ml xs cur-ind)
+    (if (null? xs)
+        cur-ml
+        (let ((cur-x (car xs)))
+          (if (list? cur-x)
+              (helper (append cur-ml
+                              (list (helper '()
+                                            cur-x
+                                            cur-ind)))
+                      (cdr xs)
+                      (+ (get-inner-length cur-x) cur-ind))
+              (helper (append cur-ml (list (vector-ref v cur-ind)))
+                      (cdr xs)
+                      (+ 1 cur-ind))))))
+  (helper '() xs 0))
+
+(define-syntax find-similar-in-args
+  (syntax-rules ()
+    ((_ args) (let* ((len (get-inner-length args))
+                     (vec (multi-list->vector args))
+                     (similar '())
+                     (ind-source 0)
+                     (ind-target 1)
+                     (get-arg (lambda (ind) (vector-ref vec ind)))
+                     (compare-args (lambda (ind1 ind2)
+                                     (if (equal? (get-arg ind1)
+                                                 (get-arg ind2))
+                                         (begin (vector-set! vec ind2 (s-name))
+                                                (list (list ind1 ind2)))
+                                         (list)))))
+                (letrec ((helper (lambda (ind-source ind-target similar)
+                                   (or (and (eq? ind-source len) similar)
+                                       (and (>= ind-target len)
+                                            (helper (+ 1 ind-source) (+ 2 ind-source) similar))
+                                       (helper ind-source (+ 1 ind-target) (append (compare-args ind-source
+                                                                                                 ind-target)
+                                                                                   similar))))))
+                  (let ((res (helper ind-source ind-target '())))
+                    (set! args (vector->multi-list vec args))
+                    res))))))
 
 (define (make-similar-args-tests args)
   (let ((:similar-pairs (find-similar-in-args args)))
