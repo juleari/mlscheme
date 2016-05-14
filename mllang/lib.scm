@@ -76,6 +76,16 @@
   (cond ((string? x) (string->symbol x))
         (else        x)))
 
+(define (func-apply x)
+  (cond ((string? x) (string->symbol x))
+        ((list? x)   (if (or (null? x)
+                             (eq? (car x) 'quote))
+                         x
+                         (if (eq? (car x) ':list)
+                             (cdr x)
+                             (calc-rpn x))))
+        (else x)))
+
 (define (get-true-expr)
   #(expr (#(tag-true #(0 0) "#t"))))
 

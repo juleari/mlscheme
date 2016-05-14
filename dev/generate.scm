@@ -1,51 +1,19 @@
 ;; examp
 (define v
-  '((("count"
-      #(#((lambda (:x) (= :x 2))
-          ((lambda (x) #t)
-           (lambda (:x) (and (list? :x) (null? :x))))
-          ("x" ())
+  '((("fib"
+      #(#((lambda (:x) (= :x 1))
+          ((lambda (x) (eqv? x 0)))
+          (:_)
           (lambda :args #t))
         ()
-        ((0)))
-      #(#((lambda (:x) (= :x 2))
-          ((lambda (x) #t)
-           (lambda (:x)
-             (and (list? :x)
-                  (and-fold
-                   (cons
-                    (>= (length :x) 1)
-                    (map
-                     (lambda (:lambda-i :xi)
-                       ((eval-i :lambda-i) :xi))
-                     '((lambda (x) #t))
-                     (give-first :x 1)))))))
-          ("x" (:s_ (continuous "xs")))
-          (lambda :args
-            (let ((:v-args (multi-list->vector :args)))
-              (and-fold-s
-               ((equal?
-                 (vector-ref :v-args 0)
-                 (vector-ref :v-args 1)))))))
-        ()
-        ((1 ("count" "x" "xs") "+")))
-      #(#((lambda (:x) (= :x 2))
-          ((lambda (x) #t)
-           (lambda (:x)
-             (and (list? :x)
-                  (and-fold
-                   (cons
-                    (>= (length :x) 1)
-                    (map
-                     (lambda (:lambda-i :xi)
-                       ((eval-i :lambda-i) :xi))
-                     '((lambda (x) #t))
-                     (give-first :x 1)))))))
-          ("x" ("y" (continuous "xs")))
+        ((1)))
+      #(#((lambda (:x) (= :x 1))
+          ((lambda (x) #t))
+          ("n")
           (lambda :args #t))
         ()
-        ((("count" "x" "xs"))))))
-    (("count" "'a" '("'a" "'b" "'c" "'a")))))
+        (("n" ("fib" ("n" 1 "-")) "*")))))
+    (("fib" 5) ("fib" 10))))
 ;; end examp
 
 ;; defs
@@ -165,9 +133,15 @@
 (define (is-str-op? s)
   (procedure? (eval-i (string->symbol s))))
 
-(define (toSymb x)
+(define (func-apply x)
   (cond ((string? x) (string->symbol x))
-        (else        x)))
+        ((list? x)   (if (or (null? x)
+                             (eq? (car x) 'quote))
+                         x
+                         (if (eq? (car x) ':list)
+                             (cdr x)
+                             (calc-rpn x))))
+        (else x)))
 
 ;; new lib
 (define-syntax map-cond
@@ -259,6 +233,7 @@
 
 ;; end lib
 (define gen-file (open-output-file "generated.sm"))
+;(define gen-file (current-output-port))
 
 ;; в рабочей версии вместо genbase.sm должен быть задаваемый в compiler.py путь
 (define (prepare-gen-file)
@@ -278,15 +253,13 @@
         (car stack)
         (let ((x (car xs))
               (s (cdr xs)))
-          (if (number? x)
-              (helper (cons x stack) s)
-              (if (is-op? x)
-                  (helper (cons `(,(string->symbol x) ,(cadr stack) ,(car stack))
-                                (cddr stack))
-                          s)
-                  (if (list? x)
-                      (helper (cons (map toSymb x) stack) s)
-                      (helper (cons (string->symbol x) stack) s)))))))
+          (cond ((number? x) (helper (cons x stack) s))
+                ((is-op? x)  (helper (cons `(,(string->symbol x) ,(cadr stack) ,(car stack))
+                                           (cddr stack))
+                                     s))
+                ((list? x)   (helper (cons (map func-apply x) stack) s))
+                ((string? x) (helper (cons (string->symbol x) stack) s))
+                (else        (helper stack s))))))
   (helper '() xs))
 
 (define (generate-let-var name exprs inner)

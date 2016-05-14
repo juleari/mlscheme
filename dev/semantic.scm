@@ -1,78 +1,109 @@
 ;; examp
 (define v '(#(func-def
-              (#(func-decl
-                 (#(func-name #(tag-sym #(2 1) "count"))
-                  #(argument (#(simple-argument #(tag-sym #(2 7) "x"))))
-                  #(argument
-                    (#(array-simple
-                       (#(open-braket #(tag-lbrk #(2 9) #\[))
-                        #(close-braket #(tag-rbrk #(2 10) #\]))))))))
-               #(func-to #(tag-to #(2 20) "<-"))
-               #(expr (#(tag-num #(2 23) 0)))))
-            #(func-def
-              (#(func-decl
-                 (#(func-name #(tag-sym #(3 1) "count"))
-                  #(argument (#(simple-argument #(tag-sym #(3 7) "x"))))
-                  #(argument
-                    (#(array-simple
-                       (#(open-braket #(tag-lbrk #(3 9) #\[))
-                        #(argument
-                          (#(simple-argument #(tag-sym #(3 11) "x"))))
-                        #(argument
-                          (#(continuous
-                             (#(colon #(tag-cln #(3 13) #\:))
-                              #(continuous-list
-                                #(tag-sym #(3 15) "xs"))))))
-                        #(close-braket #(tag-rbrk #(3 18) #\]))))))))
-               #(func-to #(tag-to #(3 20) "<-"))
-               #(expr
-                 (#(tag-num #(3 23) 1)
-                  #(func-decl
-                    (#(func-name #(tag-sym #(3 27) "count"))
-                     #(argument
-                       (#(simple-argument #(tag-sym #(3 33) "x"))))
-                     #(argument
-                       (#(simple-argument #(tag-sym #(3 35) "xs"))))))
-                  #(tag-pls #(3 25) "+")))))
-            #(func-def
-              (#(func-decl
-                 (#(func-name #(tag-sym #(4 1) "count"))
-                  #(argument (#(simple-argument #(tag-sym #(4 7) "x"))))
-                  #(argument
-                    (#(array-simple
-                       (#(open-braket #(tag-lbrk #(4 9) #\[))
-                        #(argument
-                          (#(simple-argument #(tag-sym #(4 11) "y"))))
-                        #(argument
-                          (#(continuous
-                             (#(colon #(tag-cln #(4 13) #\:))
-                              #(continuous-list
-                                #(tag-sym #(4 15) "xs"))))))
-                        #(close-braket #(tag-rbrk #(4 18) #\]))))))))
-               #(func-to #(tag-to #(4 20) "<-"))
-               #(expr
-                 (#(func-decl
-                    (#(func-name #(tag-sym #(4 23) "count"))
-                     #(argument
-                       (#(simple-argument #(tag-sym #(4 29) "x"))))
-                     #(argument
-                       (#(simple-argument #(tag-sym #(4 31) "xs"))))))))))
-            #(expr
-              (#(func-decl
-                 (#(func-name #(tag-sym #(7 1) "count"))
-                  #(argument (#(simple-argument #(tag-sym #(7 7) "'a"))))
-                  #(argument
-                    (#(array-simple
-                       (#(open-braket #(tag-lbrk #(7 10) #\[))
-                        #(argument
-                          (#(simple-argument #(tag-sym #(7 11) "'a"))))
-                        #(argument
-                          (#(simple-argument #(tag-sym #(7 14) "'b"))))
-                        #(argument
-                          (#(simple-argument #(tag-sym #(7 17) "'c"))))
-                        #(argument
-                          (#(simple-argument #(tag-sym #(7 20) "'a"))))
-                        #(close-braket #(tag-rbrk #(7 22) #\]))))))))))))
+   (#(func-decl
+      (#(func-name #(tag-sym #(1 1) "fub"))
+       #(argument
+         (#(array-simple
+            (#(open-braket #(tag-lbrk #(1 5) #\[))
+             #(close-braket #(tag-rbrk #(1 6) #\]))))))))
+    #(func-to #(tag-to #(1 8) "<-"))
+    #(expr
+      (#(array-simple
+         (#(open-braket #(tag-lbrk #(1 11) #\[))
+          #(close-braket #(tag-rbrk #(1 12) #\]))))))))
+ #(func-def
+   (#(func-decl
+      (#(func-name #(tag-sym #(2 1) "fub"))
+       #(argument
+         (#(array-simple
+            (#(open-braket #(tag-lbrk #(2 5) #\[))
+             #(argument
+               (#(simple-argument #(tag-num #(2 6) 0))))
+             #(argument
+               (#(continuous
+                  (#(colon #(tag-cln #(2 7) #\:))
+                   #(continuous-list
+                     #(tag-sym #(2 9) "xs"))))))
+             #(close-braket #(tag-rbrk #(2 11) #\]))))))))
+    #(func-to #(tag-to #(2 13) "<-"))
+    #(expr
+      (#(array-simple
+         (#(open-braket #(tag-lbrk #(2 16) #\[))
+          #(argument (#(simple-argument #(tag-num #(2 17) 1))))
+          #(argument
+            (#(continuous
+               (#(colon #(tag-cln #(2 18) #\:))
+                #(expr
+                  (#(func-decl
+                     (#(func-name #(tag-sym #(2 20) "fub"))
+                      #(argument
+                        (#(simple-argument
+                           #(tag-sym #(2 24) "xs"))))))))))))
+          #(close-braket #(tag-rbrk #(2 26) #\]))))))))
+ #(func-def
+   (#(func-decl
+      (#(func-name #(tag-sym #(3 1) "fub"))
+       #(argument
+         (#(array-simple
+            (#(open-braket #(tag-lbrk #(3 5) #\[))
+             #(argument
+               (#(simple-argument #(tag-sym #(3 6) "x"))))
+             #(argument
+               (#(continuous
+                  (#(colon #(tag-cln #(3 8) #\:))
+                   #(continuous-list
+                     #(tag-sym #(3 10) "xs"))))))
+             #(close-braket #(tag-rbrk #(3 12) #\]))))))))
+    #(func-to #(tag-to #(3 14) "<-"))
+    #(expr
+      (#(array-simple
+         (#(open-braket #(tag-lbrk #(3 17) #\[))
+          #(argument
+            (#(simple-argument #(tag-sym #(3 18) "x"))))
+          #(argument
+            (#(continuous
+               (#(colon #(tag-cln #(3 20) #\:))
+                #(expr
+                  (#(func-decl
+                     (#(func-name #(tag-sym #(3 22) "fub"))
+                      #(argument
+                        (#(simple-argument
+                           #(tag-sym #(3 26) "xs"))))))))))))
+          #(close-braket #(tag-rbrk #(3 28) #\]))))))))
+ #(expr
+   (#(func-decl
+      (#(func-name #(tag-sym #(5 1) "fub"))
+       #(argument
+         (#(array-simple
+            (#(open-braket #(tag-lbrk #(5 5) #\[))
+             #(argument
+               (#(simple-argument #(tag-num #(5 6) 0))))
+             #(argument
+               (#(simple-argument #(tag-num #(5 7) 2))))
+             #(argument
+               (#(simple-argument #(tag-num #(5 9) 7))))
+             #(argument
+               (#(simple-argument #(tag-num #(5 11) 0))))
+             #(argument
+               (#(simple-argument #(tag-num #(5 13) 5))))
+             #(close-braket #(tag-rbrk #(5 14) #\]))))))))))
+ #(expr
+   (#(func-decl
+      (#(func-name #(tag-sym #(6 1) "fub"))
+       #(argument
+         (#(array-simple
+            (#(open-braket #(tag-lbrk #(6 5) #\[))
+             #(argument
+               (#(simple-argument #(tag-num #(6 6) 0))))
+             #(argument
+               (#(simple-argument #(tag-num #(6 7) 1))))
+             #(argument
+               (#(simple-argument #(tag-num #(6 9) 0))))
+             #(argument
+               (#(simple-argument #(tag-num #(6 11) 1))))
+             #(argument
+               (#(simple-argument #(tag-num #(6 13) 0))))
+             #(close-braket #(tag-rbrk #(6 14) #\]))))))))))))
 ;; end examp
 
 ;; defs
@@ -261,7 +292,7 @@
        (let ((car-model model))
          (or (assoc func-name car-model)
              (and (find-in-params func-name car-model)
-                  (print '!!!in-params!!!)
+                  ;(print '!!!in-params!!!)
                   func-name)
              (find-in-model func-name (cdr model))))))
 
@@ -476,7 +507,6 @@
         (let* ((terms (get-rule-terms arg-rule))
                (first-term (car terms))
                (first-type (get-rule-name first-term)))
-          ;(print 'get-name-of-arg first-term)
           (cond ((eq? first-type 'simple-argument) (get-simple-arg-name first-term))
                 ((eq? first-type 'array-simple)    (get-array-name first-term))
                 ((eq? first-type 'continuous)      (get-continuous-name first-term)))))
@@ -490,11 +520,9 @@
                (l-model (length model))
                (l-this (+ l-args l-model))
                (body (semantic-program b-list (append (make-alist names-of-args) model) '())))
-          ;(print 'semantic-func-body (length (car body)) )
           (list (reverse (remove-last (car body) l-this)) (cdr body))))
 
       (define (semantic-func-def func-def-terms model)
-        ;(print 'semantic-func-def)
         (let* ((func-decl (car func-def-terms))
 
                (func-name-token (get-token-name-from-decl func-decl))
@@ -537,7 +565,6 @@
               (and (zero? arg-len)
                    name)
               (cons name (map (lambda (arg)
-                                ;(print 'semantic-func-call (car (get-rule-terms arg)))
                                 (get-arg-value (car (get-rule-terms arg))
                                                (list (list name-token func-types))))
                               args)))))
@@ -550,7 +577,6 @@
                (name (get-token-value name-token))
                (args (cdr func-decl-terms))
                (in-model (find-in-model name model)))
-          ;(print 'semantic-var name in-model model)
           (or (and in-model
                    (semantic-func-call name-token args (cdr in-model)))
               (and (add-error ERROR_UNDEFINED_VARIABLE name-token)
@@ -581,37 +607,37 @@
                      (f-term      (car terms))
                      (f-term-name (get-rule-name f-term)))
                 (if (eq? f-term-name 'continuous)
-                    `(append-s ,(map (lambda (x) (argument-to-expr x model)) list-elems)
-                               ,(get-continuous-expr f-term model))
+                    `(append-s ,(cons ':list (map (lambda (x) (argument-to-expr x model)) list-elems))
+                               ,(cons ':list (get-continuous-expr f-term model)))
                     `',(map (lambda (x) (argument-to-expr x model)) inner))))))
 
       (define (get-arg-value arg-rule model)
-        ;(print 'get-arg-value arg-rule)
         (let ((name (get-rule-name arg-rule)))
-          ;(print 'get-arg-value--name name)
           (cond ((eq? name 'simple-argument) (get-simple-arg-value arg-rule))
-                ((eq? name 'array-simple)    (semantic-expr-arr (get-rule-terms arg-rule) model)))))
+                ((eq? name 'array-simple)    (semantic-expr-arr (get-rule-terms arg-rule) model))
+                ((eq? name 'expr)            (semantic-expr (get-rule-terms arg-rule)
+                                                            (append (make-alist
+                                                                     (vector-ref (get-args-from-type
+                                                                                  (car (cadar model)))
+                                                                                 TYPE-ARGS-NAMES))
+                                                                    model))))))
 
       (define (semantic-expr-elem elem model)
         (let ((type (get-rule-name elem)))
-          ;(print 'semantic-expr-elem type model)
           (cond ((eq? type 'func-decl)    (semantic-var (get-rule-terms elem) model))
                 ((eq? type 'array-simple) (semantic-expr-arr (get-rule-terms elem) model))
                 (else                     (get-token-value elem)))))
 
       (define (semantic-expr terms model)
-        ;(print 'semantic-expr terms)
         (map (lambda (x) (semantic-expr-elem x model)) terms))
 
       ;; need to make semantic-model-exprs
       (define (semantic-model-exprs model)
-        ;(print 'semantic-model-exprs )
         ;(let* ((f-bodies (map get-func-bodies model))))
         model)
 
       ;; parse exprs after defs
       (define (semantic-program ast model exprs)
-        ;(print 'semantic-program ast)
         (if (null? ast)
             (list model exprs)
             (let* ((rule (car ast))

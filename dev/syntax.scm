@@ -182,7 +182,6 @@
       (define (syntax-rule+ rule . args)
         (define (helper ast-list)
           (let ((ast-elem (apply rule args)))
-            ;(print "syntax-rule+" ast-elem)
             (if ast-elem
                 (helper (cons ast-elem ast-list))
                 (reverse ast-list))))
@@ -194,7 +193,6 @@
       (define (simple-rule rule-name . tags)
         (let ((t token))
           (and (apply is-type? tags)
-               ;(print "simple-rule-before-new-token" rule-name token)
                (next-token)
                (vector `,rule-name `,t))))
 
@@ -202,9 +200,7 @@
         (let ((t token))
           (and (is-type? 'tag-kw)
                (eqv? (get-token-value token) word)
-               ;(print "simple-func-before-new-token" name token)
                (next-token)
-               ;(print (vector `,name `,t))
                (vector `,name `,t))))
 
       (define (get-first-rule start-pos first-rule-expr)
@@ -248,7 +244,6 @@
         (define ast-list '())
         (if (start-in? start-pos)
             (let ((first-rule (simple-rule 'open-braket 'tag-lbrk)))
-              ;(print "syntax-array-simple" token ast-list first-rule)
               (and first-rule
                    (set! ast-list (cons first-rule
                                         (syntax-arguments (get-simple-start-pos 
@@ -266,7 +261,6 @@
         (define ast-list '())
         (if (start-in? start-pos)
             (let ((first-rule (simple-rule 'open-braket 'tag-lbrk)))
-              ;(print "syntax-array" token ast-list first-rule)
               (and first-rule
                    (set! ast-list (cons first-rule
                                         (syntax-arguments (get-simple-start-pos 
@@ -310,18 +304,13 @@
       (define (syntax-argument start-pos args-can-be-funcs?)
         (and (start-in? start-pos)
              (let* ((arg (or (simple-rule 'simple-argument 'tag-num 'tag-sym)
-                             ;(if args-can-be-funcs?
-                             ;    (syntax-array start-pos)
-                             ;    (syntax-array-simple start-pos))
                              (syntax-array start-pos args-can-be-funcs?)
                              (syntax-arg-continuous start-pos args-can-be-funcs?)
                              (and args-can-be-funcs? (syntax-expr start-pos))))
                     (larg (if (list? arg) arg (list arg))))
-               ;(print "syntax-argument" arg)
                (and arg (vector 'argument larg)))))
 
       (define (syntax-arguments start-pos args-can-be-funcs?)
-        ;(print "syntax-arguments" token args-can-be-funcs?)
         (define (helper ast-list)
           (let ((arg (syntax-argument start-pos args-can-be-funcs?)))
             (or (and arg (helper (cons arg ast-list)))
@@ -329,10 +318,8 @@
         (helper '()))
 
       (define (syntax-func-declaration start-pos args-can-be-funcs?)
-        ;(print "syntax-func-declaration" token args-can-be-funcs?)
         (and (start-in? start-pos)
              (let ((first-rule (simple-rule 'func-name 'tag-sym)))
-               ;(print "syntax-func-declaration-first" first-rule)
                (and first-rule
                     (vector 'func-decl
                             (cons first-rule
@@ -377,7 +364,6 @@
                                (get-lambda-rules start-pos)))
 
       (define (syntax-expr . args)
-        ;(print "expr" token args)
         (let ((start-pos (car args)))
           (if (eq? (get-token-tag token) 'tag-end)
               (and (not-null? (cdr args))
@@ -391,7 +377,6 @@
                   (apply shunting-yard args)))))
 
       (define (shunting-yard start-pos . out)
-        ;(print "shunting-yard" start-pos token out)
         (define stack '())
         (define start-flag #t)
 
@@ -433,12 +418,12 @@
         (define (try-get)
           (set! start-flag (> (get-token-pos token) start-pos))
           (and start-flag
-               (let ((tag  (get-token-tag token))
-                     (op   (prior token))
-                     (proc (syntax-func-declaration start-pos ARGS-CAN-BE-FUNCS))
-                     (flag #f))
-                 (print 'try-get tag (> op 0) proc (eqv? tag 'tag-num) (eqv? tag 'tag-lprn) (eqv? tag 'tag-rprn))
-                 (and (cond ((> op 0)             (op-to-out op)
+               (let* ((tag  (get-token-tag token))
+                      (op   (prior token))
+                      (valid-op (and (> op 0) (or (not-null? stack) (not-null? out))))
+                      (proc (syntax-func-declaration start-pos ARGS-CAN-BE-FUNCS))
+                      (flag #f))
+                 (and (cond (valid-op             (op-to-out op)
                                                   (set! stack 
                                                         (cons token stack)))
                             (proc                 (set! flag #t)
@@ -448,19 +433,15 @@
                                                         (cons token stack)))
                             ((eqv? tag 'tag-rprn) (op-before-laren-to-out 0))
                             (else                 (set! start-flag #f) #f))
-                      ;(print stack out "\n")
                       (if flag
                           (try-get)
-                          (and ;(print "try-get-before-new-token" token)
-                           (next-token)
-                           (neq? (get-token-tag token) 'tag-end)
-                           (try-get)))))))
+                          (and (next-token)
+                               (neq? (get-token-tag token) 'tag-end)
+                               (try-get)))))))
 
         (define (op-before-laren-to-out p)
-          (print 'op-before-laren-to-out stack)
           (if (not-null? stack)
               (let ((cur (car stack)))
-                (print "op-before-laren-to-out" (op? cur) p)
                 (cond ((eqv? (get-token-tag cur) 'tag-lprn)
                        (set! stack (cdr stack)))
                       ((op? cur) (from-stack-to-out cur 
@@ -469,7 +450,6 @@
                       (else      (add-error ERROR_EXPR_ARENS))))))
 
         (define (from-stack-to-out cur callback p)
-          (print 'from-stack-to-out cur callback p)
           (set! out (cons cur out))
           (set! stack (cdr stack))
           (callback p))
@@ -484,24 +464,20 @@
         (define (ops-to-out p)
           (if (not-null? stack)
               (let ((cur (car stack)))
-                (print 'ops-to-out p stack (op? cur))
                 (if (op? cur)
                     (from-stack-to-out cur ops-to-out p)
                     (add-error ERROR_EXPR)))))
 
         (try-get)
-        ;(print start-flag stack out)
         (and (or start-flag (not-null? out))
              (ops-to-out 0)
              (vector 'expr (reverse out))))
 
       (define (syntax-program start-pos)
-        ;(print "syntax-program" start-pos)
         (let ((func-decl (syntax-func-declaration start-pos ARGS-CANT-BE-FUNCS)))
           (or (and func-decl
                    (let ((func-body (syntax-func-body (get-expr-start-pos 
                                                        func-decl))))
-                     ;(print func-decl "syntax-program-func-body" func-body)
                      (or (and func-body
                               (vector 'func-def
                                       (cons func-decl func-body)))
