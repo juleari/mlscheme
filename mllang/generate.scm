@@ -73,9 +73,11 @@
                     (map-cond ,(map (lambda (type)
                                       (let* ((lambda-and-let (make-var-lists type))
                                              (lambda-list (car lambda-and-let))
-                                             (lambda-let  (cdr lambda-and-let)))
+                                             (lambda-let  (cdr lambda-and-let))
+                                             (hash-args (get-args-for-check ':args type)))
+                                        (print 'generate-def type)
                                         `((and (,(get-args-num-from-type type) (length :args))
-                                               (hash ',(get-args-check-from-type type) :args)
+                                               (hash ',(get-args-check-from-type type) ,hash-args)
                                                (,(get-similar-from-type type) :args))
                                           (apply (lambda ,lambda-list
                                                    ,(if (not-null? lambda-let)

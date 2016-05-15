@@ -1,19 +1,16 @@
 ;; examp
 (define v
-  '((("fib"
-      #(#((lambda (:x) (= :x 1))
-          ((lambda (x) (eqv? x 0)))
-          (:_)
-          (lambda :args #t))
-        ()
-        ((1)))
-      #(#((lambda (:x) (= :x 1))
-          ((lambda (x) #t))
-          ("n")
-          (lambda :args #t))
-        ()
-        (("n" ("fib" ("n" 1 "-")) "*")))))
-    (("fib" 5) ("fib" 10))))
+  '((("sum"
+   #(#((lambda (x) (zero? x)) () () (lambda :args #t))
+     ()
+     ((0)))
+   #(#((lambda (:x) (>= :x 1))
+       ((lambda (x) #t))
+       ("x" (continuous "xs"))
+       (lambda :args #t))
+     ()
+     (("x" ("sum" "xs") "+")))))
+ (("sum" 1 2 3 4))))
 ;; end examp
 
 ;; defs
@@ -105,11 +102,15 @@
   (map get-sym-name names))
 
 (define (hash f-list a-list)
-  ;(print 'hash f-list a-list)
+  (print 'hash f-list a-list)
   ;(print ((eval-i (car f-list)) (car a-list)))
   (or (null? f-list)
       (and ((eval-i (car f-list)) (car a-list))
            (hash (cdr f-list) (cdr a-list)))))
+
+(define-syntax neq?
+  (syntax-rules ()
+    ((_ x y) (not (eqv? x y)))))
 
 (define-syntax not-null?
   (syntax-rules ()
@@ -165,7 +166,7 @@
   (if (or (zero? n)
           (null? xs))
       '()
-      (cons (car xs) (- n 1))))
+      (cons (car xs) (give-first (cdr xs) (- n 1)))))
 
 (define (and-fold xs)
   ; (print 'and-fold xs)
@@ -213,7 +214,7 @@
                   (if (is-cont-name? cur-name)
                       (cons `(,(get-sym-name (cadr cur-name)) ,a-list) l-list)
                       (cons `(,(get-sym-name cur-name) (car ,a-list)) l-list))))))
-  
+
   (apply append (map (lambda (name cor-name)
                        (if (list? name)
                            (helper name cor-name '())
@@ -224,16 +225,32 @@
 ;; @returns (list lambda-var-list let-var-list)
 (define (make-var-lists type)
   (let* ((names (get-args-names-from-type type))
-         (has-let? (not-null? (filter list? names))))
-    ;(print 'make-var-lists names)
+         (has-let? (not-null? (filter (lambda (x)
+                                        (and (list? x)
+                                             (or (null? x)
+                                                 (neq? (car x) 'continuous))))
+                                      names))))
+
     (if has-let?
         (let ((cor-names (make-lambda-var-from-list names)))
           (list cor-names (make-let-var-list names cor-names)))
-        (list (make-names-list names)))))
+        (list (make-lambda-var-from-list names)))))
 
+;; new lib
+(define (get-args-for-check name type)
+  (let ((names (get-args-names-from-type type)))
+    (if (not-null? names)
+        (let ((last (car (reverse names))))
+          (print 'get-args-for-check last)
+          (if (and (list? last)
+                   (not-null? last)
+                   (eq? (car last) 'continuous))
+              `(give-first ,name ,(- (length names) 1))
+              name))
+        name)))
 ;; end lib
-(define gen-file (open-output-file "generated.sm"))
-;(define gen-file (current-output-port))
+;(define gen-file (open-output-file "generated.sm"))
+(define gen-file (current-output-port))
 
 ;; в рабочей версии вместо genbase.sm должен быть задаваемый в compiler.py путь
 (define (prepare-gen-file)
@@ -241,7 +258,7 @@
     (while (not (eof-object? (peek-char lib-funcs-file)))
            (display (read-char lib-funcs-file) gen-file))))
 
-(prepare-gen-file)
+;(prepare-gen-file)
 
 (define (to-gen-file text)
   (display text gen-file)
@@ -309,9 +326,11 @@
                     (map-cond ,(map (lambda (type)
                                       (let* ((lambda-and-let (make-var-lists type))
                                              (lambda-list (car lambda-and-let))
-                                             (lambda-let  (cdr lambda-and-let)))
+                                             (lambda-let  (cdr lambda-and-let))
+                                             (hash-args (get-args-for-check ':args type)))
+                                        (print 'generate-def type)
                                         `((and (,(get-args-num-from-type type) (length :args))
-                                               (hash ',(get-args-check-from-type type) :args)
+                                               (hash ',(get-args-check-from-type type) ,hash-args)
                                                (,(get-similar-from-type type) :args))
                                           (apply (lambda ,lambda-list
                                                    ,(if (not-null? lambda-let)

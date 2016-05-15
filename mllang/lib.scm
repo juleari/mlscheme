@@ -455,7 +455,7 @@
   (if (or (zero? n)
           (null? xs))
       '()
-      (cons (car xs) (- n 1))))
+      (cons (car xs) (give-first (cdr xs) (- n 1)))))
 
 (define (and-fold xs)
   ; (print 'and-fold xs)
@@ -514,9 +514,26 @@
 ;; @returns (list lambda-var-list let-var-list)
 (define (make-var-lists type)
   (let* ((names (get-args-names-from-type type))
-         (has-let? (not-null? (filter list? names))))
-    ;(print 'make-var-lists names)
+         (has-let? (not-null? (filter (lambda (x)
+                                        (and (list? x)
+                                             (or (null? x)
+                                                 (neq? (car x) 'continuous))))
+                                      names))))
+
     (if has-let?
         (let ((cor-names (make-lambda-var-from-list names)))
           (list cor-names (make-let-var-list names cor-names)))
-        (list (make-names-list names)))))
+        (list (make-lambda-var-from-list names)))))
+
+(define (get-args-for-check name type)
+  (let ((names (get-args-names-from-type type)))
+    (if (not-null? names)
+        (let ((last (car (reverse names))))
+          (print 'get-args-for-check last)
+          (if (and (list? last)
+                   (not-null? last)
+                   (eq? (car last) 'continuous))
+              `(give-first ,name ,(- (length names) 1))
+              name))
+        name)))
+
