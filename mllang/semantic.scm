@@ -106,14 +106,17 @@
                (correct-types (filter (lambda (type)
                                         ((eval-i (get-args-num-from-type type)) arg-len))
                                       func-types)))
-          (or (and (null? correct-types)
-                   (add-error ERROR_NUM_OF_ARGS name-token))
-              (and (zero? arg-len)
-                   name)
-              (cons name (map (lambda (arg)
-                                (get-arg-value (car (get-rule-terms arg))
-                                               (list (list name-token func-types))))
-                              args)))))
+          (and (not-null? correct-types)
+               (or  (and (zero? arg-len)
+                         name)
+                    (let ((arg-values (map (lambda (arg)
+                                             (get-arg-value (car (get-rule-terms arg))
+                                                            (list (list name-token func-types))))
+                                           args)))
+                      ;(print 'semantic-func-call arg-values)
+                      (if (is-apply? arg-values)
+                          (list "apply" name (caar arg-values))
+                          (cons name arg-values)))))))
 
       ;; надо связывать индексы в списке с функциями сравнения
       ;; для тех элементов, которые являются символами нужно хранить имена... ЖИЗНЬ БОЛЬ
@@ -123,8 +126,11 @@
                (name (get-token-value name-token))
                (args (cdr func-decl-terms))
                (in-model (find-in-model name model)))
+          ;(print 'semantic-var in-model)
           (or (and in-model
-                   (semantic-func-call name-token args (cdr in-model)))
+                   (or (or-fold (map (lambda (in-model) (semantic-func-call name-token args in-model))
+                                     in-model))
+                       (add-error ERROR_NUM_OF_ARGS name-token)))
               (and (add-error ERROR_UNDEFINED_VARIABLE name-token)
                    func-decl-terms))))
 
@@ -161,6 +167,9 @@
         (let ((name (get-rule-name arg-rule)))
           (cond ((eq? name 'simple-argument) (get-simple-arg-value arg-rule))
                 ((eq? name 'array-simple)    (semantic-expr-arr (get-rule-terms arg-rule) model))
+                ((eq? name 'apply)           (cons (get-arg-value (car (get-rule-terms (cadr (get-rule-terms arg-rule))))
+                                                                  model)
+                                                   '(:apply)))
                 ((eq? name 'expr)            (semantic-expr (get-rule-terms arg-rule)
                                                             (append (make-alist
                                                                      (vector-ref (get-args-from-type

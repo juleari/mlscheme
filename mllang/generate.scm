@@ -75,7 +75,7 @@
                                              (lambda-list (car lambda-and-let))
                                              (lambda-let  (cdr lambda-and-let))
                                              (hash-args (get-args-for-check ':args type)))
-                                        (print 'generate-def type)
+                                        ;(print 'generate-def type)
                                         `((and (,(get-args-num-from-type type) (length :args))
                                                (hash ',(get-args-check-from-type type) ,hash-args)
                                                (,(get-similar-from-type type) :args))

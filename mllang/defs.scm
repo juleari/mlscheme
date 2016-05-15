@@ -34,6 +34,7 @@
 (define ERROR_NO_IF_ACT      "no expression in if")
 (define ERR_AFTER_CONTINUOUS "uncorrect after continuous")
 (define ERR_NO_CONTINUOUS    "no continuous")
+(define ERR_INCORRECT_APPLY  "apply has no arguments")
 
 (define TYPE-ARGS 0)
 (define TYPE-ARGS-NUM 0)

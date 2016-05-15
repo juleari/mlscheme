@@ -179,11 +179,20 @@
                             (add-error ERR_AFTER_continuous))
                         (list cont))))))
 
+      (define (syntax-apply start-pos)
+        (syntax-whole-rule 'apply
+                           start-pos
+                           `(,simple-rule 'apply-dot 'tag-dot)
+                           syntax-rule
+                           `(,syntax-argument ,start-pos ,#t)
+                           ERR_INCORRECT_APPLY))
+
       (define (syntax-argument start-pos args-can-be-funcs?)
         (and (start-in? start-pos)
              (let* ((arg (or (simple-rule 'simple-argument 'tag-num 'tag-sym)
                              (syntax-array start-pos args-can-be-funcs?)
                              (syntax-arg-continuous start-pos args-can-be-funcs?)
+                             (and args-can-be-funcs? (syntax-apply start-pos))
                              (and args-can-be-funcs? (syntax-expr start-pos))))
                     (larg (if (list? arg) arg (list arg))))
                (and arg (vector 'argument larg)))))
@@ -199,6 +208,7 @@
         (and (start-in? start-pos)
              (let ((first-rule (simple-rule 'func-name 'tag-sym)))
                (and first-rule
+                    ;(print 'syntax-func-declaration first-rule args-can-be-funcs?)
                     (vector 'func-decl
                             (cons first-rule
                                   (syntax-rule? syntax-arguments
@@ -290,7 +300,8 @@
                   ((x-in-xs? tag 'tag-pls 'tag-mns)                    8)
                   ((x-in-xs? tag 'tag-mul 'tag-div 'tag-mod 'tag-rem)  9)
                   ((x-in-xs? tag 'tag-pow)                            10)
-                  ((or (x-in-xs? tag 'tag-not) (trigonometric))       11)
+                  ((x-in-xs? tag 'tag-not)                            11)
+                  ((trigonometric)                                    12)
                   (else                                                0))))
 
         (define (try-get)
@@ -300,7 +311,8 @@
                       (op   (prior token))
                       (valid-op (and (> op 0) (or (not-null? stack) (not-null? out))))
                       (proc (syntax-func-declaration start-pos ARGS-CAN-BE-FUNCS))
-                      (flag #f))
+                      (flag #f)
+                      (end-flag #f))
                  (and (cond (valid-op             (op-to-out op)
                                                   (set! stack 
                                                         (cons token stack)))
@@ -309,13 +321,17 @@
                             ((eqv? tag 'tag-num)  (set! out (cons token out)))
                             ((eqv? tag 'tag-lprn) (set! stack 
                                                         (cons token stack)))
-                            ((eqv? tag 'tag-rprn) (op-before-laren-to-out 0))
-                            (else                 (set! start-flag #f) #f))
-                      (if flag
-                          (try-get)
-                          (and (next-token)
-                               (neq? (get-token-tag token) 'tag-end)
-                               (try-get)))))))
+                            ((eqv? tag 'tag-rprn) (or (and (not-null? stack)
+                                                           (op-before-laren-to-out 0))
+                                                      (and (set! end-flag #t)
+                                                           (set! start-flag #f))))
+                            (else                 (set! start-flag #f)
+                                                  #f))
+                      (cond (end-flag #f)
+                            (flag     (try-get))
+                            (else     (and (next-token)
+                                            (neq? (get-token-tag token) 'tag-end)
+                                            (try-get))))))))
 
         (define (op-before-laren-to-out p)
           (if (not-null? stack)
@@ -336,7 +352,7 @@
           (if (not-null? stack)
               (let ((cur (car stack)))
                 (if (and (neq? (get-token-tag cur) 'tag-lprn)
-                         (<= (prior cur) p))
+                         (>= (prior cur) p))
                     (from-stack-to-out cur op-to-out p)))))
 
         (define (ops-to-out p)

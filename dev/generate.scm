@@ -9,7 +9,7 @@
        ("x" (continuous "xs"))
        (lambda :args #t))
      ()
-     (("x" ("sum" "xs") "+")))))
+     (("x" ("apply" "sum" "xs") "+")))))
  (("sum" 1 2 3 4))))
 ;; end examp
 
@@ -102,7 +102,7 @@
   (map get-sym-name names))
 
 (define (hash f-list a-list)
-  (print 'hash f-list a-list)
+  ;(print 'hash f-list a-list)
   ;(print ((eval-i (car f-list)) (car a-list)))
   (or (null? f-list)
       (and ((eval-i (car f-list)) (car a-list))
@@ -241,7 +241,7 @@
   (let ((names (get-args-names-from-type type)))
     (if (not-null? names)
         (let ((last (car (reverse names))))
-          (print 'get-args-for-check last)
+          ;(print 'get-args-for-check last)
           (if (and (list? last)
                    (not-null? last)
                    (eq? (car last) 'continuous))
@@ -249,8 +249,8 @@
               name))
         name)))
 ;; end lib
-;(define gen-file (open-output-file "generated.sm"))
-(define gen-file (current-output-port))
+(define gen-file (open-output-file "generated.sm"))
+;(define gen-file (current-output-port))
 
 ;; в рабочей версии вместо genbase.sm должен быть задаваемый в compiler.py путь
 (define (prepare-gen-file)
@@ -258,7 +258,7 @@
     (while (not (eof-object? (peek-char lib-funcs-file)))
            (display (read-char lib-funcs-file) gen-file))))
 
-;(prepare-gen-file)
+(prepare-gen-file)
 
 (define (to-gen-file text)
   (display text gen-file)
@@ -328,7 +328,7 @@
                                              (lambda-list (car lambda-and-let))
                                              (lambda-let  (cdr lambda-and-let))
                                              (hash-args (get-args-for-check ':args type)))
-                                        (print 'generate-def type)
+                                        ;(print 'generate-def type)
                                         `((and (,(get-args-num-from-type type) (length :args))
                                                (hash ',(get-args-check-from-type type) ,hash-args)
                                                (,(get-similar-from-type type) :args))

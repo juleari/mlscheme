@@ -17,7 +17,11 @@
                   #(func-decl
                     (#(func-name #(tag-sym #(2 19) "sum"))
                      #(argument
-                       (#(simple-argument #(tag-sym #(2 23) "xs"))))))
+                       (#(apply
+                          (#(apply-dot #(tag-dot #(2 22) #\.))
+                           #(argument
+                             (#(simple-argument
+                                #(tag-sym #(2 23) "xs"))))))))))
                   #(tag-pls #(2 17) "+")))))
             #(expr
               (#(func-decl
@@ -25,8 +29,7 @@
                   #(argument (#(simple-argument #(tag-num #(4 5) 1))))
                   #(argument (#(simple-argument #(tag-num #(4 7) 2))))
                   #(argument (#(simple-argument #(tag-num #(4 9) 3))))
-                  #(argument
-                    (#(simple-argument #(tag-num #(4 11) 4))))))))))
+                  #(argument (#(simple-argument #(tag-num #(4 11) 4))))))))))
 ;; end examp
 
 ;; defs
@@ -145,6 +148,11 @@
       (and (car xs)
            (and-fold (cdr xs)))))
 
+(define (or-fold xs)
+  (and (not-null? xs)
+       (or (car xs)
+           (or-fold (cdr xs)))))
+
 (define (get-array-args-rules l-lambda inner x)
   `(and-fold (cons ,l-lambda
                    (map (lambda (:lambda-i :xi)
@@ -220,11 +228,14 @@
 (define (find-in-model func-name model)
   (and (not-null? model)
        ;(let ((car-model (car model)))
-       (let ((car-model model))
-         (or (assoc func-name car-model)
+       (let* ((car-model model)
+              (in-model (assoc func-name car-model)))
+         (or (and in-model (cons (cdr in-model)
+                                 (or (find-in-model func-name (cdr model))
+                                     '())))
              (and (find-in-params func-name car-model)
                   ;(print '!!!in-params!!!)
-                  func-name)
+                  (list func-name))
              (find-in-model func-name (cdr model))))))
 
 (define (get-args-from-type type)
@@ -376,6 +387,13 @@
           (null? xs))
       '()
       (cons (car xs) (- n 1))))
+
+(define (is-apply? arg-values)
+  (and (eq? 1 (length arg-values))
+       (let ((val (car arg-values)))
+         (and (list? val)
+              (not-null? val)
+              (eq? ':apply (car (reverse val)))))))
 ;; end lib
 
 #|
@@ -491,14 +509,17 @@
                (correct-types (filter (lambda (type)
                                         ((eval-i (get-args-num-from-type type)) arg-len))
                                       func-types)))
-          (or (and (null? correct-types)
-                   (add-error ERROR_NUM_OF_ARGS name-token))
-              (and (zero? arg-len)
-                   name)
-              (cons name (map (lambda (arg)
-                                (get-arg-value (car (get-rule-terms arg))
-                                               (list (list name-token func-types))))
-                              args)))))
+          (and (not-null? correct-types)
+               (or  (and (zero? arg-len)
+                         name)
+                    (let ((arg-values (map (lambda (arg)
+                                             (get-arg-value (car (get-rule-terms arg))
+                                                            (list (list name-token func-types))))
+                                           args)))
+                      ;(print 'semantic-func-call arg-values)
+                      (if (is-apply? arg-values)
+                          (list "apply" name (caar arg-values))
+                          (cons name arg-values)))))))
 
       ;; надо связывать индексы в списке с функциями сравнения
       ;; для тех элементов, которые являются символами нужно хранить имена... ЖИЗНЬ БОЛЬ
@@ -508,8 +529,11 @@
                (name (get-token-value name-token))
                (args (cdr func-decl-terms))
                (in-model (find-in-model name model)))
+          ;(print 'semantic-var in-model)
           (or (and in-model
-                   (semantic-func-call name-token args (cdr in-model)))
+                   (or (or-fold (map (lambda (in-model) (semantic-func-call name-token args in-model))
+                                     in-model))
+                       (add-error ERROR_NUM_OF_ARGS name-token)))
               (and (add-error ERROR_UNDEFINED_VARIABLE name-token)
                    func-decl-terms))))
 
@@ -546,6 +570,9 @@
         (let ((name (get-rule-name arg-rule)))
           (cond ((eq? name 'simple-argument) (get-simple-arg-value arg-rule))
                 ((eq? name 'array-simple)    (semantic-expr-arr (get-rule-terms arg-rule) model))
+                ((eq? name 'apply)           (cons (get-arg-value (car (get-rule-terms (cadr (get-rule-terms arg-rule))))
+                                                                  model)
+                                                   '(:apply)))
                 ((eq? name 'expr)            (semantic-expr (get-rule-terms arg-rule)
                                                             (append (make-alist
                                                                      (vector-ref (get-args-from-type
