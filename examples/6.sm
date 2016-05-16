@@ -1,0 +1,18 @@
+replace pred? proc []         <- []
+replace pred? proc [ x : xs ] <-  
+    if | pred? x -> [ proc x 
+                      : replace pred? proc xs ]
+       |         -> [ x 
+                      : replace pred? proc xs ]
+
+replace zero? 
+        \ x -> x + 1
+        [ 0 1 2 3 0 ]
+
+replace odd?
+        \ x -> x * 2
+        [ 1 2 3 4 5 6 ]
+
+replace \ x -> 0 > x
+        exp
+        []

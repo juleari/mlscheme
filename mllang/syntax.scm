@@ -260,6 +260,16 @@
                     (and arr
                          (not-null? arr)
                          (vector 'expr arr)))
+                  (let ((func-decl? (cdr args)))
+                    (and (not-null? func-decl?)
+                         (let ((func-decl (car func-decl?))
+                               (apply-elem (syntax-apply start-pos)))
+                           (and apply-elem
+                                (vector 'expr
+                                        (list (vector (vector-ref func-decl 0)
+                                                      (append (vector-ref func-decl 1)
+                                                              (list (vector 'argument
+                                                                            (list apply-elem)))))))))))
                   (syntax-if start-pos)
                   ;(syntax-lambda start-pos)
                   (apply shunting-yard args)))))
