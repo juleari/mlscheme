@@ -1,35 +1,88 @@
 ;; examp
 (define v '(#(func-def
-              (#(func-decl (#(func-name #(tag-sym #(1 1) "sum"))))
-               #(func-to #(tag-to #(1 5) "<-"))
-               #(expr (#(tag-num #(1 8) 0)))))
-            #(func-def
-              (#(func-decl
-                 (#(func-name #(tag-sym #(2 1) "sum"))
-                  #(argument (#(simple-argument #(tag-sym #(2 5) "x"))))
-                  #(argument
-                    (#(continuous
-                       (#(colon #(tag-cln #(2 7) #\:))
-                        #(continuous-list #(tag-sym #(2 9) "xs"))))))))
-               #(func-to #(tag-to #(2 12) "<-"))
-               #(expr
-                 (#(func-decl (#(func-name #(tag-sym #(2 15) "x"))))
-                  #(func-decl
-                    (#(func-name #(tag-sym #(2 19) "sum"))
-                     #(argument
-                       (#(apply
-                          (#(apply-dot #(tag-dot #(2 22) #\.))
-                           #(argument
-                             (#(simple-argument
-                                #(tag-sym #(2 23) "xs"))))))))))
-                  #(tag-pls #(2 17) "+")))))
-            #(expr
-              (#(func-decl
-                 (#(func-name #(tag-sym #(4 1) "sum"))
-                  #(argument (#(simple-argument #(tag-num #(4 5) 1))))
-                  #(argument (#(simple-argument #(tag-num #(4 7) 2))))
-                  #(argument (#(simple-argument #(tag-num #(4 9) 3))))
-                  #(argument (#(simple-argument #(tag-num #(4 11) 4))))))))))
+   (#(func-decl
+      (#(func-name #(tag-sym #(2 1) "day-of-week"))
+       #(argument (#(simple-argument #(tag-sym #(2 13) "day"))))
+       #(argument (#(simple-argument #(tag-sym #(2 17) "month"))))
+       #(argument (#(simple-argument #(tag-sym #(2 23) "year"))))))
+    #(func-to #(tag-to #(2 28) "<-"))
+    #(func-def
+      (#(func-decl (#(func-name #(tag-sym #(3 5) "a"))))
+       #(func-to #(tag-to #(3 7) "<-"))
+       #(expr
+         (#(tag-num #(3 11) 14)
+          #(func-decl (#(func-name #(tag-sym #(3 14) "month"))))
+          #(tag-mns #(3 12) "-")
+          #(tag-num #(3 24) 12)
+          #(tag-div #(3 21) "//")))))
+    #(func-def
+      (#(func-decl (#(func-name #(tag-sym #(4 5) "y"))))
+       #(func-to #(tag-to #(4 7) "<-"))
+       #(expr
+         (#(func-decl (#(func-name #(tag-sym #(4 10) "year"))))
+          #(func-decl (#(func-name #(tag-sym #(4 17) "a"))))
+          #(tag-mns #(4 15) "-")))))
+    #(func-def
+      (#(func-decl (#(func-name #(tag-sym #(5 5) "m"))))
+       #(func-to #(tag-to #(5 7) "<-"))
+       #(expr
+         (#(func-decl (#(func-name #(tag-sym #(5 10) "month"))))
+          #(func-decl (#(func-name #(tag-sym #(5 19) "a"))))
+          #(tag-num #(5 23) 12)
+          #(tag-mul #(5 21) "*")
+          #(tag-pls #(5 16) "+")
+          #(tag-num #(5 29) 2)
+          #(tag-mns #(5 27) "-")))))
+    #(expr
+      (#(tag-num #(7 6) 7000)
+       #(func-decl (#(func-name #(tag-sym #(7 9) "day"))))
+       #(tag-pls #(7 7) "+")
+       #(func-decl (#(func-name #(tag-sym #(7 15) "y"))))
+       #(tag-pls #(7 13) "+")
+       #(func-decl (#(func-name #(tag-sym #(7 20) "y"))))
+       #(tag-num #(7 25) 4)
+       #(tag-div #(7 22) "//")
+       #(tag-pls #(7 17) "+")
+       #(func-decl (#(func-name #(tag-sym #(7 31) "y"))))
+       #(tag-num #(7 36) 400)
+       #(tag-div #(7 33) "//")
+       #(tag-pls #(7 28) "+")
+       #(tag-num #(7 44) 31)
+       #(func-decl (#(func-name #(tag-sym #(7 47) "m"))))
+       #(tag-mul #(7 45) "*")
+       #(tag-num #(7 52) 12)
+       #(tag-div #(7 49) "//")
+       #(tag-pls #(7 41) "+")
+       #(func-decl (#(func-name #(tag-sym #(8 12) "y"))))
+       #(tag-num #(8 17) 100)
+       #(tag-div #(8 14) "//")
+       #(tag-mns #(8 9) "-")
+       #(tag-num #(8 25) 7)
+       #(tag-mod #(8 23) "%")))))
+ #(expr
+   (#(func-decl
+      (#(func-name #(tag-sym #(10 1) "day-of-week"))
+       #(argument (#(simple-argument #(tag-num #(10 13) 17))))
+       #(argument (#(simple-argument #(tag-num #(10 16) 5))))
+       #(argument (#(simple-argument #(tag-num #(10 18) 2016))))))))
+ #(expr
+   (#(func-decl
+      (#(func-name #(tag-sym #(11 1) "day-of-week"))
+       #(argument (#(simple-argument #(tag-num #(11 13) 10))))
+       #(argument (#(simple-argument #(tag-num #(11 16) 4))))
+       #(argument (#(simple-argument #(tag-num #(11 18) 2016))))))))
+ #(expr
+   (#(func-decl
+      (#(func-name #(tag-sym #(12 1) "day-of-week"))
+       #(argument (#(simple-argument #(tag-num #(12 13) 29))))
+       #(argument (#(simple-argument #(tag-num #(12 16) 3))))
+       #(argument (#(simple-argument #(tag-num #(12 18) 2016))))))))
+ #(expr
+   (#(func-decl
+      (#(func-name #(tag-sym #(13 1) "day-of-week"))
+       #(argument (#(simple-argument #(tag-num #(13 13) 20))))
+       #(argument (#(simple-argument #(tag-num #(13 16) 4))))
+       #(argument (#(simple-argument #(tag-num #(13 18) 2016))))))))))
 ;; end examp
 
 ;; defs
@@ -90,6 +143,15 @@
            (apply print (cdr xs)))
       (newline)))
 
+(define (get-token-tag token)
+  (vector-ref token T-TAG))
+
+(define (get-token-coords token)
+  (vector-ref token T-COORDS))
+
+(define (get-token-value token)
+  (vector-ref token T-VALUE))
+
 (define-syntax cdns
   (syntax-rules ()
     ((_ x xs) (append xs (list x)))))
@@ -101,20 +163,6 @@
         (if (pred? x)
             (cons x (filter pred? (cdr xs)))
             (filter pred? (cdr xs))))))
-
-(define (get-list-inner xs)
-  (if (>= (length xs) 2)
-      (reverse (cdr (reverse (cdr xs))))
-      xs))
-
-(define (get-token-tag token)
-  (vector-ref token T-TAG))
-
-(define (get-token-coords token)
-  (vector-ref token T-COORDS))
-
-(define (get-token-value token)
-  (vector-ref token T-VALUE))
 
 (define (get-rule-name rule)
   (vector-ref rule R-NAME))
@@ -143,42 +191,6 @@
         `(lambda (x) #t)
         `(lambda (x) (eqv? x ,(get-token-value token))))))
 
-(define (and-fold xs)
-  (or (null? xs)
-      (and (car xs)
-           (and-fold (cdr xs)))))
-
-(define (or-fold xs)
-  (and (not-null? xs)
-       (or (car xs)
-           (or-fold (cdr xs)))))
-
-(define (get-array-args-rules l-lambda inner x)
-  `(and-fold (cons ,l-lambda
-                   (map (lambda (:lambda-i :xi)
-                          ((eval-i :lambda-i) :xi))
-                        ',(map (lambda (:i)
-                                 (get-type-of-arg :i))
-                               inner)
-                        ,x))))
-
-;; TRY!!!
-(define (get-array-type arr-rule)
-  (let* ((arr-terms (get-rule-terms arr-rule))
-         (inner     (get-list-inner arr-terms))
-         (l-inner   (length inner)))
-    `(lambda (:x) (and (list? :x)
-                       ,(if (null? inner)
-                            `(null? :x)
-                            (if (eq? 'continuous
-                                     (get-rule-name (car (get-rule-terms (car (reverse inner))))))
-                                (get-array-args-rules `(>= (length :x) ,(- l-inner 1))
-                                                      (remove-last inner)
-                                                      `(give-first :x ,(- l-inner 1)))
-                                (get-array-args-rules `(= (length :x) ,l-inner)
-                                                      inner
-                                                      `:x)))))))
-
 (define (get-type-of-arg arg-rule)
   (let* ((terms (get-rule-terms arg-rule))
          (first-term (car terms))
@@ -197,8 +209,15 @@
                              (cons (car types) (helper (cdr types))))))))
     (helper types)))
 
-(define (get-simple-arg-value arg-rule)
-  (get-token-value (get-token-from-simple-rule arg-rule)))
+(define (get-name-of-arg arg-rule)
+  (let* ((terms (get-rule-terms arg-rule))
+         (first-term (car terms))
+         (first-type (get-rule-name first-term)))
+    (cond ((eq? first-type 'simple-argument)
+           (get-simple-arg-name first-term)))))
+
+(define (get-names-of-args func-args)
+  (map get-name-of-arg func-args))
 
 (define (get-num-of-args func-args)
   (if (null? func-args)
@@ -207,24 +226,22 @@
              (terms (get-rule-terms last))
              (term (car terms))
              (type (get-rule-name term))
-             (num  (length func-args)))
-  
+             (num  (length func-args)))  
           (if (eq? type 'continuous)
             `(lambda (:x) (>= :x ,(- num 1)))
             `(lambda (:x) (= :x ,num))))))
 
 (define (add-func-in-model model name obj)
-  (cdns (list name obj) model))
+  (cons (list name obj) model))
 
 (define (add-type-in-model model name val)
   (map (lambda (model-func)
          (let ((f-name (car model-func)))
-           (if (eq? name f-name)
+           (if (equal? name f-name)
                (cdns val model-func)
                model-func)))
        model))
 
-#|find-in model symbol-func-name '<model>|#
 (define (find-in-model func-name model)
   (and (not-null? model)
        ;(let ((car-model (car model)))
@@ -238,14 +255,9 @@
                   (list func-name))
              (find-in-model func-name (cdr model))))))
 
+
 (define (get-args-from-type type)
   (vector-ref type TYPE-ARGS))
-
-(define (get-args-num-from-type type)
-  (vector-ref (get-args-from-type type) TYPE-ARGS-NUM))
-
-(define (get-args-names-from-type type)
-  (eval-i (vector-ref (get-args-from-type type) TYPE-ARGS-NAMES)))
 
 (define (x-in-xs x xs)
   (and (not-null? xs)
@@ -269,12 +281,72 @@
   (helper xs '()))
 
 (define (remove-first n xs)
-  ;(print 'remove-first n xs)
   (if (zero? n)
       xs
-      (remove-first (- n 1)(cdr xs))))
+      (remove-first (- n 1) (cdr xs))))
+  
+(define (get-args-check-from-type type)
+  (vector-ref (get-args-from-type type) TYPE-ARGS-CHECK))
 
-;; new lib
+(define (get-similar-from-type type)
+  (vector-ref (get-args-from-type type) TYPE-ARGS-SIMILAR))
+
+(define (get-defs-from-type type)
+  (vector-ref type TYPE-DEFS))
+
+(define (get-exprs-from-type type)
+  (vector-ref type TYPE-EXPRS))
+
+(define (get-list-inner xs)
+  (if (>= (length xs) 2)
+      (reverse (cdr (reverse (cdr xs))))
+      xs))
+
+(define (and-fold xs)
+  (or (null? xs)
+      (and (car xs)
+           (and-fold (cdr xs)))))
+
+(define (or-fold xs)
+  (and (not-null? xs)
+       (or (car xs)
+           (or-fold (cdr xs)))))
+
+(define (get-array-args-rules l-lambda inner x)
+  `(and-fold (cons ,l-lambda
+                   (map (lambda (:lambda-i :xi)
+                          ((eval-i :lambda-i) :xi))
+                        ',(map (lambda (:i)
+                                (get-type-of-arg :i))
+                              inner)
+                        ,x))))
+
+;; TRY!!!
+(define (get-array-type arr-rule)
+  (let* ((arr-terms (get-rule-terms arr-rule))
+         (inner     (get-list-inner arr-terms))
+         (l-inner   (length inner)))
+    `(lambda (:x) (and (list? :x)
+                       ,(if (null? inner)
+                            `(null? :x)
+                            (if (eq? 'continuous
+                                     (get-rule-name (car (get-rule-terms (car (reverse inner))))))
+                                (get-array-args-rules `(>= (length :x) ,(- l-inner 1))
+                                                      (remove-last inner)
+                                                      `(give-first :x ,(- l-inner 1)))
+                                (get-array-args-rules `(= (length :x) ,l-inner)
+                                                      inner
+                                                      `:x)))))))
+
+(define (get-simple-arg-value arg-rule)
+  (get-token-value (get-token-from-simple-rule arg-rule)))
+
+(define (get-args-num-from-type type)
+  (vector-ref (get-args-from-type type) TYPE-ARGS-NUM))
+
+(define (get-args-names-from-type type)
+  (vector-ref (get-args-from-type type) TYPE-ARGS-NAMES))
+
 (define (remove-last xs . ns)
   (let ((rxs (reverse xs))
         (n   (if (null? ns) 1 (car ns))))
@@ -288,9 +360,6 @@
      (for-each (lambda (item) (begin proc ...)) items))
     ((_ (items ...) as (item ...) . procs) (for (item ...) in (items ...) . procs))
     ((_ items as item . procs) (for item in items . procs))))
-
-(define (compare-args arg1 arg2)
-  (print 'compare-args arg1 arg2))
 
 (define s-name
   (let* ((:s-name ':s))
@@ -377,6 +446,27 @@
 (define (make-rec-model func-name args-vector)
   (list func-name (vector args-vector (list) (list))))
 
+(define get-new-name
+  (let ((name ":g"))
+    (lambda ()
+      (set! name (string-append name "_"))
+      (string->symbol name))))
+
+(define (get-sym-name name)
+  (if (string? name)
+      (string->symbol name)
+      (get-new-name)))
+
+#| make-names-list
+ | Создание списка имён.
+ |  Строки преобразуются к символам.
+ |  Для всех остальных типов генерируется новое имя
+ | @param {list of arg-names} names список имён
+ | @returns {list of names} список имён аргументов для lambda-функции
+ |#
+(define (make-names-list names)
+  (map get-sym-name names))
+
 #| Возвращает первые n элементов списка xs
  | @param {list} xs
  | @param {int} n
@@ -386,7 +476,87 @@
   (if (or (zero? n)
           (null? xs))
       '()
-      (cons (car xs) (- n 1))))
+      (cons (car xs) (give-first (cdr xs) (- n 1)))))
+
+(define (and-fold xs)
+  ; (print 'and-fold xs)
+  (or (null? xs)
+      (and (car xs)
+           (and-fold (cdr xs)))))
+
+(define (is-cont-name? name)
+  ;(print name)
+  (and (list? name)
+       (not-null? name)
+       (eq? (car name) 'continuous)))
+
+(define (make-lambda-var-from-list xs)
+  (if (null? xs)
+      xs
+      (let* ((r-xs (reverse xs))
+             (last (car r-xs)))
+        (if (is-cont-name? last)
+            (if (> (length xs) 1)
+                (append (map make-lambda-var (reverse (cddr xs)))
+                        `(,(make-lambda-var (cadr r-xs)) . ,(cadr last)))
+                (cadr last))
+            (map get-sym-name xs)))))
+
+(define (make-lambda-var elem)
+  (if (list? elem)
+      (make-lambda-var-from-list elem)
+      (get-sym-name elem)))
+
+;; только один уровень вложенности
+(define (make-let-var-list names cor-names)
+  #| Строит список определений для аргументов-списков
+   | @param {list of arg-names} n-list Список имён аргументов
+   | @param {symb} a-list Текущий остаток аргументов
+   | @param {alist} l-list let-list (name value) Список let-определений
+   | @returns {alist} l-list
+   |#
+  (define (helper n-list a-list l-list)
+    (if (null? n-list)
+        (reverse l-list)
+        (let ((cur-name (car n-list)))
+          (helper (cdr n-list)
+                  `(cdr ,a-list)
+                  (if (is-cont-name? cur-name)
+                      (cons `(,(get-sym-name (cadr cur-name)) ,a-list) l-list)
+                      (cons `(,(get-sym-name cur-name) (car ,a-list)) l-list))))))
+  
+  (apply append (map (lambda (name cor-name)
+                       (if (list? name)
+                           (helper name cor-name '())
+                           '()))
+                     names
+                     cor-names)))
+
+;; @returns (list lambda-var-list let-var-list)
+(define (make-var-lists type)
+  (let* ((names (get-args-names-from-type type))
+         (has-let? (not-null? (filter (lambda (x)
+                                        (and (list? x)
+                                             (or (null? x)
+                                                 (neq? (car x) 'continuous))))
+                                      names))))
+
+    (if has-let?
+        (let ((cor-names (make-lambda-var-from-list names)))
+          (list cor-names (make-let-var-list names cor-names)))
+        (list (make-lambda-var-from-list names)))))
+
+(define (get-args-for-check name type)
+  (let ((names (get-args-names-from-type type)))
+    (if (not-null? names)
+        (let ((last (car (reverse names))))
+          ;(print 'get-args-for-check last)
+          (if (and (list? last)
+                   (not-null? last)
+                   (eq? (car last) 'continuous))
+              `(give-first ,name ,(- (length names) 1))
+              name))
+        name)))
 
 (define (is-apply? arg-values)
   (and (eq? 1 (length arg-values))
