@@ -44,3 +44,4 @@
 (define ** expt)
 (define (sum . :args) (map-cond (((and ((lambda (x) (zero? x)) (length :args)) (hash (quote ()) :args) ((lambda :args #t) :args)) (apply (lambda () (begin 0)) :args)) ((and ((lambda (:x) (>= :x 1)) (length :args)) (hash (quote ((lambda (x) #t))) (give-first :args 1)) ((lambda :args #t) :args)) (apply (lambda (x . xs) (begin (+ x (apply sum xs)))) :args)))))
 (sum 1 2 3 4)
+(apply sum (quote (5 6 7 8 9 10)))
