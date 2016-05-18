@@ -139,6 +139,11 @@
          (func-name-rule   (car rule-list)))
     (get-simple-start-pos func-name-rule)))
 
+(define (x-in-xs? x . xs)
+  (and (not-null? xs)
+       (or (eqv? x (car xs))
+           (apply x-in-xs? (cons x (cdr xs))))))
+
 (define syntax
   (let ((errors '())
         (ast '()))
@@ -175,11 +180,6 @@
 
       (define (is-type? . types)
         (apply x-in-xs? (cons (get-token-tag token) types)))
-
-      (define (x-in-xs? x . xs)
-        (and (not-null? xs)
-             (or (eqv? x (car xs))
-                 (apply x-in-xs? (cons x (cdr xs))))))
 
       (define (start-in? start-pos)
         (> (get-token-pos token) start-pos))

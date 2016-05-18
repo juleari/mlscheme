@@ -43,4 +43,7 @@
 (define % remainder)
 (define ** expt)
 (define ++ append)
-
+(define (replicate . :args) (map-cond (((and ((lambda (:x) (= :x 2)) (length :args)) (hash (quote ((lambda (x) #t) (lambda (x) (eqv? x 0)))) :args) ((lambda :args #t) :args)) (apply (lambda (x :g_) (begin (quote ()))) :args)) ((and ((lambda (:x) (= :x 2)) (length :args)) (hash (quote ((lambda (x) #t) (lambda (x) #t))) :args) ((lambda :args #t) :args)) (apply (lambda (x n) (begin (append-s (x) ((replicate x (- n 1)))))) :args)))))
+(replicate "a" 5)
+(replicate (quote ("a" "b")) 3)
+(replicate "a" 0)

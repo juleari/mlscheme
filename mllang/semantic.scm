@@ -115,8 +115,8 @@
                                            args)))
                       ;(print 'semantic-func-call arg-values)
                       (if (is-apply? arg-values)
-                          (list "apply" name (caar arg-values))
-                          (cons name arg-values)))))))
+                          (list ':func-call "apply" name (caar arg-values))
+                          (append (list ':func-call name) arg-values)))))))
 
       ;; надо связывать индексы в списке с функциями сравнения
       ;; для тех элементов, которые являются символами нужно хранить имена... ЖИЗНЬ БОЛЬ
@@ -159,8 +159,8 @@
                      (f-term      (car terms))
                      (f-term-name (get-rule-name f-term)))
                 (if (eq? f-term-name 'continuous)
-                    `(append-s ,(cons ':list (map (lambda (x) (argument-to-expr x model)) list-elems))
-                               ,(cons ':list (get-continuous-expr f-term model)))
+                    `(:func-call append-s ,(cons ':list (map (lambda (x) (argument-to-expr x model)) list-elems))
+                                 ,(cons ':list (get-continuous-expr f-term model)))
                     `',(map (lambda (x) (argument-to-expr x model)) inner))))))
 
       (define (get-arg-value arg-rule model)

@@ -1,4 +1,4 @@
-(define gen-file (open-output-file "generated.sm"))
+(define gen-file (open-output-file "generated.scm"))
 
 (define (prepare-gen-file)
   (let ((lib-funcs-file (open-input-file "genbase.sm")))
@@ -21,7 +21,7 @@
                 ((is-op? x)  (helper (cons `(,(string->symbol x) ,(cadr stack) ,(car stack))
                                            (cddr stack))
                                      s))
-                ((list? x)   (helper (cons (map func-apply x) stack) s))
+                ((list? x)   (helper (cons (func-apply x) stack) s))
                 ((string? x) (helper (cons (string->symbol x) stack) s))
                 (else        (helper stack s))))))
   (helper '() xs))

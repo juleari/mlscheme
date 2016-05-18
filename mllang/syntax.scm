@@ -35,11 +35,6 @@
       (define (is-type? . types)
         (apply x-in-xs? (cons (get-token-tag token) types)))
 
-      (define (x-in-xs? x . xs)
-        (and (not-null? xs)
-             (or (eqv? x (car xs))
-                 (apply x-in-xs? (cons x (cdr xs))))))
-
       (define (start-in? start-pos)
         (> (get-token-pos token) start-pos))
 
@@ -208,7 +203,6 @@
         (and (start-in? start-pos)
              (let ((first-rule (simple-rule 'func-name 'tag-sym)))
                (and first-rule
-                    ;(print 'syntax-func-declaration first-rule args-can-be-funcs?)
                     (vector 'func-decl
                             (cons first-rule
                                   (syntax-rule? syntax-arguments
@@ -287,11 +281,6 @@
 
         (define (is-type? . types)
           (apply x-in-xs? (cons (get-token-tag token) types)))
-
-        (define (x-in-xs? x . xs)
-          (and (not-null? xs)
-               (or (eqv? x (car xs))
-                   (apply x-in-xs? (cons x (cdr xs))))))
 
         (define (trigonometric)
           (let ((tag (get-token-tag token))
@@ -372,10 +361,27 @@
                     (from-stack-to-out cur ops-to-out p)
                     (add-error ERROR_EXPR)))))
 
-        (try-get)
-        (and (or start-flag (not-null? out))
-             (ops-to-out 0)
-             (vector 'expr (reverse out))))
+        (define (shunting-alg)
+          (try-get)
+          (and (or start-flag (not-null? out))
+               (ops-to-out 0)
+               (vector 'expr (reverse out))))
+
+        (define def #f)
+        (if (and (not-null? out)
+                 (> (get-token-pos token) start-pos)
+                 (not (> (prior token) 0)))
+            (begin (set! def (car out))
+                   (set! out '())
+                   (let ((res-out (shunting-alg)))
+                     (if res-out
+                         (begin (vector-set! def
+                                             R-TERMS
+                                             (cdns (vector 'argument (list res-out))
+                                                   (get-rule-list def)))
+                                (vector 'expr (list def)))
+                         (vector 'expr (list def)))))
+            (shunting-alg)))
 
       (define (syntax-program start-pos)
         (let ((func-decl (syntax-func-declaration start-pos ARGS-CANT-BE-FUNCS)))

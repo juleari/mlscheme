@@ -76,14 +76,16 @@
   (cond ((string? x) (string->symbol x))
         (else        x)))
 
+(define (x-in-xs? x . xs)
+  (and (not-null? xs)
+       (or (eqv? x (car xs))
+           (apply x-in-xs? (cons x (cdr xs))))))
+
 (define (func-apply x)
   (cond ((string? x) (string->symbol x))
-        ((list? x)   (if (or (null? x)
-                             (eq? (car x) 'quote))
-                         x
-                         (if (eq? (car x) ':list)
-                             (cdr x)
-                             (calc-rpn x))))
+        ((list? x)   (cond ((or (null? x) (eq? (car x) 'quote))   x)
+                           ((x-in-xs? (car x) ':list ':func-call) (map func-apply (cdr x)))
+                           (else                                  (calc-rpn x))))
         (else x)))
 
 (define (get-true-expr)
