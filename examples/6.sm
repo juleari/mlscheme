@@ -1,6 +1,6 @@
 replace pred? proc []         <- []
 replace pred? proc [ x : xs ] <-  
-    if | pred? x -> [ proc x 
+    if | pred? x -> [ proc.[x]
                       : replace pred? proc xs ]
        |         -> [ x 
                       : replace pred? proc xs ]

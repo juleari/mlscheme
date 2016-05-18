@@ -1,16 +1,24 @@
 ;; examp
 (define v
-  '((("sum"
-   #(#((lambda (x) (zero? x)) () () (lambda :args #t))
-     ()
-     ((0)))
-   #(#((lambda (:x) (>= :x 1))
-       ((lambda (x) #t))
-       ("x" (continuous "xs"))
+  '((("replicate"
+      #(#((lambda (:x) (= :x 2))
+          ((lambda (x) #t) (lambda (x) (eqv? x 0)))
+          ("x" :_)
+          (lambda :args #t))
+        ()
+        (('())))
+      #(#((lambda (:x) (= :x 2))
+          ((lambda (x) #t) (lambda (x) #t))
+       ("x" "n")
        (lambda :args #t))
-     ()
-     (("x" ("apply" "sum" "xs") "+")))))
- (("sum" 1 2 3 4))))
+        ()
+        (((:func-call
+           append-s
+           (:list "x")
+           (:list (:func-call "replicate" "x" ("n" 1 "-")))))))))
+    ((:func-call "replicate" "\"a\"" 5)
+     (:func-call "replicate" '("\"a\"" "\"b\"") 3)
+     (:func-call "replicate" "\"a\"" 0))))
 ;; end examp
 
 ;; defs
@@ -136,12 +144,9 @@
 
 (define (func-apply x)
   (cond ((string? x) (string->symbol x))
-        ((list? x)   (if (or (null? x)
-                             (eq? (car x) 'quote))
-                         x
-                         (if (eq? (car x) ':list)
-                             (cdr x)
-                             (calc-rpn x))))
+        ((list? x)   (cond ((or (null? x) (eq? (car x) 'quote))   x)
+                           ((x-in-xs? (car x) ':list ':func-call) (map func-apply (cdr x)))
+                           (else                                  (calc-rpn x))))
         (else x)))
 
 ;; new lib
@@ -274,7 +279,7 @@
                 ((is-op? x)  (helper (cons `(,(string->symbol x) ,(cadr stack) ,(car stack))
                                            (cddr stack))
                                      s))
-                ((list? x)   (helper (cons (map func-apply x) stack) s))
+                ((list? x)   (helper (cons (func-apply x) stack) s))
                 ((string? x) (helper (cons (string->symbol x) stack) s))
                 (else        (helper stack s))))))
   (helper '() xs))

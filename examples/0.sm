@@ -17,8 +17,10 @@ count 'a ['a 'b 'c 'a]
 
 replace pred? proc []         <- []
 replace pred? proc [ x : xs ] <-  
-    if | pred? x -> [ proc x : replace pred? proc xs ]
-       |         -> [      x : replace pred? proc xs ]
+    if | pred? x -> [ proc.[x]
+                      : replace pred? proc xs ]
+       |         -> [ x 
+                      : replace pred? proc xs ]
 
 replace zero? 
         \ x -> x + 1

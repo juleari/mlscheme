@@ -1,0 +1,6 @@
+replicate x 0 <- []
+replicate x n <- [ x : replicate x ( n - 1 ) ]
+
+replicate "a" 5
+replicate [ "a" "b" ] 3
+replicate "a" 0

@@ -558,4 +558,3 @@
          (and (list? val)
               (not-null? val)
               (eq? ':apply (car (reverse val)))))))
-

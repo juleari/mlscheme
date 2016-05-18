@@ -1,88 +1,59 @@
 ;; examp
 (define v '(#(func-def
    (#(func-decl
-      (#(func-name #(tag-sym #(2 1) "day-of-week"))
-       #(argument (#(simple-argument #(tag-sym #(2 13) "day"))))
-       #(argument (#(simple-argument #(tag-sym #(2 17) "month"))))
-       #(argument (#(simple-argument #(tag-sym #(2 23) "year"))))))
-    #(func-to #(tag-to #(2 28) "<-"))
-    #(func-def
-      (#(func-decl (#(func-name #(tag-sym #(3 5) "a"))))
-       #(func-to #(tag-to #(3 7) "<-"))
-       #(expr
-         (#(tag-num #(3 11) 14)
-          #(func-decl (#(func-name #(tag-sym #(3 14) "month"))))
-          #(tag-mns #(3 12) "-")
-          #(tag-num #(3 24) 12)
-          #(tag-div #(3 21) "//")))))
-    #(func-def
-      (#(func-decl (#(func-name #(tag-sym #(4 5) "y"))))
-       #(func-to #(tag-to #(4 7) "<-"))
-       #(expr
-         (#(func-decl (#(func-name #(tag-sym #(4 10) "year"))))
-          #(func-decl (#(func-name #(tag-sym #(4 17) "a"))))
-          #(tag-mns #(4 15) "-")))))
-    #(func-def
-      (#(func-decl (#(func-name #(tag-sym #(5 5) "m"))))
-       #(func-to #(tag-to #(5 7) "<-"))
-       #(expr
-         (#(func-decl (#(func-name #(tag-sym #(5 10) "month"))))
-          #(func-decl (#(func-name #(tag-sym #(5 19) "a"))))
-          #(tag-num #(5 23) 12)
-          #(tag-mul #(5 21) "*")
-          #(tag-pls #(5 16) "+")
-          #(tag-num #(5 29) 2)
-          #(tag-mns #(5 27) "-")))))
+      (#(func-name #(tag-sym #(1 1) "replicate"))
+       #(argument (#(simple-argument #(tag-sym #(1 11) "x"))))
+       #(argument (#(simple-argument #(tag-num #(1 13) 0))))))
+    #(func-to #(tag-to #(1 15) "<-"))
     #(expr
-      (#(tag-num #(7 6) 7000)
-       #(func-decl (#(func-name #(tag-sym #(7 9) "day"))))
-       #(tag-pls #(7 7) "+")
-       #(func-decl (#(func-name #(tag-sym #(7 15) "y"))))
-       #(tag-pls #(7 13) "+")
-       #(func-decl (#(func-name #(tag-sym #(7 20) "y"))))
-       #(tag-num #(7 25) 4)
-       #(tag-div #(7 22) "//")
-       #(tag-pls #(7 17) "+")
-       #(func-decl (#(func-name #(tag-sym #(7 31) "y"))))
-       #(tag-num #(7 36) 400)
-       #(tag-div #(7 33) "//")
-       #(tag-pls #(7 28) "+")
-       #(tag-num #(7 44) 31)
-       #(func-decl (#(func-name #(tag-sym #(7 47) "m"))))
-       #(tag-mul #(7 45) "*")
-       #(tag-num #(7 52) 12)
-       #(tag-div #(7 49) "//")
-       #(tag-pls #(7 41) "+")
-       #(func-decl (#(func-name #(tag-sym #(8 12) "y"))))
-       #(tag-num #(8 17) 100)
-       #(tag-div #(8 14) "//")
-       #(tag-mns #(8 9) "-")
-       #(tag-num #(8 25) 7)
-       #(tag-mod #(8 23) "%")))))
+      (#(array-simple
+         (#(open-braket #(tag-lbrk #(1 18) #\[))
+          #(close-braket #(tag-rbrk #(1 19) #\]))))))))
+ #(func-def
+   (#(func-decl
+      (#(func-name #(tag-sym #(2 1) "replicate"))
+       #(argument (#(simple-argument #(tag-sym #(2 11) "x"))))
+       #(argument (#(simple-argument #(tag-sym #(2 13) "n"))))))
+    #(func-to #(tag-to #(2 15) "<-"))
+    #(expr
+      (#(array-simple
+         (#(open-braket #(tag-lbrk #(2 18) #\[))
+          #(argument (#(simple-argument #(tag-sym #(2 20) "x"))))
+          #(argument
+            (#(continuous
+               (#(colon #(tag-cln #(2 22) #\:))
+                #(expr
+                  (#(func-decl
+                     (#(func-name #(tag-sym #(2 24) "replicate"))
+                      #(argument
+                        (#(simple-argument #(tag-sym #(2 34) "x"))))
+                      #(argument
+                        (#(expr
+                           (#(func-decl
+                              (#(func-name #(tag-sym #(2 38) "n"))))
+                            #(tag-num #(2 42) 1)
+                            #(tag-mns #(2 40) "-")))))))))))))
+          #(close-braket #(tag-rbrk #(2 46) #\]))))))))
  #(expr
    (#(func-decl
-      (#(func-name #(tag-sym #(10 1) "day-of-week"))
-       #(argument (#(simple-argument #(tag-num #(10 13) 17))))
-       #(argument (#(simple-argument #(tag-num #(10 16) 5))))
-       #(argument (#(simple-argument #(tag-num #(10 18) 2016))))))))
+      (#(func-name #(tag-sym #(4 1) "replicate"))
+       #(argument (#(simple-argument #(tag-sym #(4 11) "\"a\""))))
+       #(argument (#(simple-argument #(tag-num #(4 15) 5))))))))
  #(expr
    (#(func-decl
-      (#(func-name #(tag-sym #(11 1) "day-of-week"))
-       #(argument (#(simple-argument #(tag-num #(11 13) 10))))
-       #(argument (#(simple-argument #(tag-num #(11 16) 4))))
-       #(argument (#(simple-argument #(tag-num #(11 18) 2016))))))))
+      (#(func-name #(tag-sym #(5 1) "replicate"))
+       #(argument
+         (#(array-simple
+            (#(open-braket #(tag-lbrk #(5 11) #\[))
+             #(argument (#(simple-argument #(tag-sym #(5 13) "\"a\""))))
+             #(argument (#(simple-argument #(tag-sym #(5 17) "\"b\""))))
+             #(close-braket #(tag-rbrk #(5 21) #\]))))))
+       #(argument (#(simple-argument #(tag-num #(5 23) 3))))))))
  #(expr
    (#(func-decl
-      (#(func-name #(tag-sym #(12 1) "day-of-week"))
-       #(argument (#(simple-argument #(tag-num #(12 13) 29))))
-       #(argument (#(simple-argument #(tag-num #(12 16) 3))))
-       #(argument (#(simple-argument #(tag-num #(12 18) 2016))))))))
- #(expr
-   (#(func-decl
-      (#(func-name #(tag-sym #(13 1) "day-of-week"))
-       #(argument (#(simple-argument #(tag-num #(13 13) 20))))
-       #(argument (#(simple-argument #(tag-num #(13 16) 4))))
-       #(argument (#(simple-argument #(tag-num #(13 18) 2016))))))))))
+      (#(func-name #(tag-sym #(6 1) "replicate"))
+       #(argument (#(simple-argument #(tag-sym #(6 11) "\"a\""))))
+       #(argument (#(simple-argument #(tag-num #(6 15) 0))))))))))
 ;; end examp
 
 ;; defs
@@ -688,8 +659,8 @@
                                            args)))
                       ;(print 'semantic-func-call arg-values)
                       (if (is-apply? arg-values)
-                          (list "apply" name (caar arg-values))
-                          (cons name arg-values)))))))
+                          (list ':func-call "apply" name (caar arg-values))
+                          (append (list ':func-call name) arg-values)))))))
 
       ;; надо связывать индексы в списке с функциями сравнения
       ;; для тех элементов, которые являются символами нужно хранить имена... ЖИЗНЬ БОЛЬ
@@ -732,8 +703,8 @@
                      (f-term      (car terms))
                      (f-term-name (get-rule-name f-term)))
                 (if (eq? f-term-name 'continuous)
-                    `(append-s ,(cons ':list (map (lambda (x) (argument-to-expr x model)) list-elems))
-                               ,(cons ':list (get-continuous-expr f-term model)))
+                    `(:func-call append-s ,(cons ':list (map (lambda (x) (argument-to-expr x model)) list-elems))
+                                 ,(cons ':list (get-continuous-expr f-term model)))
                     `',(map (lambda (x) (argument-to-expr x model)) inner))))))
 
       (define (get-arg-value arg-rule model)

@@ -42,3 +42,4 @@
 (define // quotient)
 (define % remainder)
 (define ** expt)
+(define ++ append)
