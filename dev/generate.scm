@@ -254,7 +254,7 @@
               name))
         name)))
 ;; end lib
-(define gen-file (open-output-file "generated.sm"))
+(define gen-file (open-output-file "generated.scm"))
 ;(define gen-file (current-output-port))
 
 ;; в рабочей версии вместо genbase.sm должен быть задаваемый в compiler.py путь
