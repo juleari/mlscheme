@@ -1,0 +1,9 @@
+zero? 0 <- #t
+zero? x <- #f
+
+null? 0 <- #t
+null? [] <- #t
+null? x <- #f
+
+even? x <- x % 2 = 0
+odd? x <- ! even? x
