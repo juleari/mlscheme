@@ -67,8 +67,52 @@
            (apply print (cdr xs)))
       (newline)))
 
-(define tokens '(#(tag-sym #(6 1) "replace")
-                 #(tag-kw #(6 9) "zero?")
+(define tokens '(#(tag-sym #(1 1) "replace")
+                 #(tag-sym #(1 9) "pred?")
+                 #(tag-sym #(1 15) "proc")
+                 #(tag-lbrk #(1 20) #\[)
+                 #(tag-rbrk #(1 21) #\])
+                 #(tag-to #(1 31) "<-")
+                 #(tag-lbrk #(1 34) #\[)
+                 #(tag-rbrk #(1 35) #\])
+                 #(tag-sym #(2 1) "replace")
+                 #(tag-sym #(2 9) "pred?")
+                 #(tag-sym #(2 15) "proc")
+                 #(tag-lbrk #(2 20) #\[)
+                 #(tag-sym #(2 22) "x")
+                 #(tag-cln #(2 24) #\:)
+                 #(tag-sym #(2 26) "xs")
+                 #(tag-rbrk #(2 29) #\])
+                 #(tag-to #(2 31) "<-")
+                 #(tag-kw #(3 5) "if")
+                 #(tag-bor #(3 8) "|")
+                 #(tag-sym #(3 10) "pred?")
+                 #(tag-sym #(3 16) "x")
+                 #(tag-from #(3 18) "->")
+                 #(tag-lbrk #(3 21) #\[)
+                 #(tag-sym #(3 23) "proc")
+                 #(tag-dot #(3 27) #\.)
+                 #(tag-lbrk #(3 28) #\[)
+                 #(tag-sym #(3 29) "x")
+                 #(tag-rbrk #(3 30) #\])
+                 #(tag-cln #(3 32) #\:)
+                 #(tag-sym #(3 34) "replace")
+                 #(tag-sym #(3 42) "pred?")
+                 #(tag-sym #(3 48) "proc")
+                 #(tag-sym #(3 53) "xs")
+                 #(tag-rbrk #(3 56) #\])
+                 #(tag-bor #(4 8) "|")
+                 #(tag-from #(4 18) "->")
+                 #(tag-lbrk #(4 21) #\[)
+                 #(tag-sym #(4 23) "x")
+                 #(tag-cln #(4 25) #\:)
+                 #(tag-sym #(4 27) "replace")
+                 #(tag-sym #(4 35) "pred?")
+                 #(tag-sym #(4 41) "proc")
+                 #(tag-sym #(4 46) "xs")
+                 #(tag-rbrk #(4 49) #\])
+                 #(tag-sym #(6 1) "replace")
+                 #(tag-sym #(6 9) "zero?")
                  #(tag-lmbd #(7 9) "\\")
                  #(tag-sym #(7 11) "x")
                  #(tag-from #(7 13) "->")
@@ -81,7 +125,33 @@
                  #(tag-num #(8 15) 2)
                  #(tag-num #(8 17) 3)
                  #(tag-num #(8 19) 0)
-                 #(tag-rbrk #(8 21) #\])))
+                 #(tag-rbrk #(8 21) #\])
+                 #(tag-sym #(10 1) "replace")
+                 #(tag-sym #(10 9) "odd?")
+                 #(tag-lmbd #(11 9) "\\")
+                 #(tag-sym #(11 11) "x")
+                 #(tag-from #(11 13) "->")
+                 #(tag-sym #(11 16) "x")
+                 #(tag-mul #(11 18) "*")
+                 #(tag-num #(11 20) 2)
+                 #(tag-lbrk #(12 9) #\[)
+                 #(tag-num #(12 11) 1)
+                 #(tag-num #(12 13) 2)
+                 #(tag-num #(12 15) 3)
+                 #(tag-num #(12 17) 4)
+                 #(tag-num #(12 19) 5)
+                 #(tag-num #(12 21) 6)
+                 #(tag-rbrk #(12 23) #\])
+                 #(tag-sym #(14 1) "replace")
+                 #(tag-lmbd #(14 9) "\\")
+                 #(tag-sym #(14 11) "x")
+                 #(tag-from #(14 13) "->")
+                 #(tag-num #(14 16) 0)
+                 #(tag-hghr #(14 18) ">")
+                 #(tag-sym #(14 20) "x")
+                 #(tag-sym #(15 9) "exp")
+                 #(tag-lbrk #(16 9) #\[)
+                 #(tag-rbrk #(16 10) #\])))
 
 (define (get-true-expr)
   #(expr (#(tag-true #(0 0) "#t"))))
@@ -106,6 +176,9 @@
   (let ((coords (get-token-coords token)))
     (vector-ref coords C-POSITION)))
 
+(define (get-rule-name rule)
+  (vector-ref rule R-NAME))
+
 (define (get-rule-list ast)
   (vector-ref ast A-RULES))
 
@@ -125,6 +198,16 @@
   (and (not-null? xs)
        (or (eqv? x (car xs))
            (apply x-in-xs? (cons x (cdr xs))))))
+
+(define (append-to-rule-list rule xs)
+  (vector (get-rule-name rule)
+          (append (get-rule-list rule) xs)))
+
+(define (make-syntax-expr terms)
+  (and terms
+       (vector 'expr (if (list? terms)
+                    terms
+                    (list terms)))))
 
 (define syntax
   (let ((errors '())
@@ -172,6 +255,7 @@
         (> (get-token-pos token) start-pos))
 
       (define (syntax-rule rule-expr . args)
+        ;(print 'syntax-rule rule-expr)
         (eval-i rule-expr))
 
       (define (syntax-rule? rule . args)
@@ -180,7 +264,7 @@
       (define (syntax-rule* rule . args)
         (define (helper ast-list)
           (let ((ast-elem (apply rule args)))
-            (print 'syntax-rule* ast-elem)
+            ;(print 'syntax-rule* ast-elem)
             (if ast-elem
                 (helper (cons ast-elem ast-list))
                 (reverse ast-list))))
@@ -240,6 +324,7 @@
                                  second-rule-args
                                  error-name)
         (let ((first-rule (get-first-rule start-pos first-rule-expr)))
+          ;(print 'syntax-whole-rule first-rule)
           (and first-rule
                (vector rule-name
                        (cons first-rule
@@ -268,35 +353,36 @@
 
       (define (syntax-array start-pos args-can-be-funcs?)
         (define ast-list '())
-        (if (start-in? start-pos)
-            (let ((first-rule (simple-rule start-pos 'open-braket 'tag-lbrk)))
-              (and first-rule
-                   (set! ast-list (cons first-rule
-                                        (syntax-arguments (get-simple-start-pos 
-                                                           first-rule)
-                                                          args-can-be-funcs?)))
-                   (or (let ((last-rule (simple-rule start-pos 'close-braket 'tag-rbrk)))
-                         (and last-rule
-                              (set! ast-list (append ast-list 
+        (and (start-in? start-pos)
+             (let ((first-rule (simple-rule start-pos 'open-braket 'tag-lbrk)))
+               (and first-rule
+                    (set! ast-list (cons first-rule
+                                         (syntax-arguments (get-simple-start-pos 
+                                                            first-rule)
+                                                           args-can-be-funcs?)))
+                    (or (let ((last-rule (simple-rule start-pos 'close-braket 'tag-rbrk)))
+                          (and last-rule
+                               (set! ast-list (append ast-list 
                                                      (list last-rule)))))
-                       (add-error ERR_NO_CLOSE_BRK))
-                   (list (vector 'array-simple ast-list))))
-            ast-list))
+                        (add-error ERR_NO_CLOSE_BRK))
+                    (list (vector 'array-simple ast-list))))))
 
       (define (syntax-continuous-simple start-pos)
+        ;(print 'syntax-continuous-simple start-pos)
         (syntax-whole-rule 'continuous
                            start-pos
                            `(,simple-rule ,start-pos 'colon 'tag-cln)
-                           syntax-rule
+                           syntax-rule-
                            simple-rule
                            '(continuous-list tag-sym)
                            ERR_NO_CONTINUOUS))
 
       (define (syntax-continuous start-pos)
+        ;(print 'syntax-continuous start-pos)
         (syntax-whole-rule 'continuous
                            start-pos
                            `(,simple-rule ,start-pos 'colon 'tag-cln)
-                           syntax-rule
+                           syntax-rule-
                            syntax-program
                            '()
                            ERR_NO_CONTINUOUS))
@@ -316,7 +402,7 @@
         (syntax-whole-rule 'apply
                            start-pos
                            `(,simple-rule ,start-pos 'apply-dot 'tag-dot)
-                           syntax-rule
+                           syntax-rule-
                            syntax-argument
                            '(#t)
                            ERR_INCORRECT_APPLY))
@@ -398,8 +484,8 @@
         (apply rule args))
 
       (define (get-lambda-rules start-pos)
-        (print 'get-lambda-rules start-pos)
-        (cons (syntax-arguments start-pos #f)
+        ;(print 'get-lambda-rules start-pos)
+        (cons (syntax-arguments start-pos ARGS-CANT-BE-FUNCS)
               (or (syntax-lambda-body start-pos)
                   (add-error ERROR_NO_TAG_TO))))
 
@@ -414,46 +500,34 @@
                            #f))
 
       (define (syntax-expr . args)
-        (print 'syntax-expr token args)
+        ;(print 'syntax-expr token args)
         (let ((start-pos (car args)))
           (if (eq? (get-token-tag token) 'tag-end)
               (and (not-null? (cdr args))
-                   (vector 'expr (list (cadr args))))
+                   (make-syntax-expr (cadr args)))
               (or (let ((arr (syntax-array start-pos ARGS-CAN-BE-FUNCS)))
                     (and arr
-                         (not-null? arr)
                          (vector 'expr arr)))
                   (syntax-if start-pos)
                   (let ((func-decl? (cdr args)))
-                    (or (and (not-null? func-decl?)
-                             (let ((func-decl (car func-decl?))
-                                   (apply-elem (syntax-apply start-pos)))
-                               (or (and apply-elem
-                                        (vector 'expr
-                                                (list (vector (vector-ref func-decl 0)
-                                                              (append (vector-ref func-decl 1)
-                                                                      (list (vector 'argument
-                                                                                    (list apply-elem))))))))
-                                   (let ((lambda-elem (syntax-lambda start-pos)))
-                                     (or (and lambda-elem
-                                              (vector 'expr
-                                                      (list (vector (vector-ref func-decl 0)
-                                                                    (append (vector-ref func-decl 1)
-                                                                            (list (vector 'argument
-                                                                                          (list lambda-elem))))))))
-                                         (let ((expr-elem (apply shunting-yard args)))
-                                           (and expr-elem
-                                                (or (and (> (length (vector-ref expr-elem 1)) 1)
-                                                         (print 'sh-ya-e-el expr-elem)
-                                                         expr-elem)
-                                                    (and (> (length (vector-ref (car (vector-ref expr-elem 1)) 1))
-                                                            (length (vector-ref func-decl 1)))
-                                                         (print 'sh-ya+1)
-                                                         (syntax-expr start-pos (car (vector-ref expr-elem 1))))))))))))
-                        (apply shunting-yard args)))))))
+                    (and (not-null? func-decl?)
+                         (let ((func-decl (car func-decl?))
+                               (apply-elem (syntax-apply start-pos)))
+                           (or (and apply-elem
+                                    (make-syntax-expr (append-to-rule-list func-decl
+                                                                           (list (vector 'argument
+                                                                                         (list apply-elem))))))
+                               (let ((lambda-elem (syntax-lambda start-pos)))
+                                 (and lambda-elem
+                                      (vector 'expr
+                                            (list (append-to-rule-list func-decl
+                                                                       (list (vector 'argument
+                                                                                     (list lambda-elem))))))))))))
+                  (syntax-lambda start-pos)
+                  (apply shunting-yard args)))))
 
       (define (shunting-yard start-pos . out)
-        (print 'shunting-yard token start-pos out)
+        ;(print 'shunting-yard token start-pos out)
         (define stack '())
         (define start-flag #t)
 
@@ -576,13 +650,15 @@
       (define (syntax-program start-pos)
         (let ((func-decl (syntax-func-declaration start-pos ARGS-CANT-BE-FUNCS)))
           (or (and func-decl
-                   (let ((func-body (syntax-func-body (get-expr-start-pos 
-                                                       func-decl))))
+                   (let* ((new-start-pos (get-expr-start-pos func-decl))
+                          (func-body (syntax-func-body new-start-pos)))
                      (or (and func-body
                               (vector 'func-def
                                       (cons func-decl func-body)))
-                         (syntax-expr (get-expr-start-pos func-decl)
-                                      func-decl))))
+                         (let ((func-args (syntax-arguments new-start-pos ARGS-CAN-BE-FUNCS)))
+                           (syntax-expr new-start-pos
+                                        (append-to-rule-list func-decl
+                                                             func-args))))))
               (syntax-expr start-pos))))
 
       (let ((ast (syntax-rule+ syntax-program 0)))
