@@ -499,33 +499,16 @@
                            '()
                            #f))
 
-      (define (syntax-expr . args)
+      (define (syntax-expr start-pos . func-decl?)
         ;(print 'syntax-expr token args)
-        (let ((start-pos (car args)))
-          (if (eq? (get-token-tag token) 'tag-end)
-              (and (not-null? (cdr args))
-                   (make-syntax-expr (cadr args)))
-              (or (let ((arr (syntax-array start-pos ARGS-CAN-BE-FUNCS)))
-                    (and arr
-                         (vector 'expr arr)))
-                  (syntax-if start-pos)
-                  (let ((func-decl? (cdr args)))
-                    (and (not-null? func-decl?)
-                         (let ((func-decl (car func-decl?))
-                               (apply-elem (syntax-apply start-pos)))
-                           (or (and apply-elem
-                                    (make-syntax-expr (append-to-rule-list func-decl
-                                                                           (list (vector 'argument
-                                                                                         (list apply-elem))))))
-                               (let ((lambda-elem (syntax-lambda start-pos)))
-                                 (and lambda-elem
-                                      (vector 'expr
-                                            (list (append-to-rule-list func-decl
-                                                                       (list (vector 'argument
-                                                                                     (list lambda-elem))))))))))))
-                  (syntax-lambda start-pos)
-                  (apply shunting-yard args)))))
-
+        (if (eq? (get-token-tag token) 'tag-end)
+            (and (not-null? func-decl?)
+                 (make-syntax-expr (car func-decl?)))
+            (make-syntax-expr (or (syntax-array start-pos ARGS-CAN-BE-FUNCS)
+                                  (syntax-if start-pos)
+                                  (syntax-lambda start-pos)
+                                  (apply shunting-yard (cons start-pos func-decl?))))))
+    
       (define (shunting-yard start-pos . out)
         ;(print 'shunting-yard token start-pos out)
         (define stack '())
@@ -629,7 +612,7 @@
           (try-get)
           (and (or start-flag (not-null? out))
                (ops-to-out 0)
-               (vector 'expr (reverse out))))
+               (reverse out)))
 
         (define def #f)
         (if (and (not-null? out)
@@ -643,8 +626,8 @@
                                              R-TERMS
                                              (cdns (vector 'argument (list res-out))
                                                    (get-rule-list def)))
-                                (vector 'expr (list def)))
-                         (vector 'expr (list def)))))
+                                def)
+                         def)))
             (shunting-alg)))
 
       (define (syntax-program start-pos)

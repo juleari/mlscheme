@@ -2,10 +2,8 @@
 (define v '(#(func-def
               (#(func-decl
                  (#(func-name #(tag-sym #(1 1) "replace"))
-                  #(argument
-                    (#(simple-argument #(tag-sym #(1 9) "pred?"))))
-                  #(argument
-                    (#(simple-argument #(tag-sym #(1 15) "proc"))))
+                  #(argument (#(simple-argument #(tag-sym #(1 9) "pred?"))))
+                  #(argument (#(simple-argument #(tag-sym #(1 15) "proc"))))
                   #(argument
                     (#(array-simple
                        (#(open-braket #(tag-lbrk #(1 20) #\[))
@@ -18,161 +16,138 @@
             #(func-def
               (#(func-decl
                  (#(func-name #(tag-sym #(2 1) "replace"))
-                  #(argument
-                    (#(simple-argument #(tag-sym #(2 9) "pred?"))))
-                  #(argument
-                    (#(simple-argument #(tag-sym #(2 15) "proc"))))
+                  #(argument (#(simple-argument #(tag-sym #(2 9) "pred?"))))
+                  #(argument (#(simple-argument #(tag-sym #(2 15) "proc"))))
                   #(argument
                     (#(array-simple
                        (#(open-braket #(tag-lbrk #(2 20) #\[))
-                        #(argument
-                          (#(simple-argument #(tag-sym #(2 22) "x"))))
+                        #(argument (#(simple-argument #(tag-sym #(2 22) "x"))))
                         #(argument
                           (#(continuous
                              (#(colon #(tag-cln #(2 24) #\:))
                               #(continuous-list #(tag-sym #(2 26) "xs"))))))
                         #(close-braket #(tag-rbrk #(2 29) #\]))))))))
                #(func-to #(tag-to #(2 31) "<-"))
-               #(if-expression
-                 (#(if-word #(tag-kw #(3 5) "if"))
-                  ((#(if-cond #(tag-bor #(3 8) "|"))
-                    #(expr
-                      (#(func-decl
-                         (#(func-name #(tag-sym #(3 10) "pred?"))
-                          #(argument
-                            (#(simple-argument #(tag-sym #(3 16) "x"))))))))
-                    #(then #(tag-from #(3 18) "->"))
-                    #(expr
-                      (#(array-simple
-                         (#(open-braket #(tag-lbrk #(3 21) #\[))
-                          #(argument
-                            (#(func-decl
-                               (#(func-name #(tag-sym #(3 23) "proc"))
-                                #(argument
-                                  (#(apply
-                                     (#(apply-dot #(tag-dot #(3 27) #\.))
-                                      #(argument
-                                        (#(array-simple
-                                           (#(open-braket #(tag-lbrk #(3 28) #\[))
-                                            #(argument
-                                              (#(simple-argument #(tag-sym #(3 29) "x"))))
-                                            #(close-braket #(tag-rbrk #(3 30) #\]))))))))))))))
-                          #(argument
-                            (#(continuous
-                               (#(colon #(tag-cln #(3 32) #\:))
-                                #(expr
-                                  (#(func-decl
-                                     (#(func-name #(tag-sym #(3 34) "replace"))
-                                      #(argument
-                                        (#(simple-argument #(tag-sym #(3 42) "pred?"))))
-                                      #(argument
-                                        (#(simple-argument #(tag-sym #(3 48) "proc"))))
-                                      #(argument
-                                        (#(simple-argument #(tag-sym #(3 53) "xs"))))))))))))
-                          #(close-braket #(tag-rbrk #(3 56) #\])))))))
-                   (#(if-cond #(tag-bor #(4 8) "|"))
-                    #(expr (#(tag-true #(0 0) "#t")))
-                    #(then #(tag-from #(4 18) "->"))
-                    #(expr
-                      (#(array-simple
-                         (#(open-braket #(tag-lbrk #(4 21) #\[))
-                          #(argument
-                            (#(simple-argument #(tag-sym #(4 23) "x"))))
-                          #(argument
-                            (#(continuous
-                               (#(colon #(tag-cln #(4 25) #\:))
-                                #(expr
-                                  (#(func-decl
-                                     (#(func-name #(tag-sym #(4 27) "replace"))
-                                      #(argument
-                                        (#(simple-argument #(tag-sym #(4 35) "pred?"))))
-                                      #(argument
-                                        (#(simple-argument #(tag-sym #(4 41) "proc"))))
-                                      #(argument
-                                        (#(simple-argument #(tag-sym #(4 46) "xs"))))))))))))
-                          #(close-braket #(tag-rbrk #(4 49) #\]))))))))))))
-            #(expr
+               #(expr
+                 (#(if-expression
+                    (#(if-word #(tag-kw #(3 5) "if"))
+                     ((#(if-cond #(tag-bor #(3 8) "|"))
+                       #(expr
+                         (#(func-decl
+                            (#(func-name #(tag-sym #(3 10) "pred?"))
+                             #(argument (#(simple-argument #(tag-sym #(3 16) "x"))))))))
+                       #(then #(tag-from #(3 18) "->"))
+                       #(expr
+                         (#(array-simple
+                            (#(open-braket #(tag-lbrk #(3 21) #\[))
+                             #(argument
+                               (#(func-decl
+                                  (#(func-name #(tag-sym #(3 23) "proc"))
+                                   #(argument
+                                     (#(apply
+                                        (#(apply-dot #(tag-dot #(3 27) #\.))
+                                         #(argument
+                                           (#(array-simple
+                                              (#(open-braket #(tag-lbrk #(3 28) #\[))
+                                               #(argument
+                                                 (#(simple-argument #(tag-sym #(3 29) "x"))))
+                                               #(close-braket #(tag-rbrk #(3 30) #\]))))))))))))))
+                             #(argument
+                               (#(continuous
+                                  (#(colon #(tag-cln #(3 32) #\:))
+                                   #(expr
+                                     (#(func-decl
+                                        (#(func-name #(tag-sym #(3 34) "replace"))
+                                         #(argument
+                                           (#(simple-argument #(tag-sym #(3 42) "pred?"))))
+                                         #(argument (#(simple-argument #(tag-sym #(3 48) "proc"))))
+                                         #(argument
+                                           (#(simple-argument #(tag-sym #(3 53) "xs"))))))))))))
+                             #(close-braket #(tag-rbrk #(3 56) #\])))))))
+                      (#(if-cond #(tag-bor #(4 8) "|"))
+                       #(expr (#(tag-true #(0 0) "#t")))
+                       #(then #(tag-from #(4 18) "->"))
+                       #(expr
+                         (#(array-simple
+                            (#(open-braket #(tag-lbrk #(4 21) #\[))
+                             #(argument (#(simple-argument #(tag-sym #(4 23) "x"))))
+                             #(argument
+                               (#(continuous
+                                  (#(colon #(tag-cln #(4 25) #\:))
+                                   #(expr
+                                     (#(func-decl
+                                        (#(func-name #(tag-sym #(4 27) "replace"))
+                                         #(argument
+                                           (#(simple-argument #(tag-sym #(4 35) "pred?"))))
+                                         #(argument (#(simple-argument #(tag-sym #(4 41) "proc"))))
+                                         #(argument
+                                           (#(simple-argument #(tag-sym #(4 46) "xs"))))))))))))
+                             #(close-braket #(tag-rbrk #(4 49) #\]))))))))))))))
+            #|#(expr
               (#(func-decl
                  (#(func-name #(tag-sym #(6 1) "replace"))
+                  #(argument (#(simple-argument #(tag-sym #(6 9) "zero?"))))
                   #(argument
-                    (#(simple-argument #(tag-sym #(6 9) "zero?"))))
-                  #(argument
-                    (#(lambda-func
-                       (#(lambda-symb #(tag-lmbd #(7 9) "\\"))
-                        ((#(argument
-                            (#(simple-argument #(tag-sym #(7 11) "x")))))
-                         #(func-from #(tag-from #(7 13) "->"))
-                         #(expr
-                           (#(func-decl
-                              (#(func-name #(tag-sym #(7 16) "x"))))
-                            #(tag-num #(7 20) 1)
-                            #(tag-pls #(7 18) "+"))))))))
+                    (#(expr
+                       (#(lambda-func
+                          (#(lambda-symb #(tag-lmbd #(7 9) "\\"))
+                           ((#(argument (#(simple-argument #(tag-sym #(7 11) "x")))))
+                            #(func-from #(tag-from #(7 13) "->"))
+                            #(expr
+                              (#(func-decl (#(func-name #(tag-sym #(7 16) "x"))))
+                               #(tag-num #(7 20) 1)
+                               #(tag-pls #(7 18) "+"))))))))))
                   #(argument
                     (#(array-simple
                        (#(open-braket #(tag-lbrk #(8 9) #\[))
-                        #(argument
-                          (#(simple-argument #(tag-num #(8 11) 0))))
-                        #(argument
-                          (#(simple-argument #(tag-num #(8 13) 1))))
-                        #(argument
-                          (#(simple-argument #(tag-num #(8 15) 2))))
-                        #(argument
-                          (#(simple-argument #(tag-num #(8 17) 3))))
-                        #(argument
-                          (#(simple-argument #(tag-num #(8 19) 0))))
+                        #(argument (#(simple-argument #(tag-num #(8 11) 0))))
+                        #(argument (#(simple-argument #(tag-num #(8 13) 1))))
+                        #(argument (#(simple-argument #(tag-num #(8 15) 2))))
+                        #(argument (#(simple-argument #(tag-num #(8 17) 3))))
+                        #(argument (#(simple-argument #(tag-num #(8 19) 0))))
                         #(close-braket #(tag-rbrk #(8 21) #\]))))))))))
             #(expr
               (#(func-decl
                  (#(func-name #(tag-sym #(10 1) "replace"))
+                  #(argument (#(simple-argument #(tag-sym #(10 9) "odd?"))))
                   #(argument
-                    (#(simple-argument #(tag-sym #(10 9) "odd?"))))
-                  #(argument
-                    (#(lambda-func
-                       (#(lambda-symb #(tag-lmbd #(11 9) "\\"))
-                        ((#(argument
-                            (#(simple-argument #(tag-sym #(11 11) "x")))))
-                         #(func-from #(tag-from #(11 13) "->"))
-                         #(expr
-                           (#(func-decl
-                              (#(func-name #(tag-sym #(11 16) "x"))))
-                            #(tag-num #(11 20) 2)
-                            #(tag-mul #(11 18) "*"))))))))
+                    (#(expr
+                       (#(lambda-func
+                          (#(lambda-symb #(tag-lmbd #(11 9) "\\"))
+                           ((#(argument (#(simple-argument #(tag-sym #(11 11) "x")))))
+                            #(func-from #(tag-from #(11 13) "->"))
+                            #(expr
+                              (#(func-decl (#(func-name #(tag-sym #(11 16) "x"))))
+                               #(tag-num #(11 20) 2)
+                               #(tag-mul #(11 18) "*"))))))))))
                   #(argument
                     (#(array-simple
                        (#(open-braket #(tag-lbrk #(12 9) #\[))
-                        #(argument
-                          (#(simple-argument #(tag-num #(12 11) 1))))
-                        #(argument
-                          (#(simple-argument #(tag-num #(12 13) 2))))
-                        #(argument
-                          (#(simple-argument #(tag-num #(12 15) 3))))
-                        #(argument
-                          (#(simple-argument #(tag-num #(12 17) 4))))
-                        #(argument
-                          (#(simple-argument #(tag-num #(12 19) 5))))
-                        #(argument
-                          (#(simple-argument #(tag-num #(12 21) 6))))
+                        #(argument (#(simple-argument #(tag-num #(12 11) 1))))
+                        #(argument (#(simple-argument #(tag-num #(12 13) 2))))
+                        #(argument (#(simple-argument #(tag-num #(12 15) 3))))
+                        #(argument (#(simple-argument #(tag-num #(12 17) 4))))
+                        #(argument (#(simple-argument #(tag-num #(12 19) 5))))
+                        #(argument (#(simple-argument #(tag-num #(12 21) 6))))
                         #(close-braket #(tag-rbrk #(12 23) #\]))))))))))
             #(expr
               (#(func-decl
                  (#(func-name #(tag-sym #(14 1) "replace"))
                   #(argument
-                    (#(lambda-func
-                       (#(lambda-symb #(tag-lmbd #(14 9) "\\"))
-                        ((#(argument
-                            (#(simple-argument #(tag-sym #(14 11) "x")))))
-                         #(func-from #(tag-from #(14 13) "->"))
-                         #(expr
-                           (#(tag-num #(14 16) 0)
-                            #(func-decl
-                              (#(func-name #(tag-sym #(14 20) "x"))))
-                            #(tag-hghr #(14 18) ">"))))))))
-                  #(argument
-                    (#(simple-argument #(tag-sym #(15 9) "exp"))))
+                    (#(expr
+                       (#(lambda-func
+                          (#(lambda-symb #(tag-lmbd #(14 9) "\\"))
+                           ((#(argument (#(simple-argument #(tag-sym #(14 11) "x")))))
+                            #(func-from #(tag-from #(14 13) "->"))
+                            #(expr
+                              (#(tag-num #(14 16) 0)
+                               #(func-decl (#(func-name #(tag-sym #(14 20) "x"))))
+                               #(tag-hghr #(14 18) ">"))))))))))
+                  #(argument (#(simple-argument #(tag-sym #(15 9) "exp"))))
                   #(argument
                     (#(array-simple
                        (#(open-braket #(tag-lbrk #(16 9) #\[))
-                        #(close-braket #(tag-rbrk #(16 10) #\]))))))))))))
+                        #(close-braket #(tag-rbrk #(16 10) #\]))))))))))|#))
 ;; end examp
 
 ;; defs
@@ -361,7 +336,7 @@
          (x-in-xs func-name get-args-names-from-type))))
 
 (define (make-arg-type)
-  (vector (vector `(lambda (:x) (zero? :x)) (list) (list)) (list) (list)))
+  (vector (vector `(lambda (:x) #t) (list) (list)) (list) (list)))
 
 (define (make-alist xs)
   (define (helper xs alist)
@@ -729,6 +704,7 @@
                (l-model (length model))
                (l-this (+ l-args l-model))
                (body (semantic-program b-list (append (make-alist names-of-args) model) '())))
+          ;(print 'semantic-func-body body)
           (list (reverse (remove-last (car body) l-this)) (cdr body))))
 
       (define (semantic-func-def func-def-terms model)
@@ -754,6 +730,7 @@
 
                (func-val (vector args-vector f-defs f-exprs))
                (add-list (list model func-name func-val)))
+          ;(print 'semantic-func-def add-list)
           (apply (if in-model
                      add-type-in-model
                      add-func-in-model)
@@ -789,7 +766,7 @@
                (name (get-token-value name-token))
                (args (cdr func-decl-terms))
                (in-model (find-in-model name model)))
-          ;(print 'semantic-var in-model)
+          ;(print 'semantic-var name in-model)
           (or (and in-model
                    (or (or-fold (map (lambda (in-model) (semantic-func-call name-token args in-model))
                                      in-model))
@@ -808,8 +785,10 @@
         (let* ((terms       (get-rule-terms argument))
                (f-term      (car terms))
                (f-term-name (get-rule-name f-term)))
+          ;(print 'argument-to-expr f-term-name)
           (cond ((eq? f-term-name 'simple-argument) (get-simple-arg-value f-term))
-                ((eq? f-term-name 'continuous)      (get-continuous-expr f-term model)))))
+                ((eq? f-term-name 'continuous)      (get-continuous-expr f-term model))
+                ((eq? f-term-name 'func-decl)       (car (semantic-expr terms model))))))
 
       ;; возможно, нужно переделать continuous
       (define (semantic-expr-arr arr-terms model)
@@ -839,11 +818,31 @@
                                                                                   (car (cadar model)))
                                                                                  TYPE-ARGS-NAMES))
                                                                     model))))))
+      ;; if-cond: (#if-cond
+      ;;           #expr
+      ;;           #then
+      ;;           #expr)
+      (define (semantic-if-cond if-cond model)
+        ;(print 'semantic-if-cond (cdddr if-cond))
+        (list (semantic-expr (get-rule-terms (cadr if-cond)) model)
+              (semantic-expr (get-rule-terms (car (cdddr if-cond))) model)))
+
+      ;; terms: (#if-word
+      ;;         ((#if-cond
+      ;;           #expr
+      ;;           #then
+      ;;           #expr)
+      ;;          (...)))
+      (define (semantic-if-expr terms model)
+        (cons 'cond (map (lambda (x) (semantic-if-cond x model))
+                         (cadr terms))))
 
       (define (semantic-expr-elem elem model)
         (let ((type (get-rule-name elem)))
+          ;(print 'semantic-expr-elem type)
           (cond ((eq? type 'func-decl)    (semantic-var (get-rule-terms elem) model))
                 ((eq? type 'array-simple) (semantic-expr-arr (get-rule-terms elem) model))
+                ((eq? type 'if-expression)(semantic-if-expr (get-rule-terms elem) model))
                 (else                     (get-token-value elem)))))
 
       (define (semantic-expr terms model)
@@ -861,6 +860,7 @@
             (let* ((rule (car ast))
                    (name (get-rule-name rule))
                    (terms (get-rule-terms rule)))
+              ;(print 'semantic-program name)
               (cond ((eq? name 'func-def)
                      (semantic-program (cdr ast)
                                        (semantic-func-def terms model)
