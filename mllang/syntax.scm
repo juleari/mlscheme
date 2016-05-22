@@ -75,7 +75,7 @@
       (define (simple-func-name name word)
         (let ((t token))
           (and (is-type? 'tag-kw)
-               (eqv? (get-token-value token) word)
+               (equal? (get-token-value token) word)
                (next-token)
                (vector `,name `,t))))
 

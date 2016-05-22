@@ -101,7 +101,7 @@
         (else x)))
 
 (define (get-true-expr)
-  #(expr (#(tag-true #(0 0) "#t"))))
+  (vector 'expr (list #(tag-true #(0 0) "#t"))))
 
 (define (get-token)
   (if (null? tokens)
@@ -247,7 +247,7 @@
          (x-in-xs func-name get-args-names-from-type))))
 
 (define (make-arg-type)
-  (vector (vector `(lambda (:x) (zero? :x)) (list) (list)) (list) (list)))
+  (vector (vector `(lambda (:x) #t) (list) (list)) (list) (list)))
 
 (define (make-alist xs)
   (define (helper xs alist)

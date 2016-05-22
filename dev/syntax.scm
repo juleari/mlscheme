@@ -161,7 +161,7 @@
                  #(tag-rbrk #(16 27) #\])))
 
 (define (get-true-expr)
-  #(expr (#(tag-true #(0 0) "#t"))))
+  (vector 'expr (list #(tag-true #(0 0) "#t"))))
 
 (define (get-token)
   (if (null? tokens)
@@ -293,7 +293,7 @@
       (define (simple-func-name name word)
         (let ((t token))
           (and (is-type? 'tag-kw)
-               (eqv? (get-token-value token) word)
+               (equal? (get-token-value token) word)
                (next-token)
                (vector `,name `,t))))
 
