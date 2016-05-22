@@ -338,12 +338,18 @@
                   ((trigonometric)                                    12)
                   (else                                                0))))
 
+        (define (unar? t)
+          (x-in-xs? t 'tag-not))
+
         (define (try-get)
           (set! start-flag (> (get-token-pos token) start-pos))
           (and start-flag
                (let* ((tag  (get-token-tag token))
                       (op   (prior token))
-                      (valid-op (and (> op 0) (or (not-null? stack) (not-null? out))))
+                      (valid-op (and (> op 0)
+                                     (or (not-null? stack)
+                                         (not-null? out)
+                                         (unar? tag))))
                       (proc (syntax-func-declaration start-pos ARGS-CAN-BE-FUNCS))
                       (flag #f)
                       (end-flag #f))
@@ -352,7 +358,10 @@
                                                         (cons token stack)))
                             (proc                 (set! flag #t)
                                                   (set! out (cons proc out)))
-                            ((eqv? tag 'tag-num)  (set! out (cons token out)))
+                            ((x-in-xs? tag
+                                       'tag-num
+                                       'tag-true
+                                       'tag-fls)  (set! out (cons token out)))
                             ((eqv? tag 'tag-lprn) (set! stack 
                                                         (cons token stack)))
                             ((eqv? tag 'tag-rprn) (or (and (not-null? stack)

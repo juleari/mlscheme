@@ -66,7 +66,6 @@
                (l-model (length model))
                (l-this (+ l-args l-model))
                (body (semantic-program b-list (append (make-alist names-of-args) model) '())))
-          ;(print 'semantic-func-body body)
           (list (reverse (remove-last (car body) l-this)) (cdr body))))
 
       (define (semantic-func-def func-def-terms model)
@@ -92,7 +91,6 @@
 
                (func-val (vector args-vector f-defs f-exprs))
                (add-list (list model func-name func-val)))
-          ;(print 'semantic-func-def add-list)
           (apply (if in-model
                      add-type-in-model
                      add-func-in-model)
@@ -115,7 +113,6 @@
                                              (get-arg-value (car (get-rule-terms arg))
                                                             (list (list name-token func-types))))
                                            args)))
-                      ;(print 'semantic-func-call arg-values)
                       (if (is-apply? arg-values)
                           (list ':func-call "apply" name (caar arg-values))
                           (append (list ':func-call name) arg-values)))))))
@@ -128,7 +125,6 @@
                (name (get-token-value name-token))
                (args (cdr func-decl-terms))
                (in-model (find-in-model name model)))
-          ;(print 'semantic-var name in-model)
           (or (and in-model
                    (or (or-fold (map (lambda (in-model) (semantic-func-call name-token args in-model))
                                      in-model))
@@ -147,7 +143,6 @@
         (let* ((terms       (get-rule-terms argument))
                (f-term      (car terms))
                (f-term-name (get-rule-name f-term)))
-          ;(print 'argument-to-expr f-term-name)
           (cond ((eq? f-term-name 'simple-argument) (get-simple-arg-value f-term))
                 ((eq? f-term-name 'continuous)      (get-continuous-expr f-term model))
                 ((eq? f-term-name 'func-decl)       (car (semantic-expr terms model))))))
@@ -185,7 +180,6 @@
       ;;           #then
       ;;           #expr)
       (define (semantic-if-cond if-cond model)
-        ;(print 'semantic-if-cond (cdddr if-cond))
         (list (semantic-expr (get-rule-terms (cadr if-cond)) model)
               (semantic-expr (get-rule-terms (car (cdddr if-cond))) model)))
 
@@ -200,7 +194,6 @@
                          (cadr terms))))
 
       (define (semantic-lambda func-def-terms model)
-        ;(print 'semantic-lambda func-def-terms)
         (let* ((func-decl (car func-def-terms))
 
                (func-args (get-args-from-decl func-decl))
@@ -216,7 +209,6 @@
 
       (define (semantic-expr-elem elem model)
         (let ((type (get-rule-name elem)))
-          ;(print 'semantic-expr-elem type)
           (cond ((eq? type 'func-decl)    (semantic-var (get-rule-terms elem) model))
                 ((eq? type 'array-simple) (semantic-expr-arr (get-rule-terms elem) model))
                 ((eq? type 'if-expression)(semantic-if-expr (get-rule-terms elem) model))
@@ -234,11 +226,10 @@
       ;; parse exprs after defs
       (define (semantic-program ast model exprs)
         (if (null? ast)
-            (list model exprs)
+            (list (reverse model) exprs)
             (let* ((rule (car ast))
                    (name (get-rule-name rule))
                    (terms (get-rule-terms rule)))
-              ;(print 'semantic-program name)
               (cond ((eq? name 'func-def)
                      (semantic-program (cdr ast)
                                        (semantic-func-def terms model)

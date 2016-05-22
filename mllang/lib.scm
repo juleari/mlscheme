@@ -282,7 +282,7 @@
            (hash (cdr f-list) (cdr a-list)))))
 
 (define (is-op? t)
-  (op-in-xs? t "+" "-" "/" "%" "*" "//"))
+  (op-in-xs? t "+" "-" "/" "%" "*" "//" ">" "<" "=" ">=" "<=" "!="))
 
 (define (op-in-xs? x . xs)
   (and (not-null? xs)

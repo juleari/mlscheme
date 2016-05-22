@@ -11,6 +11,10 @@
   (display text gen-file)
   (newline gen-file))
 
+(define (string-op->symbol x stack)
+  (cond ((equal? x "!") (list (cons 'not stack)))
+        (else           (cons (string->symbol x) stack))))
+
 (define (calc-rpn xs)
   (define (helper stack xs)
     (if (null? xs)
@@ -22,7 +26,8 @@
                                            (cddr stack))
                                      s))
                 ((list? x)   (helper (cons (func-apply x) stack) s))
-                ((string? x) (helper (cons (string->symbol x) stack) s))
+                ((string? x) (helper (string-op->symbol x stack) s))
+                ((x-in-xs? x #t #f) (helper (cons x stack) s))
                 (else        (helper stack s))))))
   (helper '() xs))
 

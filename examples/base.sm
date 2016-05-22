@@ -1,9 +1,23 @@
-zero? 0 <- #t
-zero? x <- #f
+mzero? 0 <- #t
+mzero? x <- #f
 
-null? 0 <- #t
-null? [] <- #t
-null? x <- #f
+mnull? 0 <- #t
+mnull? [] <- #t
+mnull? x <- #f
 
-even? x <- x % 2 = 0
-odd? x <- ! even? x
+meven? x <- x % 2 = 0
+modd? x <- ! meven? x
+
+mzero? 0
+mzero? 1
+
+mnull? 0
+mnull? 1
+mnull? []
+mnull? [1 2 3]
+
+meven? 4
+meven? 5
+
+modd? 1
+modd? 2

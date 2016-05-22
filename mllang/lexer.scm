@@ -106,6 +106,10 @@
                    (new-tag-assq (assq old-tag old-new-tag))
                    (new-tag      (and new-tag-assq (cadr new-tag-assq))))
               (set-token-tag token new-tag)
+              (and (eq? new-tag 'tag-true)
+                   (set-token-value token #t))
+              (and (eq? new-tag 'tag-fls)
+                   (set-token-value token #f))
               (helper s token))))
       
       (define (cons-tags tag tag-token token s)
