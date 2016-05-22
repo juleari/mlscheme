@@ -112,7 +112,7 @@
                  #(tag-sym #(4 46) "xs")
                  #(tag-rbrk #(4 49) #\])
                  #(tag-sym #(6 1) "replace")
-                 #(tag-sym #(6 9) "zero?")
+                 #(tag-kw #(6 9) "zero?")
                  #(tag-lmbd #(7 9) "\\")
                  #(tag-sym #(7 11) "x")
                  #(tag-from #(7 13) "->")
@@ -151,7 +151,14 @@
                  #(tag-sym #(14 20) "x")
                  #(tag-sym #(15 9) "exp")
                  #(tag-lbrk #(16 9) #\[)
-                 #(tag-rbrk #(16 10) #\])))
+                 #(tag-num #(16 11) 0)
+                 #(tag-num #(16 13) 1)
+                 #(tag-num #(16 15) -1)
+                 #(tag-num #(16 18) 2)
+                 #(tag-num #(16 20) -2)
+                 #(tag-num #(16 23) 3)
+                 #(tag-num #(16 25) -3)
+                 #(tag-rbrk #(16 27) #\])))
 
 (define (get-true-expr)
   #(expr (#(tag-true #(0 0) "#t"))))
@@ -245,11 +252,6 @@
 
       (define (is-type? . types)
         (apply x-in-xs? (cons (get-token-tag token) types)))
-
-      (define (x-in-xs? x . xs)
-        (and (not-null? xs)
-             (or (eqv? x (car xs))
-                 (apply x-in-xs? (cons x (cdr xs))))))
 
       (define (start-in? start-pos)
         (> (get-token-pos token) start-pos))

@@ -8,23 +8,23 @@
         ()
         (('())))
       #(#((lambda (:x) (= :x 3))
-          ((lambda (x) #t)
-           (lambda (x) #t)
-           (lambda (:x)
-             (and (list? :x)
-                  (and-fold
-                   (cons
-                    (>= (length :x) 1)
-                    (map
-                     (lambda (:lambda-i :xi) ((eval-i :lambda-i) :xi))
-                     '((lambda (x) #t))
-                     (give-first :x 1)))))))
-          ("pred?" "proc" ("x" (continuous "xs")))
-          (lambda :args #t))
+       ((lambda (x) #t)
+        (lambda (x) #t)
+        (lambda (:x)
+          (and (list? :x)
+               (and-fold
+                (cons
+                 (>= (length :x) 1)
+                 (map
+                  (lambda (:lambda-i :xi) ((eval-i :lambda-i) :xi))
+                  '((lambda (x) #t))
+                  (give-first :x 1)))))))
+       ("pred?" "proc" ("x" (continuous "xs")))
+       (lambda :args #t))
         ()
         (((:cond
            (((:func-call "pred?" "x"))
-            ((:func-call
+         ((:func-call
            append-s
            (:list (:func-call "apply" "proc" (:qlist "x")))
            (:list (:func-call "replace" "pred?" "proc" "xs")))))
@@ -34,8 +34,8 @@
               (:list "x")
               (:list (:func-call "replace" "pred?" "proc" "xs")))))))))))
     ((:func-call "replace" "zero?" ((:lambda ("x") (("x" 1 "+")))) (:qlist 0 1 2 3 0))
-  (:func-call "replace" "odd?" ((:lambda ("x") (("x" 2 "*")))) (:qlist 1 2 3 4 5 6))
-  (:func-call "replace" ((:lambda ("x") ((0 "x" ">")))) "exp" '()))))
+     (:func-call "replace" "odd?" ((:lambda ("x") (("x" 2 "*")))) (:qlist 1 2 3 4 5 6))
+     (:func-call "replace" ((:lambda ("x") ((0 "x" ">")))) "exp" (:qlist 0 1 -1 2 -2 3 -3)))))
 ;; end examp
 
 ;; defs

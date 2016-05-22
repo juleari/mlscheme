@@ -81,10 +81,22 @@
        (or (eqv? x (car xs))
            (apply x-in-xs? (cons x (cdr xs))))))
 
+(define (make-map-cond if-conds)
+  `(map-cond ,(map (lambda (if-cond)
+                     (list (calc-rpn (car if-cond))
+                           (calc-rpn (cadr if-cond))))
+                   if-conds)))
+
 (define (func-apply x)
   (cond ((string? x) (string->symbol x))
         ((list? x)   (cond ((or (null? x) (eq? (car x) 'quote))   x)
                            ((x-in-xs? (car x) ':list ':func-call) (map func-apply (cdr x)))
+                           ((eq? (car x) ':qlist)                 (cons 'list
+                                                                        (map func-apply (cdr x))))
+                           ((eq? (car x) ':lambda)                (list 'lambda
+                                                                        (map func-apply (cadr x))
+                                                                        (calc-rpn (caddr x))))
+                           ((eq? (car x) ':cond)                  (make-map-cond (cdr x)))
                            (else                                  (calc-rpn x))))
         (else x)))
 
@@ -560,3 +572,13 @@
          (and (list? val)
               (not-null? val)
               (eq? ':apply (car (reverse val)))))))
+
+(define (append-to-rule-list rule xs)
+  (vector (get-rule-name rule)
+          (append (get-rule-list rule) xs)))
+
+(define (make-syntax-expr terms)
+  (and terms
+       (vector 'expr (if (list? terms)
+                    terms
+                    (list terms)))))
