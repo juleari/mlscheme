@@ -1,24 +1,39 @@
 ;; examp
 (define v
-  '((("replicate"
-      #(#((lambda (:x) (= :x 2))
-          ((lambda (x) #t) (lambda (x) (eqv? x 0)))
-          ("x" :_)
-          (lambda :args #t))
-        ()
-        (('())))
-      #(#((lambda (:x) (= :x 2))
-          ((lambda (x) #t) (lambda (x) #t))
-       ("x" "n")
+  '((("replace"
+   #(#((lambda (:x) (= :x 3))
+       ((lambda (x) #t) (lambda (x) #t) (lambda (:x) (and (list? :x) (null? :x))))
+       ("pred?" "proc" ())
        (lambda :args #t))
-        ()
-        (((:func-call
+     ()
+     (('())))
+   #(#((lambda (:x) (= :x 3))
+       ((lambda (x) #t)
+        (lambda (x) #t)
+        (lambda (:x)
+          (and (list? :x)
+               (and-fold
+                (cons
+                 (>= (length :x) 1)
+                 (map
+                  (lambda (:lambda-i :xi) ((eval-i :lambda-i) :xi))
+                  '((lambda (x) #t))
+                  (give-first :x 1)))))))
+       ("pred?" "proc" ("x" (continuous "xs")))
+       (lambda :args #t))
+     ()
+     (((:cond
+        (((:func-call "pred?" "x"))
+         ((:func-call
+           append-s
+           (:list (:func-call "apply" "proc" (:qlist "x")))
+           (:list (:func-call "replace" "pred?" "proc" "xs")))))
+        (("#t")
+         ((:func-call
            append-s
            (:list "x")
-           (:list (:func-call "replicate" "x" ("n" 1 "-")))))))))
-    ((:func-call "replicate" "\"a\"" 5)
-     (:func-call "replicate" '("\"a\"" "\"b\"") 3)
-     (:func-call "replicate" "\"a\"" 0))))
+           (:list (:func-call "replace" "pred?" "proc" "xs")))))))))))
+    ()))
 ;; end examp
 
 ;; defs
@@ -142,10 +157,18 @@
 (define (is-str-op? s)
   (procedure? (eval-i (string->symbol s))))
 
+(define (make-map-cond if-conds)
+  `(map-cond ,(map (lambda (if-cond)
+                     (list (calc-rpn (car if-cond))
+                           (calc-rpn (cadr if-cond))))
+                   if-conds)))
+
 (define (func-apply x)
   (cond ((string? x) (string->symbol x))
         ((list? x)   (cond ((or (null? x) (eq? (car x) 'quote))   x)
                            ((x-in-xs? (car x) ':list ':func-call) (map func-apply (cdr x)))
+                           ((eq? (car x) ':qlist)                 (cons 'list (map func-apply (cdr x))))
+                           ((eq? (car x) ':cond)                  (make-map-cond (cdr x)))
                            (else                                  (calc-rpn x))))
         (else x)))
 
@@ -254,8 +277,8 @@
               name))
         name)))
 ;; end lib
-(define gen-file (open-output-file "generated.scm"))
-;(define gen-file (current-output-port))
+;(define gen-file (open-output-file "generated.scm"))
+(define gen-file (current-output-port))
 
 ;; в рабочей версии вместо genbase.sm должен быть задаваемый в compiler.py путь
 (define (prepare-gen-file)
@@ -263,7 +286,7 @@
     (while (not (eof-object? (peek-char lib-funcs-file)))
            (display (read-char lib-funcs-file) gen-file))))
 
-(prepare-gen-file)
+;(prepare-gen-file)
 
 (define (to-gen-file text)
   (display text gen-file)

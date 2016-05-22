@@ -439,16 +439,18 @@
                 (reverse ast-list))))
         (helper '()))
 
-      (define (syntax-func-declaration start-pos args-can-be-funcs?)
+      (define (syntax-func-lambda-decl start-pos name-rule-args rule-name args-can-be-funcs?)
         (and (start-in? start-pos)
-             (let ((first-rule (simple-rule start-pos 'func-name 'tag-sym)))
+             (let ((first-rule (apply simple-rule (cons start-pos name-rule-args))))
                (and first-rule
-                    (vector 'func-decl
+                    (vector rule-name
                             (cons first-rule
                                   (syntax-rule? syntax-arguments
-                                                (get-simple-start-pos
-                                                 first-rule)
+                                                (get-simple-start-pos first-rule)
                                                 args-can-be-funcs?)))))))
+
+      (define (syntax-func-declaration start-pos args-can-be-funcs?)
+        (syntax-func-lambda-decl start-pos '(func-name tag-sym) 'func-decl args-can-be-funcs?))
 
       (define (syntax-func-body start-pos)
         (syntax-partional-rule start-pos
@@ -489,15 +491,17 @@
               (or (syntax-lambda-body start-pos)
                   (add-error ERROR_NO_TAG_TO))))
 
-      ;; надо сделать так, чтобы в lambda-rules передавался новый start-pos
       (define (syntax-lambda start-pos)
-        (syntax-whole-rule 'lambda-func
-                           start-pos
-                           `(,simple-rule ,start-pos 'lambda-symb 'tag-lmbd)
-                           syntax-rule-
-                           get-lambda-rules
-                           '()
-                           #f))
+        (let ((func-decl (syntax-func-lambda-decl start-pos
+                                                  '(func-name tag-lmbd)
+                                                  'lambda-func-decl
+                                                  ARGS-CANT-BE-FUNCS)))
+          (and func-decl
+               (let* ((new-start-pos (get-expr-start-pos func-decl))
+                      (func-body (syntax-lambda-body new-start-pos)))
+                 (or (and func-body
+                          (vector 'lambda-func
+                                  (cons func-decl func-body))))))))
 
       (define (syntax-expr start-pos . func-decl?)
         ;(print 'syntax-expr token args)
