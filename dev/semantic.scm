@@ -1,58 +1,63 @@
 ;; examp
 (define v '(#(func-def
               (#(func-decl
-                 (#(func-name #(tag-sym #(1 1) "zero?"))
-                  #(argument (#(simple-argument #(tag-num #(1 7) 0))))))
-               #(func-to #(tag-to #(1 9) "<-"))
-               #(expr (#(tag-true #(1 12) #t)))))
+                 (#(func-name #(tag-sym #(1 1) "cycle"))
+                  #(argument (#(simple-argument #(tag-sym #(1 7) "xs"))))
+                  #(argument (#(simple-argument #(tag-num #(1 10) 0))))))
+               #(func-to #(tag-to #(1 12) "<-"))
+               #(expr
+                 (#(array-simple
+                    (#(open-braket #(tag-lbrk #(1 15) #\[))
+                     #(close-braket #(tag-rbrk #(1 16) #\]))))))))
             #(func-def
               (#(func-decl
-                 (#(func-name #(tag-sym #(2 1) "zero?"))
-                  #(argument (#(simple-argument #(tag-sym #(2 7) "x"))))))
-               #(func-to #(tag-to #(2 9) "<-"))
-               #(expr (#(tag-fls #(2 12) #f)))))
-            #(func-def
+                 (#(func-name #(tag-sym #(2 1) "cycle"))
+                  #(argument (#(simple-argument #(tag-sym #(2 7) "xs"))))
+                  #(argument (#(simple-argument #(tag-sym #(2 10) "n"))))))
+               #(func-to #(tag-to #(2 12) "<-"))
+               #(expr
+                 (#(func-decl (#(func-name #(tag-sym #(2 15) "xs"))))
+                  #(func-decl
+                    (#(func-name #(tag-sym #(2 21) "cycle"))
+                     #(argument (#(simple-argument #(tag-sym #(2 27) "xs"))))
+                     #(argument
+                       (#(expr
+                          (#(func-decl (#(func-name #(tag-sym #(2 32) "n"))))
+                           #(tag-num #(2 36) 1)
+                           #(tag-mns #(2 34) "-")))))))
+                  #(tag-conc #(2 18) "++")))))
+            #(expr
               (#(func-decl
-                 (#(func-name #(tag-sym #(4 1) "null?"))
-                  #(argument (#(simple-argument #(tag-num #(4 7) 0))))))
-               #(func-to #(tag-to #(4 9) "<-"))
-               #(expr (#(tag-true #(4 12) #t)))))
-            #(func-def
+                 (#(func-name #(tag-sym #(4 1) "cycle"))
+                  #(argument
+                    (#(array-simple
+                       (#(open-braket #(tag-lbrk #(4 7) #\[))
+                        #(argument (#(simple-argument #(tag-num #(4 9) 0))))
+                        #(argument (#(simple-argument #(tag-num #(4 11) 1))))
+                        #(close-braket #(tag-rbrk #(4 13) #\]))))))
+                  #(argument (#(simple-argument #(tag-num #(4 15) 3))))))))
+            #(expr
               (#(func-decl
-                 (#(func-name #(tag-sym #(5 1) "null?"))
+                 (#(func-name #(tag-sym #(5 1) "cycle"))
                   #(argument
                     (#(array-simple
                        (#(open-braket #(tag-lbrk #(5 7) #\[))
-                        #(close-braket #(tag-rbrk #(5 8) #\]))))))))
-               #(func-to #(tag-to #(5 10) "<-"))
-               #(expr (#(tag-true #(5 13) #t)))))
-            #(func-def
+                        #(argument
+                          (#(simple-argument #(tag-sym #(5 9) "'a"))))
+                        #(argument
+                          (#(simple-argument #(tag-sym #(5 12) "'b"))))
+                        #(argument
+                          (#(simple-argument #(tag-sym #(5 15) "'c"))))
+                        #(close-braket #(tag-rbrk #(5 18) #\]))))))
+                  #(argument (#(simple-argument #(tag-num #(5 20) 5))))))))
+            #(expr
               (#(func-decl
-      (#(func-name #(tag-sym #(6 1) "null?"))
-       #(argument (#(simple-argument #(tag-sym #(6 7) "x"))))))
-               #(func-to #(tag-to #(6 9) "<-"))
-               #(expr (#(tag-fls #(6 12) #f)))))
-            #(func-def
-              (#(func-decl
-                 (#(func-name #(tag-sym #(8 1) "even?"))
-                  #(argument (#(simple-argument #(tag-sym #(8 7) "x"))))))
-    #(func-to #(tag-to #(8 9) "<-"))
-    #(expr
-      (#(func-decl (#(func-name #(tag-sym #(8 12) "x"))))
-       #(tag-num #(8 16) 2)
-       #(tag-mod #(8 14) "%")
-       #(tag-num #(8 20) 0)
-       #(tag-eq #(8 18) "=")))))
-            #(func-def
-              (#(func-decl
-                 (#(func-name #(tag-sym #(9 1) "odd?"))
-                  #(argument (#(simple-argument #(tag-sym #(9 6) "x"))))))
-               #(func-to #(tag-to #(9 8) "<-"))
-               #(expr
-                 (#(func-decl
-                    (#(func-name #(tag-sym #(9 13) "even?"))
-                     #(argument (#(simple-argument #(tag-sym #(9 19) "x"))))))
-                  #(tag-not #(9 11) "!")))))))
+                 (#(func-name #(tag-sym #(6 1) "cycle"))
+                  #(argument
+                    (#(array-simple
+                       (#(open-braket #(tag-lbrk #(6 7) #\[))
+                        #(close-braket #(tag-rbrk #(6 8) #\]))))))
+                  #(argument (#(simple-argument #(tag-num #(6 10) 0))))))))))
 ;; end examp
 
 ;; defs

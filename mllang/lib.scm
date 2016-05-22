@@ -78,7 +78,7 @@
 
 (define (x-in-xs? x . xs)
   (and (not-null? xs)
-       (or (eqv? x (car xs))
+       (or (equal? x (car xs))
            (apply x-in-xs? (cons x (cdr xs))))))
 
 (define (make-map-cond if-conds)
@@ -282,7 +282,7 @@
            (hash (cdr f-list) (cdr a-list)))))
 
 (define (is-op? t)
-  (op-in-xs? t "+" "-" "/" "%" "*" "//" ">" "<" "=" ">=" "<=" "!="))
+  (x-in-xs? t "+" "-" "/" "%" "*" "//" ">" "<" ">=" "<=" "=" "!=" "++"))
 
 (define (op-in-xs? x . xs)
   (and (not-null? xs)

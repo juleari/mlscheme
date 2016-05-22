@@ -307,7 +307,7 @@
                     'tag-bor 'tag-band 'tag-xor 'tag-and 'tag-or
                     'tag-neq 'tag-hghr 'tag-lwr 'tag-heq 'tag-leq
                     'tag-pls 'tag-mns  'tag-mul 'tag-div 'tag-eq
-                    'tag-mod 'tag-rem  'tag-pow 'tag-not))
+                    'tag-mod 'tag-rem  'tag-pow 'tag-not 'tag-conc))
 
         (define (is-type? . types)
           (apply x-in-xs? (cons (get-token-tag token) types)))
@@ -331,7 +331,7 @@
                   ((x-in-xs? tag 'tag-and)                             5)
                   ((x-in-xs? tag 'tag-neq 'tag-eq)                     6)
                   ((x-in-xs? tag 'tag-lwr 'tag-leq 'tag-hghr 'tag-heq) 7)
-                  ((x-in-xs? tag 'tag-pls 'tag-mns)                    8)
+                  ((x-in-xs? tag 'tag-pls 'tag-mns 'tag-conc)          8)
                   ((x-in-xs? tag 'tag-mul 'tag-div 'tag-mod 'tag-rem)  9)
                   ((x-in-xs? tag 'tag-pow)                            10)
                   ((x-in-xs? tag 'tag-not)                            11)

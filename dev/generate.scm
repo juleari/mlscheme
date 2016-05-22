@@ -1,52 +1,21 @@
 ;; examp
 (define v
-  '((("mzero?"
-      #(#((lambda (:x) (= :x 1))
-          ((lambda (x) (eqv? x 0)))
-          (:_)
-          (lambda :args #t))
-        ()
-        ((#t)))
-      #(#((lambda (:x) (= :x 1))
-          ((lambda (x) #t))
-          ("x")
-          (lambda :args #t))
-        ()
-        ((#f))))
-     ("mnull?"
-      #(#((lambda (:x) (= :x 1))
-          ((lambda (x) (eqv? x 0)))
-          (:__)
-          (lambda :args #t))
-        ()
-        ((#t)))
-      #(#((lambda (:x) (= :x 1))
-          ((lambda (:x) (and (list? :x) (null? :x))))
-          (())
-          (lambda :args #t))
-        ()
-        ((#t)))
-      #(#((lambda (:x) (= :x 1))
-          ((lambda (x) #t))
-          ("x")
-          (lambda :args #t))
-        ()
-        ((#f))))
-     ("meven?"
-      #(#((lambda (:x) (= :x 1))
-          ((lambda (x) #t))
-          ("x")
-          (lambda :args #t))
-        ()
-     (("x" 2 "%" 0 "="))))
-     ("modd?"
-      #(#((lambda (:x) (= :x 1))
-          ((lambda (x) #t))
-          ("x")
-          (lambda :args #t))
-        ()
-        (((:func-call "meven?" "x") "!")))))
-    ()))
+  '((("cycle"
+   #(#((lambda (:x) (= :x 2))
+       ((lambda (x) #t) (lambda (x) (eqv? x 0)))
+       ("xs" :_)
+       (lambda :args #t))
+     ()
+     (('())))
+   #(#((lambda (:x) (= :x 2))
+       ((lambda (x) #t) (lambda (x) #t))
+       ("xs" "n")
+       (lambda :args #t))
+     ()
+     (("xs" (:func-call "cycle" "xs" ("n" 1 "-")) "++")))))
+ ((:func-call "cycle" (:qlist 0 1) 3)
+  (:func-call "cycle" (:qlist "'a" "'b" "'c") 5)
+  (:func-call "cycle" '() 0))))
 ;; end examp
 
 ;; defs
@@ -160,11 +129,11 @@
       (newline)))
 
 (define (is-op? t)
-  (x-in-xs? t "+" "-" "/" "%" "*" "//" ">" "<" ">=" "<=" "=" "!="))
+  (x-in-xs? t "+" "-" "/" "%" "*" "//" ">" "<" ">=" "<=" "=" "!=" "++"))
 
 (define (x-in-xs? x . xs)
   (and (not-null? xs)
-       (or (eqv? x (car xs))
+       (or (equal? x (car xs))
            (apply x-in-xs? (cons x (cdr xs))))))
 
 (define (is-str-op? s)
@@ -294,8 +263,8 @@
               name))
         name)))
 ;; end lib
-;(define gen-file (open-output-file "generated.scm"))
-(define gen-file (current-output-port))
+(define gen-file (open-output-file "generated.scm"))
+;(define gen-file (current-output-port))
 
 ;; в рабочей версии вместо genbase.sm должен быть задаваемый в compiler.py путь
 (define (prepare-gen-file)
@@ -303,7 +272,7 @@
     (while (not (eof-object? (peek-char lib-funcs-file)))
            (display (read-char lib-funcs-file) gen-file))))
 
-;(prepare-gen-file)
+(prepare-gen-file)
 
 (define (to-gen-file text)
   (display text gen-file)
