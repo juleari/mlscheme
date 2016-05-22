@@ -835,9 +835,20 @@
         (cons ':cond (map (lambda (x) (semantic-if-cond x model))
                          (cadr terms))))
 
-      (define (semantic-lambda terms model)
-        (print 'semantic-lambda terms)
-        terms)
+      (define (semantic-lambda func-def-terms model)
+        ;(print 'semantic-lambda func-def-terms)
+        (let* ((func-decl (car func-def-terms))
+
+               (func-args (get-args-from-decl func-decl))
+               (names-of-args (get-names-of-args func-args))
+
+               (this-model (append (make-alist names-of-args) model))
+               (body-list (semantic-func-body func-def-terms
+                                              names-of-args
+                                              this-model))
+
+               (f-exprs (cadr body-list)))
+          (list ':lambda names-of-args f-exprs)))
 
       (define (semantic-expr-elem elem model)
         (let ((type (get-rule-name elem)))
