@@ -104,7 +104,7 @@
                  #(tag-sym #(9 19) "x")))
 
 (define (get-true-expr)
-  (vector 'expr (list #(tag-true #(0 0) "#t"))))
+  (vector 'expr (list #(tag-true #(0 0) #t))))
 
 (define (get-token)
   (if (null? tokens)
