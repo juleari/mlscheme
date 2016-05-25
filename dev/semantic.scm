@@ -1,63 +1,63 @@
 ;; examp
 (define v '(#(func-def
-              (#(func-decl
-                 (#(func-name #(tag-sym #(1 1) "cycle"))
-                  #(argument (#(simple-argument #(tag-sym #(1 7) "xs"))))
-                  #(argument (#(simple-argument #(tag-num #(1 10) 0))))))
-               #(func-to #(tag-to #(1 12) "<-"))
-               #(expr
-                 (#(array-simple
-                    (#(open-braket #(tag-lbrk #(1 15) #\[))
-                     #(close-braket #(tag-rbrk #(1 16) #\]))))))))
+              (#(func-decl (#(func-name #(tag-sym #(1 1) "and-fold"))))
+               #(func-to #(tag-to #(1 17) "<-"))
+               #(expr (#(tag-true #(1 20) #t)))))
             #(func-def
               (#(func-decl
-                 (#(func-name #(tag-sym #(2 1) "cycle"))
-                  #(argument (#(simple-argument #(tag-sym #(2 7) "xs"))))
-                  #(argument (#(simple-argument #(tag-sym #(2 10) "n"))))))
-               #(func-to #(tag-to #(2 12) "<-"))
+                 (#(func-name #(tag-sym #(2 1) "and-fold"))
+                  #(argument (#(simple-argument #(tag-sym #(2 10) "x"))))
+                  #(argument
+                    (#(continuous
+                       (#(colon #(tag-cln #(2 12) #\:))
+                        #(continuous-list #(tag-sym #(2 14) "xs"))))))))
+               #(func-to #(tag-to #(2 17) "<-"))
                #(expr
-                 (#(func-decl (#(func-name #(tag-sym #(2 15) "xs"))))
+                 (#(func-decl (#(func-name #(tag-sym #(2 20) "x"))))
                   #(func-decl
-                    (#(func-name #(tag-sym #(2 21) "cycle"))
-                     #(argument (#(simple-argument #(tag-sym #(2 27) "xs"))))
+                    (#(func-name #(tag-sym #(2 25) "and-fold"))
                      #(argument
-                       (#(expr
-                          (#(func-decl (#(func-name #(tag-sym #(2 32) "n"))))
-                           #(tag-num #(2 36) 1)
-                           #(tag-mns #(2 34) "-")))))))
-                  #(tag-conc #(2 18) "++")))))
+                       (#(continuous
+                          (#(colon #(tag-cln #(2 34) #\:))
+                           #(expr
+                             (#(func-decl
+                                (#(func-name
+                                   #(tag-sym #(2 36) "xs"))))))))))))
+                  #(tag-and #(2 22) "&&")))))
             #(expr
               (#(func-decl
-                 (#(func-name #(tag-sym #(4 1) "cycle"))
+                 (#(func-name #(tag-sym #(4 1) "and-fold"))
                   #(argument
-                    (#(array-simple
-                       (#(open-braket #(tag-lbrk #(4 7) #\[))
-                        #(argument (#(simple-argument #(tag-num #(4 9) 0))))
-                        #(argument (#(simple-argument #(tag-num #(4 11) 1))))
-                        #(close-braket #(tag-rbrk #(4 13) #\]))))))
-                  #(argument (#(simple-argument #(tag-num #(4 15) 3))))))))
+                    (#(expr
+                       (#(tag-fls #(4 10) #f)
+                        #(tag-fls #(4 13) #f)
+                        #(tag-fls #(4 16) #f)))))))))
             #(expr
               (#(func-decl
-                 (#(func-name #(tag-sym #(5 1) "cycle"))
+                 (#(func-name #(tag-sym #(5 1) "and-fold"))
                   #(argument
-                    (#(array-simple
-                       (#(open-braket #(tag-lbrk #(5 7) #\[))
-                        #(argument
-                          (#(simple-argument #(tag-sym #(5 9) "'a"))))
-                        #(argument
-                          (#(simple-argument #(tag-sym #(5 12) "'b"))))
-                        #(argument
-                          (#(simple-argument #(tag-sym #(5 15) "'c"))))
-                        #(close-braket #(tag-rbrk #(5 18) #\]))))))
-                  #(argument (#(simple-argument #(tag-num #(5 20) 5))))))))
+                    (#(expr
+                       (#(tag-fls #(5 10) #f)
+                        #(tag-fls #(5 13) #f)
+                        #(tag-true #(5 16) #t)))))))))
             #(expr
               (#(func-decl
-                 (#(func-name #(tag-sym #(6 1) "cycle"))
+                 (#(func-name #(tag-sym #(6 1) "and-fold"))
                   #(argument
-                    (#(array-simple
-                       (#(open-braket #(tag-lbrk #(6 7) #\[))
-                        #(close-braket #(tag-rbrk #(6 8) #\]))))))
-                  #(argument (#(simple-argument #(tag-num #(6 10) 0))))))))))
+                    (#(expr
+                       (#(tag-fls #(6 10) #f)
+                        #(tag-true #(6 13) #t)
+                        #(tag-true #(6 16) #t)))))))))
+            #(expr
+              (#(func-decl
+                 (#(func-name #(tag-sym #(7 1) "and-fold"))
+                  #(argument
+                    (#(expr
+            (#(tag-true #(7 10) #t)
+             #(tag-true #(7 13) #t)
+             #(tag-true #(7 16) #t)))))))))
+            #(expr
+              (#(func-decl (#(func-name #(tag-sym #(8 1) "and-fold"))))))))
 ;; end examp
 
 ;; defs
@@ -219,7 +219,6 @@
 
 (define (find-in-model func-name model)
   (and (not-null? model)
-       ;(print 'find-in-model func-name)
        (let* ((car-model model)
               (in-model (assoc func-name car-model)))
          (or (and in-model (cons (cdr in-model)
@@ -243,16 +242,22 @@
   (and (not-null? model)
        (let* ((type (car model))
               (get-args-names-from-type type))
+         (print 'find-in-params func-name type)
          (x-in-xs func-name get-args-names-from-type))))
 
 (define (make-arg-type)
   (vector (vector `(lambda (:x) #t) (list) (list)) (list) (list)))
 
+(define (get-arg-name arg)
+  (if (list? arg)
+      (cadr arg)
+      arg))
+
 (define (make-alist xs)
   (define (helper xs alist)
     (if (null? xs)
         alist
-        (helper (cdr xs) (cons (list (car xs) (make-arg-type)) alist))))
+        (helper (cdr xs) (cons (list (get-arg-name (car xs)) (make-arg-type)) alist))))
   (helper xs '()))
 
 (define (remove-first n xs)
@@ -534,6 +539,7 @@
         name)))
 
 (define (is-apply? arg-values)
+  (print 'is-apply arg-values)
   (and (eq? 1 (length arg-values))
        (let ((val (car arg-values)))
          (and (list? val)
@@ -656,6 +662,7 @@
                (correct-types (filter (lambda (type)
                                         ((eval-i (get-args-num-from-type type)) arg-len))
                                       func-types)))
+          (print 'semantic-func-call1 name arg-len)
           (and (not-null? correct-types)
                (or  (and (zero? arg-len)
                          name)
@@ -663,7 +670,7 @@
                                              (get-arg-value (car (get-rule-terms arg))
                                                             (list (list name-token func-types))))
                                            args)))
-                      ;(print 'semantic-func-call arg-values)
+                      ;(print 'semantic-func-call2 name arg-values)
                       (if (is-apply? arg-values)
                           (list ':func-call "apply" name (caar arg-values))
                           (append (list ':func-call name) arg-values)))))))
@@ -676,7 +683,7 @@
                (name (get-token-value name-token))
                (args (cdr func-decl-terms))
                (in-model (find-in-model name model)))
-          ;(print 'semantic-var name in-model model)
+          (print 'semantic-var func-decl-terms name args (not (not in-model)) model)
           (or (and in-model
                    (or (or-fold (map (lambda (in-model) (semantic-func-call name-token args in-model))
                                      in-model))
@@ -717,7 +724,7 @@
 
       (define (get-arg-value arg-rule model)
         (let ((name (get-rule-name arg-rule)))
-          ;(print 'get-arg-value name)
+          (print 'get-arg-value arg-rule)
           (cond ((eq? name 'simple-argument) (get-simple-arg-value arg-rule))
                 ((eq? name 'array-simple)    (semantic-expr-arr (get-rule-terms arg-rule) model))
                 ((eq? name 'apply)           (cons (get-arg-value (car (get-rule-terms (cadr (get-rule-terms arg-rule))))
@@ -728,7 +735,10 @@
                                                                      (vector-ref (get-args-from-type
                                                                                   (car (cadar model)))
                                                                                  TYPE-ARGS-NAMES))
-                                                                    model))))))
+                                                                    model)))
+                ((eq? name 'continuous)      (cons (get-arg-value (cadr (get-rule-terms arg-rule))
+                                                                  model)
+                                                   '(:apply))))))
       ;; if-cond: (#if-cond
       ;;           #expr
       ;;           #then
@@ -765,7 +775,7 @@
 
       (define (semantic-expr-elem elem model)
         (let ((type (get-rule-name elem)))
-          ;(print 'semantic-expr-elem elem model)
+          (print 'semantic-expr-elem elem)
           (cond ((eq? type 'func-decl)    (semantic-var (get-rule-terms elem) model))
                 ((eq? type 'array-simple) (semantic-expr-arr (get-rule-terms elem) model))
                 ((eq? type 'if-expression)(semantic-if-expr (get-rule-terms elem) model))

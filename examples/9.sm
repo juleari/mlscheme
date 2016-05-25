@@ -1,0 +1,8 @@
+and-fold        <- #t
+and-fold x : xs <- x && and-fold : xs
+
+and-fold #f #f #f
+and-fold #f #f #t
+and-fold #f #t #t
+and-fold #t #t #t
+and-fold

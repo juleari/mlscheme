@@ -1,21 +1,18 @@
 ;; examp
 (define v
-  '((("cycle"
-   #(#((lambda (:x) (= :x 2))
-       ((lambda (x) #t) (lambda (x) (eqv? x 0)))
-       ("xs" :_)
+  '((("and-fold"
+   #(#((lambda (x) (zero? x)) () () (lambda :args #t)) () ((#t)))
+   #(#((lambda (:x) (>= :x 1))
+       ((lambda (x) #t))
+       ("x" (continuous "xs"))
        (lambda :args #t))
      ()
-     (('())))
-   #(#((lambda (:x) (= :x 2))
-       ((lambda (x) #t) (lambda (x) #t))
-       ("xs" "n")
-       (lambda :args #t))
-     ()
-     (("xs" (:func-call "cycle" "xs" ("n" 1 "-")) "++")))))
- ((:func-call "cycle" (:qlist 0 1) 3)
-  (:func-call "cycle" (:qlist "'a" "'b" "'c") 5)
-  (:func-call "cycle" '() 0))))
+     (("x" (:func-call "apply" "and-fold" ("xs")) "&&")))))
+ ((:func-call "and-fold" (#f #f #f))
+  (:func-call "and-fold" (#f #f #t))
+  (:func-call "and-fold" (#f #t #t))
+  (:func-call "and-fold" (#t #t #t))
+  "and-fold")))
 ;; end examp
 
 ;; defs
@@ -129,7 +126,7 @@
       (newline)))
 
 (define (is-op? t)
-  (x-in-xs? t "+" "-" "/" "%" "*" "//" ">" "<" ">=" "<=" "=" "!=" "++"))
+  (x-in-xs? t "+" "-" "/" "%" "*" "//" ">" "<" ">=" "<=" "=" "!=" "++" "&&" "||"))
 
 (define (x-in-xs? x . xs)
   (and (not-null? xs)

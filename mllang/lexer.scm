@@ -48,7 +48,7 @@
                (#\| ((tag-sym  tag-sym)
                      (tag-bor  tag-or)
                      (#f       tag-bor)))
-               (#&  ((tag-sym  tag-sym)
+               (#\& ((tag-sym  tag-sym)
                      (tag-band tag-and)
                      (#f       tag-band)))
                (#\= ((tag-sym  tag-sym)
