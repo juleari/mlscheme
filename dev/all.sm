@@ -1,0 +1,106 @@
+; count days of week
+day-of-week day month year <-
+    a <- (14 - month) // 12
+    y <- year - a
+    m <- month + (a * 12) - 2
+
+    (7000 + day + y + (y // 4) + (y // 400) + (31 * m // 12) 
+        - (y // 100)) % 7
+
+day-of-week 17 5 2016
+day-of-week 10 4 2016
+day-of-week 29 3 2016
+day-of-week 20 4 2016
+
+fub [] <- []
+fub [0 : xs] <- [1 : fub xs]
+fub [x : xs] <- [x : fub xs]
+
+fub [0 2 7 0 5]
+fub [0 1 0 1 0]
+
+; count x in xs
+count x []         <- 0
+count x [ x : xs ] <- 1 + count x xs
+count x [ y : xs ] <- count x xs
+;повторные переменные в образцах
+
+count 1 [1 2 3 1]
+count 0 [1 2 3 4]
+count 5 [1 2 3 4 5 5 5]
+
+fib 0 <- 1
+fib n <- n * fib (n - 1)
+
+fib 5
+fib 10
+
+sum <- 0
+sum x : xs <- x + sum . xs
+
+sum 1 2 3 4
+sum.[5 6 7 8 9 10]
+
+replace pred? proc []         <- []
+replace pred? proc [ x : xs ] <-
+    if | pred? x -> [ proc.[x] : replace pred? proc xs ]
+       |         -> [ x : replace pred? proc xs ]
+
+replace zero? 
+        \ x -> x + 1
+        [ 0 1 2 3 0 ]
+
+replace odd?
+        \ x -> x * 2
+        [ 1 2 3 4 5 6 ]
+
+replace \ x -> 0 > x
+        exp
+        [ 0 1 -1 2 -2 3 -3]
+
+replicate x 0 <- []
+replicate x n <- [ x : replicate x ( n - 1 ) ]
+
+replicate "a" 5
+replicate [ "a" "b" ] 3
+replicate "a" 0
+
+cycle xs 0 <- []
+cycle xs n <- xs ++ cycle xs ( n - 1 )
+
+cycle [ 0 1 ] 3
+cycle [ 'a 'b 'c ] 5
+cycle [] 0
+
+and-fold        <- #t
+and-fold x : xs <- x && and-fold : xs
+
+and-fold #f #f #f
+and-fold #f #f #t
+and-fold #f #t #t
+and-fold #t #t #t
+and-fold
+
+0? 0 <- #t
+0? x <- #f
+
+nil? 0 <- #t
+nil? [] <- #t
+nil? x <- #f
+
+%2=0? x <- x % 2 = 0
+%2!0? x <- ! %2=0? x
+
+0? 0
+0? 1
+
+nil? 0
+nil? 1
+nil? []
+nil? [1 2 3]
+
+%2=0? 4
+%2=0? 5
+
+%2!0? 1
+%2!0? 2
