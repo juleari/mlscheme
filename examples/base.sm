@@ -1,23 +1,23 @@
-mzero? 0 <- #t
-mzero? x <- #f
+0? 0 <- #t
+0? x <- #f
 
-mnull? 0 <- #t
-mnull? [] <- #t
-mnull? x <- #f
+nil? 0 <- #t
+nil? [] <- #t
+nil? x <- #f
 
-meven? x <- x % 2 = 0
-modd? x <- ! meven? x
+%2=0? x <- x % 2 = 0
+%2!0? x <- ! %2=0? x
 
-mzero? 0
-mzero? 1
+0? 0
+0? 1
 
-mnull? 0
-mnull? 1
-mnull? []
-mnull? [1 2 3]
+nil? 0
+nil? 1
+nil? []
+nil? [1 2 3]
 
-meven? 4
-meven? 5
+%2=0? 4
+%2=0? 5
 
-modd? 1
-modd? 2
+%2!0? 1
+%2!0? 2

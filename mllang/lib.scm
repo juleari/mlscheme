@@ -220,17 +220,17 @@
 
 (define (find-in-model func-name model)
   (and (not-null? model)
-       ;(let ((car-model (car model)))
        (let* ((car-model model)
               (in-model (assoc func-name car-model)))
-         (or (and in-model (cons (cdr in-model)
-                                 (or (find-in-model func-name (cdr model))
-                                     '())))
+         (or (and in-model
+                  (append (cdr in-model)
+                          (or (find-in-model func-name (cdr model))
+                              '())))
              (and (find-in-params func-name car-model)
-                  ;(print '!!!in-params!!!)
-                  (list func-name))
+                  (cons (make-arg-type)
+                        (or (find-in-model func-name (cdr model))
+                            '())))
              (find-in-model func-name (cdr model))))))
-
 
 (define (get-args-from-type type)
   (vector-ref type TYPE-ARGS))
@@ -238,13 +238,14 @@
 (define (x-in-xs x xs)
   (and (not-null? xs)
        (or (equal? x (car xs))
+           (and (list? (car xs)) (x-in-xs x (car xs)))
            (x-in-xs x (cdr xs)))))
 
 (define (find-in-params func-name model)
   (and (not-null? model)
-       (let* ((type (car model))
-              (get-args-names-from-type type))
-         (x-in-xs func-name get-args-names-from-type))))
+       (:or-fold (map (lambda (type)
+                        (x-in-xs func-name (get-args-names-from-type type)))
+                      (cdar model)))))
 
 (define (make-arg-type)
   (vector (vector `(lambda (:x) #t) (list) (list)) (list) (list)))
@@ -282,7 +283,7 @@
            (hash (cdr f-list) (cdr a-list)))))
 
 (define (is-op? t)
-  (x-in-xs? t "+" "-" "/" "%" "*" "//" ">" "<" ">=" "<=" "=" "!=" "++"))
+  (x-in-xs? t "+" "-" "/" "%" "*" "//" ">" "<" ">=" "<=" "=" "!=" "++" "&&" "||"))
 
 (define (op-in-xs? x . xs)
   (and (not-null? xs)
@@ -297,25 +298,6 @@
   (if (>= (length xs) 2)
       (reverse (cdr (reverse (cdr xs))))
       xs))
-
-(define (and-fold xs)
-  (or (null? xs)
-      (and (car xs)
-           (and-fold (cdr xs)))))
-
-(define (or-fold xs)
-  (and (not-null? xs)
-       (or (car xs)
-           (or-fold (cdr xs)))))
-
-(define (get-array-args-rules l-lambda inner x)
-  `(and-fold (cons ,l-lambda
-                   (map (lambda (:lambda-i :xi)
-                          ((eval-i :lambda-i) :xi))
-                        ',(map (lambda (:i)
-                                (get-type-of-arg :i))
-                              inner)
-                        ,x))))
 
 ;; TRY!!!
 (define (get-array-type arr-rule)
@@ -426,7 +408,7 @@
                 (if (not-null? :similar-pairs)
                     `(lambda :args
                        (let ((:v-args (multi-list->vector :args)))
-                         (and-fold-s ,(map (lambda (:similar-pair)
+                         (:and-fold-s ,(map (lambda (:similar-pair)
                                              `(equal? (vector-ref :v-args ,(car :similar-pair))
                                                       (vector-ref :v-args ,(cadr :similar-pair))))
                                            :similar-pairs))))
@@ -486,11 +468,24 @@
       '()
       (cons (car xs) (give-first (cdr xs) (- n 1)))))
 
-(define (and-fold xs)
-  ; (print 'and-fold xs)
+(define (:and-fold xs)
   (or (null? xs)
       (and (car xs)
-           (and-fold (cdr xs)))))
+           (:and-fold (cdr xs)))))
+
+(define (:or-fold xs)
+  (and (not-null? xs)
+       (or (car xs)
+           (:or-fold (cdr xs)))))
+
+(define (get-array-args-rules l-lambda inner x)
+  `(:and-fold (cons ,l-lambda
+                   (map (lambda (:lambda-i :xi)
+                          ((eval-i :lambda-i) :xi))
+                        ',(map (lambda (:i)
+                                (get-type-of-arg :i))
+                              inner)
+                        ,x))))
 
 (define (is-cont-name? name)
   ;(print name)

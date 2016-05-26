@@ -10,16 +10,16 @@
   (syntax-rules ()
     ((_ (x ...) (y ...)) (append (list x ...) y ...))))
 
-(define-syntax and-fold-s
+(define-syntax :and-fold-s
   (syntax-rules ()
     ((_ ()) #t)
     ((_ (x)) x)
-    ((_ (x y ...)) (and x (and-fold-s (y ...))))))
+    ((_ (x y ...)) (and x (:and-fold-s (y ...))))))
 
-(define (and-fold xs)
+(define (:and-fold xs)
   (or (null? xs)
       (and (car xs)
-           (and-fold (cdr xs)))))
+           (:and-fold (cdr xs)))))
 
 (define (hash f-list a-list)
   (or (null? f-list)
@@ -43,4 +43,5 @@
 (define % remainder)
 (define ** expt)
 (define ++ append)
+(define (&& x y) (and x y))
 

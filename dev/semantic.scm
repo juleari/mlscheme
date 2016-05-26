@@ -1,63 +1,88 @@
 ;; examp
 (define v '(#(func-def
-              (#(func-decl (#(func-name #(tag-sym #(1 1) "and-fold"))))
-               #(func-to #(tag-to #(1 17) "<-"))
-               #(expr (#(tag-true #(1 20) #t)))))
-            #(func-def
               (#(func-decl
-                 (#(func-name #(tag-sym #(2 1) "and-fold"))
-                  #(argument (#(simple-argument #(tag-sym #(2 10) "x"))))
-                  #(argument
-                    (#(continuous
-                       (#(colon #(tag-cln #(2 12) #\:))
-                        #(continuous-list #(tag-sym #(2 14) "xs"))))))))
-               #(func-to #(tag-to #(2 17) "<-"))
+                 (#(func-name #(tag-sym #(2 1) "day-of-week"))
+                  #(argument (#(simple-argument #(tag-sym #(2 13) "day"))))
+                  #(argument (#(simple-argument #(tag-sym #(2 17) "month"))))
+                  #(argument (#(simple-argument #(tag-sym #(2 23) "year"))))))
+               #(func-to #(tag-to #(2 28) "<-"))
+               #(func-def
+                 (#(func-decl (#(func-name #(tag-sym #(3 5) "a"))))
+                  #(func-to #(tag-to #(3 7) "<-"))
+                  #(expr
+                    (#(tag-num #(3 11) 14)
+                     #(func-decl (#(func-name #(tag-sym #(3 14) "month"))))
+                     #(tag-mns #(3 12) "-")
+                     #(tag-num #(3 24) 12)
+                     #(tag-div #(3 21) "//")))))
+               #(func-def
+                 (#(func-decl (#(func-name #(tag-sym #(4 5) "y"))))
+                  #(func-to #(tag-to #(4 7) "<-"))
+                  #(expr
+                    (#(func-decl (#(func-name #(tag-sym #(4 10) "year"))))
+                     #(func-decl (#(func-name #(tag-sym #(4 17) "a"))))
+                     #(tag-mns #(4 15) "-")))))
+               #(func-def
+                 (#(func-decl (#(func-name #(tag-sym #(5 5) "m"))))
+                  #(func-to #(tag-to #(5 7) "<-"))
+                  #(expr
+                    (#(func-decl (#(func-name #(tag-sym #(5 10) "month"))))
+                     #(func-decl (#(func-name #(tag-sym #(5 19) "a"))))
+                     #(tag-num #(5 23) 12)
+                     #(tag-mul #(5 21) "*")
+                     #(tag-pls #(5 16) "+")
+                     #(tag-num #(5 29) 2)
+                     #(tag-mns #(5 27) "-")))))
                #(expr
-                 (#(func-decl (#(func-name #(tag-sym #(2 20) "x"))))
-                  #(func-decl
-                    (#(func-name #(tag-sym #(2 25) "and-fold"))
-                     #(argument
-                       (#(continuous
-                          (#(colon #(tag-cln #(2 34) #\:))
-                           #(expr
-                             (#(func-decl
-                                (#(func-name
-                                   #(tag-sym #(2 36) "xs"))))))))))))
-                  #(tag-and #(2 22) "&&")))))
+                 (#(tag-num #(7 6) 7000)
+                  #(func-decl (#(func-name #(tag-sym #(7 9) "day"))))
+                  #(tag-pls #(7 7) "+")
+                  #(func-decl (#(func-name #(tag-sym #(7 15) "y"))))
+                  #(tag-pls #(7 13) "+")
+                  #(func-decl (#(func-name #(tag-sym #(7 20) "y"))))
+                  #(tag-num #(7 25) 4)
+                  #(tag-div #(7 22) "//")
+                  #(tag-pls #(7 17) "+")
+                  #(func-decl (#(func-name #(tag-sym #(7 31) "y"))))
+                  #(tag-num #(7 36) 400)
+                  #(tag-div #(7 33) "//")
+                  #(tag-pls #(7 28) "+")
+                  #(tag-num #(7 44) 31)
+                  #(func-decl (#(func-name #(tag-sym #(7 47) "m"))))
+                  #(tag-mul #(7 45) "*")
+                  #(tag-num #(7 52) 12)
+                  #(tag-div #(7 49) "//")
+                  #(tag-pls #(7 41) "+")
+                  #(func-decl (#(func-name #(tag-sym #(8 12) "y"))))
+                  #(tag-num #(8 17) 100)
+                  #(tag-div #(8 14) "//")
+                  #(tag-mns #(8 9) "-")
+                  #(tag-num #(8 25) 7)
+                  #(tag-mod #(8 23) "%")))))
             #(expr
               (#(func-decl
-                 (#(func-name #(tag-sym #(4 1) "and-fold"))
-                  #(argument
-                    (#(expr
-                       (#(tag-fls #(4 10) #f)
-                        #(tag-fls #(4 13) #f)
-                        #(tag-fls #(4 16) #f)))))))))
+                 (#(func-name #(tag-sym #(10 1) "day-of-week"))
+                  #(argument (#(simple-argument #(tag-num #(10 13) 17))))
+                  #(argument (#(simple-argument #(tag-num #(10 16) 5))))
+                  #(argument (#(simple-argument #(tag-num #(10 18) 2016))))))))
             #(expr
               (#(func-decl
-                 (#(func-name #(tag-sym #(5 1) "and-fold"))
-                  #(argument
-                    (#(expr
-                       (#(tag-fls #(5 10) #f)
-                        #(tag-fls #(5 13) #f)
-                        #(tag-true #(5 16) #t)))))))))
+                 (#(func-name #(tag-sym #(11 1) "day-of-week"))
+                  #(argument (#(simple-argument #(tag-num #(11 13) 10))))
+                  #(argument (#(simple-argument #(tag-num #(11 16) 4))))
+                  #(argument (#(simple-argument #(tag-num #(11 18) 2016))))))))
             #(expr
               (#(func-decl
-                 (#(func-name #(tag-sym #(6 1) "and-fold"))
-                  #(argument
-                    (#(expr
-                       (#(tag-fls #(6 10) #f)
-                        #(tag-true #(6 13) #t)
-                        #(tag-true #(6 16) #t)))))))))
+                 (#(func-name #(tag-sym #(12 1) "day-of-week"))
+                  #(argument (#(simple-argument #(tag-num #(12 13) 29))))
+                  #(argument (#(simple-argument #(tag-num #(12 16) 3))))
+                  #(argument (#(simple-argument #(tag-num #(12 18) 2016))))))))
             #(expr
               (#(func-decl
-                 (#(func-name #(tag-sym #(7 1) "and-fold"))
-                  #(argument
-                    (#(expr
-            (#(tag-true #(7 10) #t)
-             #(tag-true #(7 13) #t)
-             #(tag-true #(7 16) #t)))))))))
-            #(expr
-              (#(func-decl (#(func-name #(tag-sym #(8 1) "and-fold"))))))))
+                 (#(func-name #(tag-sym #(13 1) "day-of-week"))
+                  #(argument (#(simple-argument #(tag-num #(13 13) 20))))
+                  #(argument (#(simple-argument #(tag-num #(13 16) 4))))
+                  #(argument (#(simple-argument #(tag-num #(13 18) 2016))))))))))
 ;; end examp
 
 ;; defs
@@ -221,14 +246,15 @@
   (and (not-null? model)
        (let* ((car-model model)
               (in-model (assoc func-name car-model)))
-         (or (and in-model (cons (cdr in-model)
-                                 (or (find-in-model func-name (cdr model))
-                                     '())))
+         (or (and in-model
+                  (append (cdr in-model)
+                          (or (find-in-model func-name (cdr model))
+                              '())))
              (and (find-in-params func-name car-model)
-                  ;(print '!!!in-params!!!)
-                  (list func-name))
+                  (cons (make-arg-type)
+                        (or (find-in-model func-name (cdr model))
+                            '())))
              (find-in-model func-name (cdr model))))))
-
 
 (define (get-args-from-type type)
   (vector-ref type TYPE-ARGS))
@@ -236,14 +262,14 @@
 (define (x-in-xs x xs)
   (and (not-null? xs)
        (or (equal? x (car xs))
+           (and (list? (car xs)) (x-in-xs x (car xs)))
            (x-in-xs x (cdr xs)))))
 
 (define (find-in-params func-name model)
   (and (not-null? model)
-       (let* ((type (car model))
-              (get-args-names-from-type type))
-         (print 'find-in-params func-name type)
-         (x-in-xs func-name get-args-names-from-type))))
+       (:or-fold (map (lambda (type)
+                        (x-in-xs func-name (get-args-names-from-type type)))
+                      (cdar model)))))
 
 (define (make-arg-type)
   (vector (vector `(lambda (:x) #t) (list) (list)) (list) (list)))
@@ -282,18 +308,18 @@
       (reverse (cdr (reverse (cdr xs))))
       xs))
 
-(define (and-fold xs)
+(define (:and-fold xs)
   (or (null? xs)
       (and (car xs)
-           (and-fold (cdr xs)))))
+           (:and-fold (cdr xs)))))
 
-(define (or-fold xs)
+(define (:or-fold xs)
   (and (not-null? xs)
        (or (car xs)
-           (or-fold (cdr xs)))))
+           (:or-fold (cdr xs)))))
 
 (define (get-array-args-rules l-lambda inner x)
-  `(and-fold (cons ,l-lambda
+  `(:and-fold (cons ,l-lambda
                    (map (lambda (:lambda-i :xi)
                           ((eval-i :lambda-i) :xi))
                         ',(map (lambda (:i)
@@ -410,7 +436,7 @@
                 (if (not-null? :similar-pairs)
                     `(lambda :args
                        (let ((:v-args (multi-list->vector :args)))
-                         (and-fold-s ,(map (lambda (:similar-pair)
+                         (:and-fold-s ,(map (lambda (:similar-pair)
                                              `(equal? (vector-ref :v-args ,(car :similar-pair))
                                                       (vector-ref :v-args ,(cadr :similar-pair))))
                                            :similar-pairs))))
@@ -457,12 +483,6 @@
           (null? xs))
       '()
       (cons (car xs) (give-first (cdr xs) (- n 1)))))
-
-(define (and-fold xs)
-  ; (print 'and-fold xs)
-  (or (null? xs)
-      (and (car xs)
-           (and-fold (cdr xs)))))
 
 (define (is-cont-name? name)
   ;(print name)
@@ -539,7 +559,7 @@
         name)))
 
 (define (is-apply? arg-values)
-  (print 'is-apply arg-values)
+  ;(print 'is-apply arg-values)
   (and (eq? 1 (length arg-values))
        (let ((val (car arg-values)))
          (and (list? val)
@@ -620,8 +640,7 @@
                (l-model (length model))
                (l-this (+ l-args l-model))
                (body (semantic-program b-list (append (make-alist names-of-args) model) '())))
-          ;(print 'semantic-func-body body)
-          (list (reverse (remove-last (car body) l-this)) (cdr body))))
+          (list (remove-first l-this (car body)) (cdr body))))
 
       (define (semantic-func-def func-def-terms model)
         (let* ((func-decl (car func-def-terms))
@@ -662,13 +681,15 @@
                (correct-types (filter (lambda (type)
                                         ((eval-i (get-args-num-from-type type)) arg-len))
                                       func-types)))
-          (print 'semantic-func-call1 name arg-len)
+          ;(print 'semantic-func-call1 name arg-len func-types)
           (and (not-null? correct-types)
                (or  (and (zero? arg-len)
-                         name)
+                         (or (and (> (length func-types) (length correct-types))
+                                  (list ':func-call name))
+                             name))
                     (let ((arg-values (map (lambda (arg)
                                              (get-arg-value (car (get-rule-terms arg))
-                                                            (list (list name-token func-types))))
+                                                            (list (cons name func-types))))
                                            args)))
                       ;(print 'semantic-func-call2 name arg-values)
                       (if (is-apply? arg-values)
@@ -683,10 +704,9 @@
                (name (get-token-value name-token))
                (args (cdr func-decl-terms))
                (in-model (find-in-model name model)))
-          (print 'semantic-var func-decl-terms name args (not (not in-model)) model)
+          ;(print 'semantic-var name args in-model model)
           (or (and in-model
-                   (or (or-fold (map (lambda (in-model) (semantic-func-call name-token args in-model))
-                                     in-model))
+                   (or (semantic-func-call name-token args in-model)
                        (add-error ERROR_NUM_OF_ARGS name-token)))
               (and (add-error ERROR_UNDEFINED_VARIABLE name-token)
                    func-decl-terms))))
@@ -724,7 +744,7 @@
 
       (define (get-arg-value arg-rule model)
         (let ((name (get-rule-name arg-rule)))
-          (print 'get-arg-value arg-rule)
+          ;(print 'get-arg-value arg-rule)
           (cond ((eq? name 'simple-argument) (get-simple-arg-value arg-rule))
                 ((eq? name 'array-simple)    (semantic-expr-arr (get-rule-terms arg-rule) model))
                 ((eq? name 'apply)           (cons (get-arg-value (car (get-rule-terms (cadr (get-rule-terms arg-rule))))
@@ -733,7 +753,7 @@
                 ((eq? name 'expr)            (semantic-expr (get-rule-terms arg-rule)
                                                             (append (make-alist
                                                                      (vector-ref (get-args-from-type
-                                                                                  (car (cadar model)))
+                                                                                  (cadar model))
                                                                                  TYPE-ARGS-NAMES))
                                                                     model)))
                 ((eq? name 'continuous)      (cons (get-arg-value (cadr (get-rule-terms arg-rule))
@@ -775,7 +795,6 @@
 
       (define (semantic-expr-elem elem model)
         (let ((type (get-rule-name elem)))
-          (print 'semantic-expr-elem elem)
           (cond ((eq? type 'func-decl)    (semantic-var (get-rule-terms elem) model))
                 ((eq? type 'array-simple) (semantic-expr-arr (get-rule-terms elem) model))
                 ((eq? type 'if-expression)(semantic-if-expr (get-rule-terms elem) model))

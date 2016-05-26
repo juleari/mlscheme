@@ -45,3 +45,9 @@
 (define ++ append)
 (define (&& x y) (and x y))
 
+(define (and-fold . :args) (map-cond (((and ((lambda (x) (zero? x)) (length :args)) (hash (quote ()) :args) ((lambda :args #t) :args)) (apply (lambda () (begin #t)) :args)) ((and ((lambda (:x) (>= :x 1)) (length :args)) (hash (quote ((lambda (x) #t))) (give-first :args 1)) ((lambda :args #t) :args)) (apply (lambda (x . xs) (begin (&& x (apply and-fold xs)))) :args)))))
+(and-fold #f #f #f)
+(and-fold #f #f #t)
+(and-fold #f #t #t)
+(and-fold #t #t #t)
+(and-fold)

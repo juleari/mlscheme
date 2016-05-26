@@ -1,18 +1,18 @@
 ;; examp
 (define v
   '((("and-fold"
-   #(#((lambda (x) (zero? x)) () () (lambda :args #t)) () ((#t)))
-   #(#((lambda (:x) (>= :x 1))
-       ((lambda (x) #t))
-       ("x" (continuous "xs"))
-       (lambda :args #t))
-     ()
-     (("x" (:func-call "apply" "and-fold" ("xs")) "&&")))))
- ((:func-call "and-fold" (#f #f #f))
-  (:func-call "and-fold" (#f #f #t))
-  (:func-call "and-fold" (#f #t #t))
-  (:func-call "and-fold" (#t #t #t))
-  "and-fold")))
+      #(#((lambda (x) (zero? x)) () () (lambda :args #t)) () ((#t)))
+      #(#((lambda (:x) (>= :x 1))
+          ((lambda (x) #t))
+          ("x" (continuous "xs"))
+          (lambda :args #t))
+        ()
+        (("x" (:func-call "apply" "and-fold" ("xs")) "&&")))))
+    ((:func-call "and-fold" (#f) (#f) (#f))
+     (:func-call "and-fold" (#f) (#f) (#t))
+     (:func-call "and-fold" (#f) (#t) (#t))
+     (:func-call "and-fold" (#t) (#t) (#t))
+     (:func-call "and-fold"))))
 ;; end examp
 
 ;; defs
@@ -179,11 +179,11 @@
       '()
       (cons (car xs) (give-first (cdr xs) (- n 1)))))
 
-(define (and-fold xs)
+(define (:and-fold xs)
   ; (print 'and-fold xs)
   (or (null? xs)
       (and (car xs)
-           (and-fold (cdr xs)))))
+           (:and-fold (cdr xs)))))
 
 (define (is-cont-name? name)
   ;(print name)

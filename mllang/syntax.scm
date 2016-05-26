@@ -350,6 +350,10 @@
                                      (or (not-null? stack)
                                          (not-null? out)
                                          (unar? tag))))
+                      (to-out? (and (x-in-xs? tag 'tag-num 'tag-true 'tag-fls)
+                                    (or (null? out)
+                                        (> (prior (car (reverse out))) 0)
+                                        (not-null? stack))))
                       (proc (syntax-func-declaration start-pos ARGS-CAN-BE-FUNCS))
                       (flag #f)
                       (end-flag #f))
@@ -358,10 +362,7 @@
                                                         (cons token stack)))
                             (proc                 (set! flag #t)
                                                   (set! out (cons proc out)))
-                            ((x-in-xs? tag
-                                       'tag-num
-                                       'tag-true
-                                       'tag-fls)  (set! out (cons token out)))
+                            (to-out?              (set! out (cons token out)))
                             ((eqv? tag 'tag-lprn) (set! stack 
                                                         (cons token stack)))
                             ((eqv? tag 'tag-rprn) (or (and (not-null? stack)
