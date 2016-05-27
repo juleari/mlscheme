@@ -235,6 +235,9 @@
         ;(let* ((f-bodies (map get-func-bodies model))))
         model)
 
+      (define (semantic-scheme terms model)
+        (list (list ':scheme (get-simple-arg-value (cadr terms)))))
+
       ;; parse exprs after defs
       (define (semantic-program ast model exprs)
         (if (null? ast)
@@ -250,7 +253,11 @@
                     ((eq? name 'expr)
                      (semantic-program (cdr ast)
                                        model
-                                       (append exprs (semantic-expr terms model))))))))
+                                       (append exprs (semantic-expr terms model))))
+                    ((eq? name 'scheme)
+                     (semantic-program (cdr ast)
+                                       model
+                                       (append exprs (semantic-scheme terms model))))))))
 
       (let ((m (semantic-program ast '() '())))
         (and (print-errors) m)))))

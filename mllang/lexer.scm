@@ -60,7 +60,9 @@
 (define tokenize
   (let ((line 1)
         (position 1)
-        (iscomment #f))
+        (iscomment #f)
+        (isscheme #f)
+        (parens 0))
     (lambda (word)
       
       (define (isnum? token)
@@ -85,7 +87,17 @@
         (let ((coords (vector line position)))
           (and (helper kw (string->symbol word))
                (++ position (length (string->list word)))
+               (or (not (equal? word "scheme"))
+                   (set! isscheme #t))
                (list (vector 'tag-kw coords word)))))
+      
+      (define (isstring?)
+        (let* ((coords (vector line position))
+               (ws (string->list word))
+               (w  (car ws)))
+          (and (equal? w #\")
+               (++ position (length ws))
+               (list (vector 'tag-str coords word)))))
       
       (define (tag-sym? s token)
         (and (eqv? (get-token-tag token) 'tag-sym)
@@ -176,6 +188,9 @@
                     ((eqv? w #\space)   '())
                     ((eqv? w #\;)       (and (set! iscomment #t)
                                              '()))
+                    (isscheme           (and (set! isscheme #f)
+                                             (set-token-tag token 'tag-schm)
+                                             (list token)))
                     (sont               (sym-or-new-tag s
                                                         token 
                                                         (cadr sont)))
@@ -188,27 +203,93 @@
       
       (or (iskw?)
           (isnumber?)
+          (isstring?)
           (helper (string->list word)
                   (vector #f (vector line position) word))))))
 
-(define (tokenize-file file)
-  (define (add-word word words)
-    (if (null? word)
-        words
-        (cons (list->string (reverse word)) words)))
-  
-  (define (read-words word words)
-    (let ((ch (read-char file)))
-      (or (and (eof-object? ch)
-               (add-word word words))
-          (and (trim? ch)
-               (read-words '() (cons (string ch) (add-word word words))))
-          (read-words (cons ch word) words))))
-  
-  (define (tokenize-words words tokens)
-    (if (null? words)
-        tokens
-        (let ((t (tokenize (car words))))
-          (tokenize-words (cdr words) (append tokens t)))))
-  
-  (tokenize-words (reverse (read-words '() '())) '()))
+(define tokenize-file
+  (let ((is-string #f)
+        (is-scheme #f)
+        (parens 0)
+        (errors '()))
+    (lambda (file)
+
+      (define (add-error error-type)
+        (set! errors
+              (cons (vector 'error: error-type)
+                    errors))
+        '())
+
+      (define (print-errors)
+        (if (null? errors)
+            (display "LEXER OK!")
+            (begin (display "LEXER ERRORS:")
+                   (newline)
+                   (apply print (reverse errors))))
+        (newline)
+        (newline))
+
+      (define (set-string)
+        (set! is-string #t))
+
+      (define (unset-string)
+        (set! is-string #f))
+
+      (define (set-scheme)
+        (set! is-scheme #t))
+
+      (define (unset-scheme)
+        (set! is-scheme #f))
+
+      (define (add-word word words)
+        (if (null? word)
+            words
+            (let ((str-word (list->string (reverse word))))
+              (and (eq? parens 0)
+                   is-scheme
+                   (unset-scheme))
+              (and (equal? str-word "scheme")
+                   (set-scheme))
+              (and is-string
+                   (add-error ERR_STRING_HAS_NO_END))
+              (cons str-word words))))
+
+      (define (read-words word words)
+        (let ((ch (read-char file)))
+          (or (and (eof-object? ch)
+                   (add-word word words))
+              (and (equal? ch #\")
+                   (or (and is-string
+                            (unset-string)
+                            (if is-scheme
+                                (read-words (cons ch word) words)
+                                (read-words '()
+                                        (add-word (cons ch word) words))))
+                       (and (set-string)
+                            (read-words (cons ch word) words))))
+              (and is-string
+                   (read-words (cons ch word) words))
+              (and is-scheme
+                   (or (and (equal? ch #\()
+                            (++ parens))
+                       (and (equal? ch #\))
+                            (++ parens -1))
+                       #t)
+                   (or (and (eq? parens 0)
+                            (or (not-null? word)
+                                (trim? ch)
+                                (add-error ERR_SCHEME))
+                            (read-words '() (add-word (cons ch word) words)))
+                       (read-words (cons ch word) words)))
+              (and (trim? ch)
+                   (read-words '() (cons (string ch) (add-word word words))))
+              (read-words (cons ch word) words))))
+      
+      (define (tokenize-words words tokens)
+        (if (null? words)
+            tokens
+            (let ((t (tokenize (car words))))
+              (tokenize-words (cdr words) (append tokens t)))))
+
+      (let ((t (tokenize-words (reverse (read-words '() '())) '())))
+        (and (print-errors) t)))))

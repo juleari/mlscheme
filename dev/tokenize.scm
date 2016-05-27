@@ -1,10 +1,53 @@
 (define TAB 4)
 (define TAB1 (- TAB 1))
 
+(define T-TAG 0)
+(define T-COORDS 1)
+(define T-VALUE 2)
+
+(define ERR_STRING_HAS_NO_END "string is not ended")
+(define ERR_SCHEME "uncorrect scheme expression")
+
 (define-syntax ++
   (syntax-rules ()
     ((_ x)  (set! x (+ x 1)))
     ((_ x y)(set! x (+ x y)))))
+
+(define-syntax not-null?
+  (syntax-rules ()
+    ((_ x) (not (null? x)))))
+
+(define (print . xs)
+  (or (and (not-null? xs)
+           (display (car xs))
+           (newline)
+           (apply print (cdr xs)))
+      (newline)))
+
+(define (get-token-tag token)
+  (vector-ref token T-TAG))
+
+(define (get-token-coords token)
+  (vector-ref token T-COORDS))
+
+(define (get-token-value token)
+  (vector-ref token T-VALUE))
+
+(define (get-token-pos token)
+  (let ((coords (get-token-coords token)))
+    (vector-ref coords C-POSITION)))
+
+(define (set-token-tag token tag)
+  (vector-set! token T-TAG tag)
+  token)
+
+(define (set-token-coords token coords)
+  (vector-set! token T-COORDS coords)
+  token)
+
+(define (set-token-value token value)
+  (vector-set! token T-VALUE value)
+  token)
 
 (define kw '(scheme mod div if zero? eval))
 
@@ -56,7 +99,7 @@
                (#\| ((tag-sym  tag-sym)
                      (tag-bor  tag-or)
                      (#f       tag-bor)))
-               (#&  ((tag-sym  tag-sym)
+               (#\& ((tag-sym  tag-sym)
                      (tag-band tag-and)
                      (#f       tag-band)))
                (#\= ((tag-sym  tag-sym)
@@ -68,7 +111,9 @@
 (define tokenize
   (let ((line 1)
         (position 1)
-        (iscomment #f))
+        (iscomment #f)
+        (isscheme #f)
+        (parens 0))
     (lambda (word)
       
       (define (isnum? token)
@@ -93,7 +138,17 @@
         (let ((coords (vector line position)))
           (and (helper kw (string->symbol word))
                (++ position (length (string->list word)))
+               (or (not (equal? word "scheme"))
+                   (set! isscheme #t))
                (list (vector 'tag-kw coords word)))))
+      
+      (define (isstring?)
+        (let* ((coords (vector line position))
+               (ws (string->list word))
+               (w  (car ws)))
+          (and (equal? w #\")
+               (++ position (length ws))
+               (list (vector 'tag-str coords word)))))
       
       (define (tag-sym? s token)
         (and (eqv? (get-token-tag token) 'tag-sym)
@@ -114,6 +169,10 @@
                    (new-tag-assq (assq old-tag old-new-tag))
                    (new-tag      (and new-tag-assq (cadr new-tag-assq))))
               (set-token-tag token new-tag)
+              (and (eq? new-tag 'tag-true)
+                   (set-token-value token #t))
+              (and (eq? new-tag 'tag-fls)
+                   (set-token-value token #f))
               (helper s token))))
       
       (define (cons-tags tag tag-token token s)
@@ -180,37 +239,112 @@
                     ((eqv? w #\space)   '())
                     ((eqv? w #\;)       (and (set! iscomment #t)
                                              '()))
-                    (sont               (sym-or-new-tag s token (cadr sont)))
-                    (ssont              (sym-old-or-new-tag s token (cadr ssont)))
+                    (isscheme           (and (set! isscheme #f)
+                                             (set-token-tag token 'tag-schm)
+                                             (list token)))
+                    (sont               (sym-or-new-tag s
+                                                        token 
+                                                        (cadr sont)))
+                    (ssont              (sym-old-or-new-tag s
+                                                            token
+                                                            (cadr ssont)))
                     (ctag               (cut-by-tag w s token (cadr ctag)))
-                    (else               (helper s (set-token-tag token 'tag-sym)))))))
+                    (else               (helper s (set-token-tag token 
+                                                                 'tag-sym)))))))
       
       (or (iskw?)
           (isnumber?)
-          (helper (string->list word) (vector #f (vector line position) word))))))
+          (isstring?)
+          (helper (string->list word)
+                  (vector #f (vector line position) word))))))
 
-(define (tokenize-file file)
-  (define (add-word word words)
-    (if (null? word)
-        words
-        (cons (list->string (reverse word)) words)))
-  
-  (define (read-words word words)
-    (let ((ch (read-char file)))
-      (or (and (eof-object? ch)
-               (add-word word words))
-          (and (trim? ch)
-               (read-words '() (cons (string ch) (add-word word words))))
-          (read-words (cons ch word) words))))
-  
-  (define (tokenize-words words tokens)
-    (if (null? words)
-        tokens
-        (let ((t (tokenize (car words))))
-          (tokenize-words (cdr words) (append tokens t)))))
-  
-  (tokenize-words (reverse (read-words '() '())) '()))
+(define tokenize-file
+  (let ((is-string #f)
+        (is-scheme #f)
+        (parens 0)
+        (errors '()))
+    (lambda (file)
 
-(define port (open-input-file "/Users/juleari/Desktop/иу9/диплом/examples/sample1.sm"))
+      (define (add-error error-type)
+        (set! errors
+              (cons (vector 'error: error-type)
+                    errors))
+        '())
+
+      (define (print-errors)
+        (if (null? errors)
+            (display "LEXER OK!")
+            (begin (display "LEXER ERRORS:")
+                   (newline)
+                   (apply print (reverse errors))))
+        (newline)
+        (newline))
+
+      (define (set-string)
+        (set! is-string #t))
+
+      (define (unset-string)
+        (set! is-string #f))
+
+      (define (set-scheme)
+        (set! is-scheme #t))
+
+      (define (unset-scheme)
+        (set! is-scheme #f))
+
+      (define (add-word word words)
+        (if (null? word)
+            words
+            (let ((str-word (list->string (reverse word))))
+              (and (eq? parens 0)
+                   is-scheme
+                   (unset-scheme))
+              (and (equal? str-word "scheme")
+                   (set-scheme))
+              (and is-string
+                   (add-error ERR_STRING_HAS_NO_END))
+              (cons str-word words))))
+
+      (define (read-words word words)
+        (let ((ch (read-char file)))
+          (or (and (eof-object? ch)
+                   (add-word word words))
+              (and (equal? ch #\")
+                   (or (and is-string
+                            (unset-string)
+                            (if is-scheme
+                                (read-words (cons ch word) words)
+                                (read-words '()
+                                        (add-word (cons ch word) words))))
+                       (and (set-string)
+                            (read-words (cons ch word) words))))
+              (and is-string
+                   (read-words (cons ch word) words))
+              (and is-scheme
+                   (or (and (equal? ch #\()
+                            (++ parens))
+                       (and (equal? ch #\))
+                            (++ parens -1))
+                       #t)
+                   (or (and (eq? parens 0)
+                            (or (not-null? word)
+                                (trim? ch)
+                                (add-error ERR_SCHEME))
+                            (read-words '() (add-word (cons ch word) words)))
+                       (read-words (cons ch word) words)))
+              (and (trim? ch)
+                   (read-words '() (cons (string ch) (add-word word words))))
+              (read-words (cons ch word) words))))
+      
+      (define (tokenize-words words tokens)
+        (if (null? words)
+            tokens
+            (let ((t (tokenize (car words))))
+              (tokenize-words (cdr words) (append tokens t)))))
+
+      (let ((t (tokenize-words (reverse (read-words '() '())) '())))
+        (and (print-errors) t)))))
+
+(define port (open-input-file "/Users/juleari/Desktop/иу9/диплом/examples/10.sm"))
 
 (define tokens (tokenize-file port))

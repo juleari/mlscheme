@@ -193,7 +193,7 @@
 
       (define (syntax-simple-or-apply start-pos)
         (and (start-in? start-pos)
-             (let ((name (simple-rule start-pos 'simple-argument 'tag-sym 'tag-kw)))
+             (let ((name (simple-rule start-pos 'simple-argument 'tag-sym 'tag-kw 'tag-str)))
                (and name
                     (let* ((name-token (get-simple-rule-token name))
                            (:apply (syntax-apply (+ (get-token-pos name-token) 1))))
@@ -207,7 +207,7 @@
         (and (start-in? start-pos)
              (let* ((arg (or (and args-can-be-funcs? (syntax-simple-or-apply start-pos))
                              (and (not args-can-be-funcs?)
-                                  (simple-rule start-pos 'simple-argument 'tag-sym 'tag-kw))
+                                  (simple-rule start-pos 'simple-argument 'tag-sym 'tag-kw 'tag-str))
                              (simple-rule start-pos 'simple-argument 'tag-num)
                              (syntax-array start-pos args-can-be-funcs?)
                              (syntax-arg-continuous start-pos args-can-be-funcs?)
@@ -428,6 +428,15 @@
                          def)))
             (shunting-alg)))
 
+      (define (syntax-scheme start-pos)
+        (syntax-whole-rule 'scheme
+                           start-pos
+                           `(,simple-func-name 'scheme-word "scheme")
+                           syntax-rule-
+                           simple-rule
+                           '(scheme-expr tag-schm)
+                           ERROR_NO_IF_CONDS))
+
       (define (syntax-program start-pos)
         (let ((func-decl (syntax-func-declaration start-pos ARGS-CANT-BE-FUNCS)))
           (or (and func-decl
@@ -440,6 +449,7 @@
                            (syntax-expr new-start-pos
                                         (append-to-rule-list func-decl
                                                              func-args))))))
+              (syntax-scheme start-pos)
               (syntax-expr start-pos))))
 
       (let ((ast (syntax-rule+ syntax-program 0)))

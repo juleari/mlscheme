@@ -26,6 +26,9 @@
 (define F-DEFS 1)
 (define F-BODY 2)
 
+(define ERR_STRING_HAS_NO_END "string is not ended")
+(define ERR_SCHEME            "uncorrect scheme expression")
+
 (define ERROR_NO_FUNC_BODY   "no expression in body")
 (define ERROR_NO_EOF         "no end of file")
 (define ERROR_EXPR_ARENS     "arens not closed")

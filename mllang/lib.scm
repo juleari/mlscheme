@@ -97,6 +97,7 @@
                                                                         (map func-apply (cadr x))
                                                                         (calc-rpn (caddr x))))
                            ((eq? (car x) ':cond)                  (make-map-cond (cdr x)))
+                           ((eq? (car x) ':scheme)                (cadr x))
                            (else                                  (calc-rpn x))))
         (else x)))
 

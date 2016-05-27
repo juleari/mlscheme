@@ -1,18 +1,9 @@
 ;; examp
 (define v
-  '((("and-fold"
-      #(#((lambda (x) (zero? x)) () () (lambda :args #t)) () ((#t)))
-      #(#((lambda (:x) (>= :x 1))
-          ((lambda (x) #t))
-          ("x" (continuous "xs"))
-          (lambda :args #t))
-        ()
-        (("x" (:func-call "apply" "and-fold" ("xs")) "&&")))))
-    ((:func-call "and-fold" (#f) (#f) (#f))
-     (:func-call "and-fold" (#f) (#f) (#t))
-     (:func-call "and-fold" (#f) (#t) (#t))
-     (:func-call "and-fold" (#t) (#t) (#t))
-     (:func-call "and-fold"))))
+  '(()
+    ((:scheme "(define (selection-sort pred? xs)\n         (define (min-xs xs x)\n           (cond ((null? xs)         x)\n                 ((pred? (car xs) x) (min-xs (cdr xs) (car xs)))\n                 (else               (min-xs (cdr xs) x))))\n  \n         (define (swap j xs)\n           (let ((xj (list-ref xs j))\n                 (vs (list->vector xs)))\n             (vector-set! vs j (car xs))\n             (vector-set! vs 0 xj)\n             (vector->list vs)))\n  \n         (define (ind x xs)\n           (- (length xs) (length (member x xs))))\n  \n         (define (helper xs)\n           (if (null? xs)\n               '()\n               (let ((x (min-xs xs (car xs))))\n                 (cons x (helper (cdr (swap (ind x xs) xs)))))))\n  \n         (helper xs))")
+     (:scheme "(define (insertion-sort pred? xs)\n         (define (insert xs ys x)\n           (cond ((null? ys) (append xs (list x)))\n                 ((pred? (car ys) x) (insert (append xs (list (car ys))) (cdr ys) x))\n                 (else               (append xs (list x) ys))))\n  \n         (define (helper xs ys)\n           (if (null? ys)\n               xs\n               (helper (insert '() xs (car ys)) (cdr ys))))\n  \n         (helper '() xs))")
+     (:scheme "(begin (selection-sort <= '(9 6 2 4 3 5 7 1 8 0))\n              (insertion-sort <= '(9 6 2 4 3 5 7 1 8 0)))"))))
 ;; end examp
 
 ;; defs
@@ -152,6 +143,7 @@
                                                                         (map func-apply (cadr x))
                                                                         (calc-rpn (caddr x))))
                            ((eq? (car x) ':cond)                  (make-map-cond (cdr x)))
+                           ((eq? (car x) ':scheme)                (cadr x))
                            (else                                  (calc-rpn x))))
         (else x)))
 
@@ -260,8 +252,8 @@
               name))
         name)))
 ;; end lib
-(define gen-file (open-output-file "generated.scm"))
-;(define gen-file (current-output-port))
+;(define gen-file (open-output-file "generated.scm"))
+(define gen-file (current-output-port))
 
 ;; в рабочей версии вместо genbase.sm должен быть задаваемый в compiler.py путь
 (define (prepare-gen-file)
@@ -269,7 +261,7 @@
     (while (not (eof-object? (peek-char lib-funcs-file)))
            (display (read-char lib-funcs-file) gen-file))))
 
-(prepare-gen-file)
+;(prepare-gen-file)
 
 (define (to-gen-file text)
   (display text gen-file)

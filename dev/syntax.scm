@@ -67,36 +67,12 @@
            (apply print (cdr xs)))
       (newline)))
 
-(define tokens '(#(tag-sym #(1 1) "and-fold")
-                 #(tag-to #(1 17) "<-")
-                 #(tag-true #(1 20) #t)
-                 #(tag-sym #(2 1) "and-fold")
-                 #(tag-sym #(2 10) "x")
-                 #(tag-cln #(2 12) #\:)
-                 #(tag-sym #(2 14) "xs")
-                 #(tag-to #(2 17) "<-")
-                 #(tag-sym #(2 20) "x")
-                 #(tag-and #(2 22) "&&")
-                 #(tag-sym #(2 25) "and-fold")
-                 #(tag-cln #(2 34) #\:)
-                 #(tag-sym #(2 36) "xs")
-                 #(tag-sym #(4 1) "and-fold")
-                 #(tag-fls #(4 10) #f)
-                 #(tag-fls #(4 13) #f)
-                 #(tag-fls #(4 16) #f)
-                 #(tag-sym #(5 1) "and-fold")
-                 #(tag-fls #(5 10) #f)
-                 #(tag-fls #(5 13) #f)
-                 #(tag-true #(5 16) #t)
-                 #(tag-sym #(6 1) "and-fold")
-                 #(tag-fls #(6 10) #f)
-                 #(tag-true #(6 13) #t)
-                 #(tag-true #(6 16) #t)
-                 #(tag-sym #(7 1) "and-fold")
-                 #(tag-true #(7 10) #t)
-                 #(tag-true #(7 13) #t)
-                 #(tag-true #(7 16) #t)
-                 #(tag-sym #(8 1) "and-fold")))
+(define tokens '(#(tag-kw #(1 1) "scheme")
+                 #(tag-schm #(1 8) "(define (selection-sort pred? xs)\n         (define (min-xs xs x)\n           (cond ((null? xs)         x)\n                 ((pred? (car xs) x) (min-xs (cdr xs) (car xs)))\n                 (else               (min-xs (cdr xs) x))))\n  \n         (define (swap j xs)\n           (let ((xj (list-ref xs j))\n                 (vs (list->vector xs)))\n             (vector-set! vs j (car xs))\n             (vector-set! vs 0 xj)\n             (vector->list vs)))\n  \n         (define (ind x xs)\n           (- (length xs) (length (member x xs))))\n  \n         (define (helper xs)\n           (if (null? xs)\n               '()\n               (let ((x (min-xs xs (car xs))))\n                 (cons x (helper (cdr (swap (ind x xs) xs)))))))\n  \n         (helper xs))")
+                 #(tag-kw #(3 1) "scheme")
+                 #(tag-schm #(3 8) "(define (insertion-sort pred? xs)\n         (define (insert xs ys x)\n           (cond ((null? ys) (append xs (list x)))\n                 ((pred? (car ys) x) (insert (append xs (list (car ys))) (cdr ys) x))\n                 (else               (append xs (list x) ys))))\n  \n         (define (helper xs ys)\n           (if (null? ys)\n               xs\n               (helper (insert '() xs (car ys)) (cdr ys))))\n  \n         (helper '() xs))")
+                 #(tag-kw #(5 1) "scheme")
+                 #(tag-schm #(5 8) "(begin (selection-sort <= '(9 6 2 4 3 5 7 1 8 0))\n              (insertion-sort <= '(9 6 2 4 3 5 7 1 8 0)))")))
 
 (define (get-true-expr)
   (vector 'expr (list #(tag-true #(0 0) #t))))
@@ -349,7 +325,7 @@
 
       (define (syntax-simple-or-apply start-pos)
         (and (start-in? start-pos)
-             (let ((name (simple-rule start-pos 'simple-argument 'tag-sym 'tag-kw)))
+             (let ((name (simple-rule start-pos 'simple-argument 'tag-sym 'tag-kw 'tag-str)))
                (and name
                     (let* ((name-token (get-simple-rule-token name))
                            (:apply (syntax-apply (+ (get-token-pos name-token) 1))))
@@ -363,7 +339,7 @@
         (and (start-in? start-pos)
              (let* ((arg (or (and args-can-be-funcs? (syntax-simple-or-apply start-pos))
                              (and (not args-can-be-funcs?)
-                                  (simple-rule start-pos 'simple-argument 'tag-sym 'tag-kw))
+                                  (simple-rule start-pos 'simple-argument 'tag-sym 'tag-kw 'tag-str))
                              (simple-rule start-pos 'simple-argument 'tag-num)
                              (syntax-array start-pos args-can-be-funcs?)
                              (syntax-arg-continuous start-pos args-can-be-funcs?)
@@ -519,8 +495,7 @@
                             (proc                 (set! flag #t)
                                                   (set! out (cons proc out)))
                             (to-out?              (set! out (cons token out)))
-                            ((eqv? tag 'tag-lprn) (print 'try-get-lprn out)
-                                                  (set! stack 
+                            ((eqv? tag 'tag-lprn) (set! stack 
                                                         (cons token stack)))
                             ((eqv? tag 'tag-rprn) (or (and (not-null? stack)
                                                            (op-before-laren-to-out 0))
@@ -585,6 +560,15 @@
                          def)))
             (shunting-alg)))
 
+      (define (syntax-scheme start-pos)
+        (syntax-whole-rule 'scheme
+                           start-pos
+                           `(,simple-func-name 'scheme-word "scheme")
+                           syntax-rule-
+                           simple-rule
+                           '(scheme-expr tag-schm)
+                           ERROR_NO_IF_CONDS))
+
       (define (syntax-program start-pos)
         (let ((func-decl (syntax-func-declaration start-pos ARGS-CANT-BE-FUNCS)))
           (or (and func-decl
@@ -597,6 +581,7 @@
                            (syntax-expr new-start-pos
                                         (append-to-rule-list func-decl
                                                              func-args))))))
+              (syntax-scheme start-pos)
               (syntax-expr start-pos))))
 
       (let ((ast (syntax-rule+ syntax-program 0)))
