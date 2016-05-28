@@ -1,3 +1,4 @@
-scheme
+scheme strings count correct
+string as expr
 eval
 ~, ||, !=, >=, <= ?

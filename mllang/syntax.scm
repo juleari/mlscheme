@@ -350,7 +350,7 @@
                                      (or (not-null? stack)
                                          (not-null? out)
                                          (unar? tag))))
-                      (to-out? (and (x-in-xs? tag 'tag-num 'tag-true 'tag-fls)
+                      (to-out? (and (x-in-xs? tag 'tag-num 'tag-true 'tag-fls 'tag-str)
                                     (or (null? out)
                                         (> (prior (car (reverse out))) 0)
                                         (not-null? stack))))

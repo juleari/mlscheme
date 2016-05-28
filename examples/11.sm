@@ -1,0 +1,6 @@
+inc x <- x + 1
+
+inc-expr <- "inc f"
+
+eval inc-expr { f <- 4 }
+eval inc-expr { f <- 5 }
