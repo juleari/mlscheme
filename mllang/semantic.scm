@@ -101,7 +101,7 @@
       ;; сначала просто проходим по определениям,
       ;; когда встречаем expr сохраняем его в список выражений для текущей области видимости
       ;; после того как все определения сформировались идём по выражениям и проверяем, что всё ок
-      (define (semantic-func-call name-token args func-types)
+      (define (semantic-func-call name-token args func-types model)
         (let* ((name (get-token-value name-token))
                (arg-len (length args))
                (correct-types (filter (lambda (type)
@@ -115,7 +115,7 @@
                              name))
                     (let ((arg-values (map (lambda (arg)
                                              (get-arg-value (car (get-rule-terms arg))
-                                                            (list (cons name func-types))))
+                                                            model))
                                            args)))
                       ;(print 'semantic-func-call2 name arg-values)
                       (if (is-apply? arg-values)
@@ -132,7 +132,7 @@
                (in-model (find-in-model name model)))
           ;(print 'semantic-var name args in-model model)
           (or (and in-model
-                   (or (semantic-func-call name-token args in-model)
+                   (or (semantic-func-call name-token args in-model model)
                        (add-error ERROR_NUM_OF_ARGS name-token)))
               (and (add-error ERROR_UNDEFINED_VARIABLE name-token)
                    func-decl-terms))))
@@ -151,7 +151,9 @@
           ;(print 'argument-to-expr f-term-name)
           (cond ((eq? f-term-name 'simple-argument) (get-simple-arg-value f-term))
                 ((eq? f-term-name 'continuous)      (get-continuous-expr f-term model))
-                ((eq? f-term-name 'func-decl)       (car (semantic-expr terms model))))))
+                ((eq? f-term-name 'func-decl)       (car (semantic-expr terms model)))
+                ((eq? f-term-name 'expr)            (semantic-expr (get-rule-terms f-term)
+                                                                   model)))))
 
       ;; возможно, нужно переделать continuous
       (define (semantic-expr-arr arr-terms model)
@@ -170,7 +172,7 @@
 
       (define (get-arg-value arg-rule model)
         (let ((name (get-rule-name arg-rule)))
-          ;(print 'get-arg-value arg-rule)
+          ;(print 'get-arg-value name model)
           (cond ((eq? name 'simple-argument) (get-simple-arg-value arg-rule))
                 ((eq? name 'array-simple)    (semantic-expr-arr (get-rule-terms arg-rule) model))
                 ((eq? name 'apply)           (cons (get-arg-value (car (get-rule-terms (cadr (get-rule-terms arg-rule))))

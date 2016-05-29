@@ -1,56 +1,45 @@
 ;; examp
-(define v
-  '((("replace"
-   #(#((lambda (:x) (= :x 3))
-       ((lambda (x) #t)
-        (lambda (x) #t)
-        (lambda (:x) (and (list? :x) (null? :x))))
-       ("pred?" "proc" ())
-       (lambda :args #t))
-     ()
-     (('())))
-   #(#((lambda (:x) (= :x 3))
-       ((lambda (x) #t)
-        (lambda (x) #t)
-        (lambda (:x)
-          (and (list? :x)
-               (:and-fold
-                (cons
-                 (>= (length :x) 1)
-                 (map
-                  (lambda (:lambda-i :xi) ((eval-i :lambda-i) :xi))
-                  '((lambda (x) #t))
-                  (give-first :x 1)))))))
-       ("pred?" "proc" ("x" (continuous "xs")))
-       (lambda :args #t))
-     ()
-     (((:cond
-        (((:func-call "pred?" "x"))
-         ((:func-call
-           append-s
-           (:list (:func-call "apply" "proc" (:qlist "x")))
-           (:list (:func-call "replace" "pred?" "proc" "xs")))))
-        ((#t)
-         ((:func-call
-           append-s
-           (:list "x")
-           (:list
-            (:func-call "replace" "pred?" "proc" "xs")))))))))))
- ((:func-call
-   "replace"
-   "zero?"
-   ((:lambda ("x") (("x" 1 "+"))))
-   (:qlist 0 1 2 3 0))
-  (:func-call
-   "replace"
-   "odd?"
-   ((:lambda ("x") (("x" 2 "*"))))
-   (:qlist 1 2 3 4 5 6))
-  (:func-call
-   "replace"
-   ((:lambda ("x") ((0 "x" ">"))))
-   "exp"
-   (:qlist 0 1 -1 2 -2 3 -3)))))
+(define v '((("0?"
+              #(#((lambda (:x) (= :x 1)) ((lambda (x) (eqv? x 0))) (:_) (lambda :args #t))
+                ()
+                ((#t)))
+              #(#((lambda (:x) (= :x 1)) ((lambda (x) #t)) ("x") (lambda :args #t)) () ((#f))))
+             ("my-gcd"
+              #(#((lambda (:x) (= :x 2))
+                  ((lambda (x) #t) (lambda (x) #t))
+                  ("a" "b")
+                  (lambda :args #t))
+                (("r" #(#((lambda (x) (zero? x)) () () (lambda :args #t)) () (("a" "b" "%")))))
+                (((:cond
+                   (("a" "b" "<") ((:func-call "my-gcd" "b" "a")))
+                   (((:func-call "0?" "r")) ("b"))
+                   ((#t) ((:func-call "my-gcd" "b" "r"))))))))
+             ("my-lcm"
+              #(#((lambda (:x) (= :x 2))
+                  ((lambda (x) #t) (lambda (x) #t))
+                  ("a" "b")
+                  (lambda :args #t))
+                ()
+                (("a" "b" "*" (:func-call "my-gcd" "a" "b") "/" "abs"))))
+             ("prime?"
+              #(#((lambda (:x) (= :x 1)) ((lambda (x) #t)) ("n") (lambda :args #t))
+                (("fact"
+                  #(#((lambda (:x) (= :x 1)) ((lambda (x) (eqv? x 0))) (:__) (lambda :args #t))
+                    ()
+                    ((1)))
+                  #(#((lambda (:x) (= :x 1)) ((lambda (x) #t)) ("n") (lambda :args #t))
+                    ()
+                    (("n" (:func-call "fact" ("n" 1 "-")) "*")))))
+                (((:func-call
+                   "apply"
+                   "0?"
+                   (:qlist
+                    ((:func-call "apply" "fact" (:qlist ("n" 1 "-"))) 1 "+" "n" "%"))))))))
+            ((:func-call "my-gcd" 3542 2464)
+             (:func-call "my-lcm" 3 4)
+             (:func-call "prime?" 11)
+             (:func-call "prime?" 12)
+             (:func-call "prime?" 3571))))
 ;; end examp
 
 ;; defs
@@ -165,6 +154,9 @@
 
 (define (is-op? t)
   (x-in-xs? t "+" "-" "/" "%" "*" "//" ">" "<" ">=" "<=" "=" "!=" "++" "&&" "||"))
+
+(define (is-uop? x)
+  (x-in-xs? x "abs" "zero?" "null?"))
 
 (define (x-in-xs? x . xs)
   (and (not-null? xs)
@@ -329,6 +321,9 @@
                 ((is-op? x)  (helper (cons `(,(string->symbol x) ,(cadr stack) ,(car stack))
                                            (cddr stack))
                                      s))
+                ((is-uop? x) (helper (cons `(,(string->symbol x) ,(car stack))
+                                           (cdr stack))
+                                     s))
                 ((list? x)   (helper (cons (func-apply x) stack) s))
                 ((string? x) (helper (string-op->symbol x stack) s))
                 ((x-in-xs? x #t #f) (helper (cons x stack) s))
@@ -341,6 +336,30 @@
 
 (define (generate-let-var name exprs inner)
   `(letrec ((,name ,(calc-rpn (car exprs))))
+     ,inner))
+
+(define (generate-func-types types)
+  `(map-cond ,(map (lambda (type)
+                     (let* ((lambda-and-let (make-var-lists type))
+                            (lambda-list (car lambda-and-let))
+                            (lambda-let  (cdr lambda-and-let))
+                            (hash-args (get-args-for-check ':args type)))
+                       ;(print 'generate-def type)
+                       `((and (,(get-args-num-from-type type) (length :args))
+                              (hash ',(get-args-check-from-type type) ,hash-args)
+                              (,(get-similar-from-type type) :args))
+                         (apply (lambda ,lambda-list
+                                  ,(if (not-null? lambda-let)
+                                       `(let ,(car lambda-let)
+                                          ,(generate-let (get-defs-from-type type)
+                                                         type))
+                                       (generate-let (get-defs-from-type type)
+                                                     type)))
+                                :args))))
+                   types)))
+
+(define (generate-let-func name types inner)
+  `(letrec ((,name (lambda :args ,(generate-func-types types))))
      ,inner))
 
 (define (generate-let defs type)
@@ -371,24 +390,7 @@
                                 ,(generate-let (get-defs-from-type type)
                                                type)))
                      `(define (,name . :args)
-                        (map-cond ,(map (lambda (type)
-                                          (let* ((lambda-and-let (make-var-lists type))
-                                                 (lambda-list (car lambda-and-let))
-                                                 (lambda-let  (cdr lambda-and-let))
-                                                 (hash-args (get-args-for-check ':args type)))
-                                            ;(print 'generate-def type)
-                                            `((and (,(get-args-num-from-type type) (length :args))
-                                                   (hash ',(get-args-check-from-type type) ,hash-args)
-                                                   (,(get-similar-from-type type) :args))
-                                              (apply (lambda ,lambda-list
-                                                       ,(if (not-null? lambda-let)
-                                                            `(let ,(car lambda-let)
-                                                               ,(generate-let (get-defs-from-type type)
-                                                                              type))
-                                                            (generate-let (get-defs-from-type type)
-                                                                      type)))
-                                                     :args))))
-                                        types)))))))
+                        ,(generate-func-types types))))))
 
 (define (generate-defs defs)
   (map generate-def defs))

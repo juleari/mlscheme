@@ -5,7 +5,9 @@
 (define % remainder)
 (define ** expt)
 
-(define ARGS-CAN-BE-FUNCS #t)
+(define ARGS-CAN-BE-EXPRS  #t)
+(define ARGS-CANT-BE-EXPRS #f)
+(define ARGS-CAN-BE-FUNCS  #t)
 (define ARGS-CANT-BE-FUNCS #f)
 
 (define T-TAG 0)
@@ -32,6 +34,7 @@
 (define ERROR_NO_FUNC_BODY   "no expression in body")
 (define ERROR_NO_EOF         "no end of file")
 (define ERROR_EXPR_ARENS     "arens not closed")
+(define ERR_NO_CLOSE_BRK     "no close braket")
 (define ERROR_EXPR           "expr is not correct")
 (define ERROR_NO_IF_CONDS    "no conditions in if")
 (define ERROR_NO_IF_ACT      "no expression in if")

@@ -1,0 +1,24 @@
+0? 0 <- #t
+0? x <- #f
+
+my-gcd a b <-
+    r <- a % b
+
+    if  | a < b -> my-gcd b a
+        | 0? r  -> b
+        |       -> my-gcd b r
+
+my-lcm a b <-
+    abs (a * b / my-gcd a b)
+
+prime? n <-
+    fact 0 <- 1
+    fact n <- n * fact (n - 1)
+    
+    0?.[ (fact.[n - 1] + 1) % n ]
+
+my-gcd 3542 2464
+my-lcm 3 4
+prime? 11
+prime? 12
+prime? 3571

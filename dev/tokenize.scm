@@ -49,7 +49,7 @@
   (vector-set! token T-VALUE value)
   token)
 
-(define kw '(scheme mod div if zero? eval))
+(define kw '(scheme mod div if zero? eval abs))
 
 (define (trim? s)
   (or (eqv? s #\space)
@@ -345,6 +345,6 @@
       (let ((t (tokenize-words (reverse (read-words '() '())) '())))
         (and (print-errors) t)))))
 
-(define port (open-input-file "/Users/juleari/Desktop/иу9/диплом/examples/10.sm"))
+(define port (open-input-file "/Users/juleari/Desktop/иу9/диплом/examples/12.sm"))
 
 (define tokens (tokenize-file port))

@@ -286,6 +286,9 @@
 (define (is-op? t)
   (x-in-xs? t "+" "-" "/" "%" "*" "//" ">" "<" ">=" "<=" "=" "!=" "++" "&&" "||"))
 
+(define (is-uop? x)
+  (x-in-xs? x "abs" "zero?" "null?"))
+
 (define (op-in-xs? x . xs)
   (and (not-null? xs)
        (or (equal? x (car xs))

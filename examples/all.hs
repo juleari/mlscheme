@@ -169,4 +169,3 @@ my-lcm 3 4
 prime? 11
 prime? 12
 prime? 3571
-
