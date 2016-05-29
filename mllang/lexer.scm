@@ -1,4 +1,5 @@
-(define kw '(scheme mod div if zero? eval))
+(define kw '(scheme mod div if zero? eval abs odd? even? 
+             null? not sin cos tg ctg eq? eqv? equal? gcd lcm))
 
 (define (trim? s)
   (or (eqv? s #\space)

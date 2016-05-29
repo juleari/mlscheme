@@ -1,155 +1,92 @@
 ;; examp
 (define v '(#(func-def
               (#(func-decl
-                 (#(func-name #(tag-sym #(1 1) "0?"))
-                  #(argument (#(simple-argument #(tag-num #(1 4) 0))))))
-               #(func-to #(tag-to #(1 6) "<-"))
-               #(expr (#(tag-true #(1 9) #t)))))
-            #(func-def
-              (#(func-decl
-                 (#(func-name #(tag-sym #(2 1) "0?"))
-                  #(argument (#(simple-argument #(tag-sym #(2 4) "x"))))))
-               #(func-to #(tag-to #(2 6) "<-"))
-               #(expr (#(tag-fls #(2 9) #f)))))
-            #(func-def
-              (#(func-decl
-                 (#(func-name #(tag-sym #(4 1) "my-gcd"))
-                  #(argument (#(simple-argument #(tag-sym #(4 8) "a"))))
-                  #(argument (#(simple-argument #(tag-sym #(4 10) "b"))))))
-               #(func-to #(tag-to #(4 12) "<-"))
-               #(func-def
-                 (#(func-decl (#(func-name #(tag-sym #(5 5) "r"))))
-                  #(func-to #(tag-to #(5 7) "<-"))
-                  #(expr
-                    (#(func-decl (#(func-name #(tag-sym #(5 10) "a"))))
-                     #(func-decl (#(func-name #(tag-sym #(5 14) "b"))))
-                     #(tag-mod #(5 12) "%")))))
+                 (#(func-name #(tag-sym #(15 1) "0->1"))
+                  #(argument
+                    (#(array-simple
+                       (#(open-braket #(tag-lbrk #(15 6) #\[))
+                        #(close-braket #(tag-rbrk #(15 7) #\]))))))))
+               #(func-to #(tag-to #(15 9) "<-"))
                #(expr
-                 (#(if-expression
-                    (#(if-word #(tag-kw #(7 5) "if"))
-                     ((#(if-cond #(tag-bor #(7 9) "|"))
-                       #(expr
-                         (#(func-decl (#(func-name #(tag-sym #(7 11) "a"))))
-                          #(func-decl (#(func-name #(tag-sym #(7 15) "b"))))
-                          #(tag-lwr #(7 13) "<")))
-                       #(then #(tag-from #(7 17) "->"))
-                       #(expr
-                         (#(func-decl
-                            (#(func-name #(tag-sym #(7 20) "my-gcd"))
-                             #(argument (#(simple-argument #(tag-sym #(7 27) "b"))))
-                             #(argument (#(simple-argument #(tag-sym #(7 29) "a")))))))))
-                      (#(if-cond #(tag-bor #(8 9) "|"))
-                       #(expr
-                         (#(func-decl
-                            (#(func-name #(tag-sym #(8 11) "0?"))
-                             #(argument (#(simple-argument #(tag-sym #(8 14) "r"))))))))
-                       #(then #(tag-from #(8 17) "->"))
-                       #(expr (#(func-decl (#(func-name #(tag-sym #(8 20) "b")))))))
-                      (#(if-cond #(tag-bor #(9 9) "|"))
-                       #(expr (#(tag-true #(0 0) #t)))
-                       #(then #(tag-from #(9 17) "->"))
-                       #(expr
-                         (#(func-decl
-                            (#(func-name #(tag-sym #(9 20) "my-gcd"))
-                             #(argument (#(simple-argument #(tag-sym #(9 27) "b"))))
-                             #(argument (#(simple-argument #(tag-sym #(9 29) "r"))))))))))))))))
+                 (#(array-simple
+                    (#(open-braket #(tag-lbrk #(15 12) #\[))
+                     #(close-braket #(tag-rbrk #(15 13) #\]))))))))
             #(func-def
               (#(func-decl
-                 (#(func-name #(tag-sym #(11 1) "my-lcm"))
-                  #(argument (#(simple-argument #(tag-sym #(11 8) "a"))))
-                  #(argument (#(simple-argument #(tag-sym #(11 10) "b"))))))
-               #(func-to #(tag-to #(11 12) "<-"))
-               #(expr
-                 (#(func-decl (#(func-name #(tag-sym #(12 10) "a"))))
-                  #(func-decl (#(func-name #(tag-sym #(12 14) "b"))))
-                  #(tag-mul #(12 12) "*")
-                  #(func-decl
-                    (#(func-name #(tag-sym #(12 18) "my-gcd"))
-                     #(argument (#(simple-argument #(tag-sym #(12 25) "a"))))
-                     #(argument (#(simple-argument #(tag-sym #(12 27) "b"))))))
-                  #(tag-rem #(12 16) "/")
-                  #(tag-kw #(12 5) "abs")))))
-            #(func-def
-              (#(func-decl
-                 (#(func-name #(tag-sym #(14 1) "prime?"))
-                  #(argument (#(simple-argument #(tag-sym #(14 8) "n"))))))
-               #(func-to #(tag-to #(14 10) "<-"))
-               #(func-def
-                 (#(func-decl
-                    (#(func-name #(tag-sym #(15 5) "fact"))
-                     #(argument (#(simple-argument #(tag-num #(15 10) 0))))))
-                  #(func-to #(tag-to #(15 12) "<-"))
-                  #(expr (#(tag-num #(15 15) 1)))))
-               #(func-def
-                 (#(func-decl
-                    (#(func-name #(tag-sym #(16 5) "fact"))
-                     #(argument (#(simple-argument #(tag-sym #(16 10) "n"))))))
-                  #(func-to #(tag-to #(16 12) "<-"))
-                  #(expr
-                    (#(func-decl (#(func-name #(tag-sym #(16 15) "n"))))
-                     #(func-decl
-                       (#(func-name #(tag-sym #(16 19) "fact"))
+                 (#(func-name #(tag-sym #(16 1) "0->1"))
+                  #(argument
+                    (#(array-simple
+                       (#(open-braket #(tag-lbrk #(16 6) #\[))
+                        #(argument (#(simple-argument #(tag-num #(16 7) 0))))
                         #(argument
-                          (#(expr
-                             (#(func-decl (#(func-name #(tag-sym #(16 25) "n"))))
-                              #(tag-num #(16 29) 1)
-                              #(tag-mns #(16 27) "-")))))))
-                     #(tag-mul #(16 17) "*")))))
+                          (#(continuous
+                             (#(colon #(tag-cln #(16 8) #\:))
+                              #(continuous-list #(tag-sym #(16 10) "xs"))))))
+                        #(close-braket #(tag-rbrk #(16 12) #\]))))))))
+               #(func-to #(tag-to #(16 14) "<-"))
                #(expr
-                 (#(func-decl
-                    (#(func-name #(tag-sym #(18 5) "0?"))
+                 (#(array-simple
+                    (#(open-braket #(tag-lbrk #(16 17) #\[))
+                     #(argument (#(expr (#(tag-num #(16 18) 1)))))
                      #(argument
-                       (#(apply
-                          (#(apply-dot #(tag-dot #(18 7) #\.))
-                           #(argument
-                             (#(array-simple
-                                (#(open-braket #(tag-lbrk #(18 8) #\[))
+                       (#(continuous
+                          (#(colon #(tag-cln #(16 19) #\:))
+                           #(expr
+                             (#(func-decl
+                                (#(func-name #(tag-sym #(16 21) "0->1"))
                                  #(argument
-                                   (#(expr
-                                      (#(func-decl
-                                         (#(func-name #(tag-sym #(18 11) "fact"))
-                                          #(argument
-                                            (#(apply
-                                               (#(apply-dot #(tag-dot #(18 15) #\.))
-                                                #(argument
-                                                  (#(array-simple
-                                                     (#(open-braket #(tag-lbrk #(18 16) #\[))
-                                                      #(argument
-                                                        (#(expr
-                                                           (#(func-decl
-                                                              (#(func-name
-                                                                 #(tag-sym #(18 17) "n"))))
-                                                            #(tag-num #(18 21) 1)
-                                                            #(tag-mns #(18 19) "-")))))
-                                                      #(close-braket
-                                                        #(tag-rbrk #(18 22) #\]))))))))))))
-                                       #(tag-num #(18 26) 1)
-                                       #(tag-pls #(18 24) "+")
-                                       #(func-decl (#(func-name #(tag-sym #(18 31) "n"))))
-                                       #(tag-mod #(18 29) "%")))))
-                                 #(close-braket #(tag-rbrk #(18 33) #\]))))))))))))))))
+                                   (#(simple-argument #(tag-sym #(16 26) "xs"))))))))))))
+                     #(close-braket #(tag-rbrk #(16 28) #\]))))))))
+            #(func-def
+              (#(func-decl
+                 (#(func-name #(tag-sym #(17 1) "0->1"))
+                  #(argument
+                    (#(array-simple
+                       (#(open-braket #(tag-lbrk #(17 6) #\[))
+                        #(argument (#(simple-argument #(tag-sym #(17 7) "x"))))
+                        #(argument
+                          (#(continuous
+                             (#(colon #(tag-cln #(17 9) #\:))
+                              #(continuous-list #(tag-sym #(17 11) "xs"))))))
+                        #(close-braket #(tag-rbrk #(17 13) #\]))))))))
+               #(func-to #(tag-to #(17 15) "<-"))
+               #(expr
+                 (#(array-simple
+                    (#(open-braket #(tag-lbrk #(17 18) #\[))
+                     #(argument (#(expr (#(func-decl (#(func-name #(tag-sym #(17 19) "x"))))))))
+                     #(argument
+                       (#(continuous
+                          (#(colon #(tag-cln #(17 21) #\:))
+                           #(expr
+                             (#(func-decl
+                                (#(func-name #(tag-sym #(17 23) "0->1"))
+                                 #(argument
+                                   (#(simple-argument #(tag-sym #(17 28) "xs"))))))))))))
+                     #(close-braket #(tag-rbrk #(17 30) #\]))))))))
             #(expr
               (#(func-decl
-                 (#(func-name #(tag-sym #(20 1) "my-gcd"))
-                  #(argument (#(simple-argument #(tag-num #(20 8) 3542))))
-                  #(argument (#(simple-argument #(tag-num #(20 13) 2464))))))))
+                 (#(func-name #(tag-sym #(19 1) "0->1"))
+                  #(argument
+                    (#(array-simple
+                       (#(open-braket #(tag-lbrk #(19 6) #\[))
+                        #(argument (#(simple-argument #(tag-num #(19 7) 0))))
+                        #(argument (#(simple-argument #(tag-num #(19 8) 2))))
+                        #(argument (#(simple-argument #(tag-num #(19 10) 7))))
+                        #(argument (#(simple-argument #(tag-num #(19 12) 0))))
+                        #(argument (#(simple-argument #(tag-num #(19 14) 5))))
+                        #(close-braket #(tag-rbrk #(19 15) #\]))))))))))
             #(expr
               (#(func-decl
-                 (#(func-name #(tag-sym #(21 1) "my-lcm"))
-                  #(argument (#(simple-argument #(tag-num #(21 8) 3))))
-                  #(argument (#(simple-argument #(tag-num #(21 10) 4))))))))
-            #(expr
-              (#(func-decl
-                 (#(func-name #(tag-sym #(22 1) "prime?"))
-                  #(argument (#(simple-argument #(tag-num #(22 8) 11))))))))
-            #(expr
-              (#(func-decl
-                 (#(func-name #(tag-sym #(23 1) "prime?"))
-                  #(argument (#(simple-argument #(tag-num #(23 8) 12))))))))
-            #(expr
-              (#(func-decl
-                 (#(func-name #(tag-sym #(24 1) "prime?"))
-                  #(argument (#(simple-argument #(tag-num #(24 8) 3571))))))))))
+                 (#(func-name #(tag-sym #(20 1) "0->1"))
+                  #(argument
+                    (#(array-simple
+                       (#(open-braket #(tag-lbrk #(20 6) #\[))
+                        #(argument (#(simple-argument #(tag-num #(20 7) 0))))
+                        #(argument (#(simple-argument #(tag-num #(20 8) 1))))
+                        #(argument (#(simple-argument #(tag-num #(20 10) 0))))
+                        #(argument (#(simple-argument #(tag-num #(20 12) 1))))
+                        #(argument (#(simple-argument #(tag-num #(20 14) 0))))
+                        #(close-braket #(tag-rbrk #(20 15) #\]))))))))))))
 ;; end examp
 
 ;; defs
@@ -341,16 +278,11 @@
 (define (make-arg-type)
   (vector (vector `(lambda (:x) #t) (list) (list)) (list) (list)))
 
-(define (get-arg-name arg)
-  (if (list? arg)
-      (cadr arg)
-      arg))
-
 (define (make-alist xs)
   (define (helper xs alist)
     (if (null? xs)
         alist
-        (helper (cdr xs) (cons (list (get-arg-name (car xs)) (make-arg-type)) alist))))
+        (helper (cdr xs) (cons (list (car xs) (make-arg-type)) alist))))
   (helper xs '()))
 
 (define (remove-first n xs)

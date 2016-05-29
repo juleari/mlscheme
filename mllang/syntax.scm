@@ -129,7 +129,8 @@
                                         (syntax-arguments (get-simple-start-pos 
                                                            first-rule)
                                                           ARGS-CANT-BE-EXPRS
-                                                          ARGS-CANT-BE-FUNCS)))
+                                                          ARGS-CANT-BE-FUNCS
+                                                          ARGS-CAN-BE-CONT)))
                    (or (let ((last-rule (simple-rule start-pos
                                                      'close-braket
                                                      'tag-rbrk)))
@@ -145,11 +146,13 @@
         (and (start-in? start-pos)
              (let ((first-rule (simple-rule start-pos 'open-braket 'tag-lbrk)))
                (and first-rule
+                    ;(print 'syntax-array ARGS-CAN-BE-CONT)
                     (set! ast-list (cons first-rule
                                          (syntax-arguments (get-simple-start-pos 
                                                             first-rule)
                                                            args-can-be-exprs?
-                                                           args-can-be-exprs?)))
+                                                           args-can-be-exprs?
+                                                           ARGS-CAN-BE-CONT)))
                     (or (let ((last-rule (simple-rule start-pos
                                                       'close-braket
                                                       'tag-rbrk)))
@@ -188,7 +191,8 @@
                    (and cont
                         (or (not (syntax-argument start-pos
                                                   args-can-be-exprs?
-                                                  args-can-be-exprs?))
+                                                  args-can-be-exprs?
+                                                  ARGS-CANT-BE-CONT))
                             (add-error ERR_AFTER_continuous))
                         (list cont))))))
 
@@ -198,7 +202,7 @@
                            `(,simple-rule ,start-pos 'apply-dot 'tag-dot)
                            syntax-rule-
                            syntax-argument
-                           '(ARGS-CAN-BE-EXPRS ARGS-CAN-BE-FUNCS)
+                           '(ARGS-CAN-BE-EXPRS ARGS-CAN-BE-FUNCS ARGS-CAN-BE-CONT)
                            ERR_INCORRECT_APPLY))
 
       (define (syntax-simple-or-apply start-pos)
@@ -218,10 +222,12 @@
                                         (vector 'argument (list :apply))))
                           name))))))
 
-      (define (syntax-argument start-pos args-can-be-exprs? args-can-be-funcs?)
+      (define (syntax-argument start-pos
+                               args-can-be-exprs?
+                               args-can-be-funcs?
+                               args-can-be-cont?)
         (and (start-in? start-pos)
-             (let* ((arg (or ;(and args-can-be-funcs? (syntax-simple-or-apply start-pos))
-                             (and (not args-can-be-funcs?)
+             (let* ((arg (or (and (not args-can-be-funcs?)
                                   (simple-rule start-pos
                                                'simple-argument
                                                'tag-sym
@@ -229,17 +235,26 @@
                                                'tag-str
                                                'tag-num))
                              (syntax-array start-pos args-can-be-exprs?)
-                             (syntax-arg-continuous start-pos args-can-be-exprs?)
+                             (and args-can-be-cont?
+                                  (syntax-arg-continuous start-pos
+                                                         args-can-be-exprs?))
                              (and args-can-be-exprs? (syntax-apply start-pos))
-                             (and args-can-be-exprs? (syntax-expr start-pos))))
+                             (and args-can-be-exprs?
+                                  (syntax-expr start-pos
+                                               (not args-can-be-cont?)))))
                     (larg (if (list? arg) arg (list arg))))
+               ;(print 'syntax-argument args-can-be-cont? arg)
                (and arg (vector 'argument larg)))))
 
-      (define (syntax-arguments start-pos args-can-be-exprs? args-can-be-funcs?)
+      (define (syntax-arguments start-pos
+                                args-can-be-exprs?
+                                args-can-be-funcs?
+                                args-can-be-cont?)
         (define (helper ast-list)
           (let ((arg (syntax-argument start-pos
                                       args-can-be-exprs?
-                                      args-can-be-funcs?)))
+                                      args-can-be-funcs?
+                                      args-can-be-cont?)))
             (or (and arg (helper (cons arg ast-list)))
                 (reverse ast-list))))
         (helper '()))
@@ -247,7 +262,8 @@
       (define (syntax-func-lambda-decl start-pos
                                        name-rule-args
                                        rule-name
-                                       args-can-be-exprs?)
+                                       args-can-be-exprs?
+                                       args-can-be-cont?)
         (and (start-in? start-pos)
              (let ((first-rule (apply simple-rule
                                       (cons start-pos name-rule-args))))
@@ -257,13 +273,17 @@
                                   (syntax-rule? syntax-arguments
                                                 (get-simple-start-pos first-rule)
                                                 args-can-be-exprs?
-                                                ARGS-CANT-BE-FUNCS)))))))
+                                                ARGS-CANT-BE-FUNCS
+                                                args-can-be-cont?)))))))
 
-      (define (syntax-func-declaration start-pos args-can-be-exprs?)
+      (define (syntax-func-declaration start-pos
+                                       args-can-be-exprs?
+                                       args-can-be-cont?)
         (syntax-func-lambda-decl start-pos
                                  '(func-name tag-sym)
                                  'func-decl
-                                 args-can-be-exprs?))
+                                 args-can-be-exprs?
+                                 args-can-be-cont?))
 
       (define (syntax-func-body start-pos)
         (syntax-partional-rule start-pos
@@ -279,7 +299,8 @@
         (syntax-partional-rule start-pos
                                `(,simple-rule ,start-pos 'if-cond 'tag-bor)
                                `(cons (let ((expr (,syntax-rule? ,syntax-expr
-                                                                 ,start-pos)))
+                                                                 ,start-pos
+                                                                 ,ARGS-CAN-BE-CONT)))
                                         (if (and (list? expr) (null? expr))
                                             (,get-true-expr)
                                             expr))
@@ -300,7 +321,10 @@
 
       (define (get-lambda-rules start-pos)
         ;(print 'get-lambda-rules start-pos)
-        (cons (syntax-arguments start-pos ARGS-CANT-BE-EXPRS ARGS-CANT-BE-FUNCS)
+        (cons (syntax-arguments start-pos
+                                ARGS-CANT-BE-EXPRS
+                                ARGS-CANT-BE-FUNCS
+                                ARGS-CAN-BE-CONT)
               (or (syntax-lambda-body start-pos)
                   (add-error ERROR_NO_TAG_TO))))
 
@@ -308,7 +332,8 @@
         (let ((func-decl (syntax-func-lambda-decl start-pos
                                                   '(func-name tag-lmbd)
                                                   'lambda-func-decl
-                                                  ARGS-CANT-BE-EXPRS)))
+                                                  ARGS-CANT-BE-EXPRS
+                                                  ARGS-CAN-BE-CONT)))
           (and func-decl
                (let* ((new-start-pos (get-expr-start-pos func-decl))
                       (func-body (syntax-lambda-body new-start-pos)))
@@ -316,7 +341,7 @@
                           (vector 'lambda-func
                                   (cons func-decl func-body))))))))
 
-      (define (syntax-expr start-pos . func-decl?)
+      (define (syntax-expr start-pos args-can-be-cont? . func-decl?)
         ;(print 'syntax-expr token args)
         (if (eq? (get-token-tag token) 'tag-end)
             (and (not-null? func-decl?)
@@ -325,9 +350,11 @@
                                   (syntax-if start-pos)
                                   (syntax-lambda start-pos)
                                   (apply shunting-yard
-                                         (cons start-pos func-decl?))))))
+                                         (append (list start-pos
+                                                       args-can-be-cont?)
+                                               func-decl?))))))
     
-      (define (shunting-yard start-pos . out)
+      (define (shunting-yard start-pos args-can-be-cont? . out)
         ;(print 'shunting-yard token start-pos out)
         (define stack '())
         (define start-flag #t)
@@ -343,11 +370,6 @@
         (define (is-type? . types)
           (apply x-in-xs? (cons (get-token-tag token) types)))
 
-        (define (x-in-xs? x . xs)
-          (and (not-null? xs)
-               (or (eqv? x (car xs))
-                   (apply x-in-xs? (cons x (cdr xs))))))
-
         (define (trigonometric)
           (let ((tag (get-token-tag token))
                 (val (get-token-value token)))
@@ -359,7 +381,7 @@
               (trigonometric)))
 
         (define (is-binar-func? val)
-          (x-in-xs? val "eq?" "eqv?" "equal?"))
+          (x-in-xs? val "eq?" "eqv?" "equal?" "gcd" "lcm"))
 
         (define (is-nar-func? val)
           (x-in-xs? val "and" "or"))
@@ -408,7 +430,9 @@
                                     (or (null? out)
                                         (> (prior (car (reverse out))) 0)
                                         (not-null? stack))))
-                      (proc (syntax-func-declaration start-pos ARGS-CAN-BE-FUNCS))
+                      (proc (syntax-func-declaration start-pos
+                                                     ARGS-CAN-BE-FUNCS
+                                                     args-can-be-cont?))
                       (flag #f)
                       (end-flag #f))
                  (and (cond (valid-op             (op-to-out op)
@@ -493,7 +517,9 @@
                            ERROR_NO_IF_CONDS))
 
       (define (syntax-program start-pos)
-        (let ((func-decl (syntax-func-declaration start-pos ARGS-CANT-BE-FUNCS)))
+        (let ((func-decl (syntax-func-declaration start-pos
+                                                  ARGS-CANT-BE-FUNCS
+                                                  ARGS-CAN-BE-CONT)))
           (or (and func-decl
                    (let* ((new-start-pos (get-expr-start-pos func-decl))
                           (func-body (syntax-func-body new-start-pos)))
@@ -502,12 +528,14 @@
                                       (cons func-decl func-body)))
                          (let ((func-args (syntax-arguments new-start-pos
                                                             ARGS-CAN-BE-EXPRS
-                                                            ARGS-CANT-BE-FUNCS)))
+                                                            ARGS-CANT-BE-FUNCS
+                                                            ARGS-CAN-BE-CONT)))
                            (syntax-expr new-start-pos
+                                        ARGS-CAN-BE-CONT
                                         (append-to-rule-list func-decl
                                                              func-args))))))
               (syntax-scheme start-pos)
-              (syntax-expr start-pos))))
+              (syntax-expr start-pos ARGS-CAN-BE-CONT))))
 
       (let ((ast (syntax-rule+ syntax-program 0)))
         (and (neq? (get-token-tag token) 'tag-end)

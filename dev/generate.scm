@@ -1,45 +1,40 @@
 ;; examp
-(define v '((("0?"
-              #(#((lambda (:x) (= :x 1)) ((lambda (x) (eqv? x 0))) (:_) (lambda :args #t))
-                ()
-                ((#t)))
-              #(#((lambda (:x) (= :x 1)) ((lambda (x) #t)) ("x") (lambda :args #t)) () ((#f))))
-             ("my-gcd"
-              #(#((lambda (:x) (= :x 2))
-                  ((lambda (x) #t) (lambda (x) #t))
-                  ("a" "b")
-                  (lambda :args #t))
-                (("r" #(#((lambda (x) (zero? x)) () () (lambda :args #t)) () (("a" "b" "%")))))
-                (((:cond
-                   (("a" "b" "<") ((:func-call "my-gcd" "b" "a")))
-                   (((:func-call "0?" "r")) ("b"))
-                   ((#t) ((:func-call "my-gcd" "b" "r"))))))))
-             ("my-lcm"
-              #(#((lambda (:x) (= :x 2))
-                  ((lambda (x) #t) (lambda (x) #t))
-                  ("a" "b")
+(define v '((("0->1"
+              #(#((lambda (:x) (= :x 1))
+                  ((lambda (:x) (and (list? :x) (null? :x))))
+                  (())
                   (lambda :args #t))
                 ()
-                (("a" "b" "*" (:func-call "my-gcd" "a" "b") "/" "abs"))))
-             ("prime?"
-              #(#((lambda (:x) (= :x 1)) ((lambda (x) #t)) ("n") (lambda :args #t))
-                (("fact"
-                  #(#((lambda (:x) (= :x 1)) ((lambda (x) (eqv? x 0))) (:__) (lambda :args #t))
-                    ()
-                    ((1)))
-                  #(#((lambda (:x) (= :x 1)) ((lambda (x) #t)) ("n") (lambda :args #t))
-                    ()
-                    (("n" (:func-call "fact" ("n" 1 "-")) "*")))))
-                (((:func-call
-                   "apply"
-                   "0?"
-                   (:qlist
-                    ((:func-call "apply" "fact" (:qlist ("n" 1 "-"))) 1 "+" "n" "%"))))))))
-            ((:func-call "my-gcd" 3542 2464)
-             (:func-call "my-lcm" 3 4)
-             (:func-call "prime?" 11)
-             (:func-call "prime?" 12)
-             (:func-call "prime?" 3571))))
+                (('())))
+              #(#((lambda (:x) (= :x 1))
+                  ((lambda (:x)
+                     (and (list? :x)
+                          (:and-fold
+                           (cons
+                            (>= (length :x) 1)
+                            (map
+                             (lambda (:lambda-i :xi) ((eval-i :lambda-i) :xi))
+                             '((lambda (x) (eqv? x 0)))
+                             (give-first :x 1)))))))
+                  ((:_ (continuous "xs")))
+                  (lambda :args #t))
+                ()
+                (((:func-call append-s (:list (1)) (:list (:func-call "0->1" "xs"))))))
+              #(#((lambda (:x) (= :x 1))
+                  ((lambda (:x)
+                     (and (list? :x)
+                          (:and-fold
+                           (cons
+                            (>= (length :x) 1)
+                            (map
+                             (lambda (:lambda-i :xi) ((eval-i :lambda-i) :xi))
+                             '((lambda (x) #t))
+                             (give-first :x 1)))))))
+                  (("x" (continuous "xs")))
+                  (lambda :args #t))
+                ()
+                (((:func-call append-s (:list ("x")) (:list (:func-call "0->1" "xs"))))))))
+            ((:func-call "0->1" (:qlist 0 2 7 0 5)) (:func-call "0->1" (:qlist 0 1 0 1 0)))))
 ;; end examp
 
 ;; defs

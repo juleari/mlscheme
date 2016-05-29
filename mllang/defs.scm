@@ -9,6 +9,8 @@
 (define ARGS-CANT-BE-EXPRS #f)
 (define ARGS-CAN-BE-FUNCS  #t)
 (define ARGS-CANT-BE-FUNCS #f)
+(define ARGS-CAN-BE-CONT   #t)
+(define ARGS-CANT-BE-CONT  #f)
 
 (define T-TAG 0)
 (define T-COORDS 1)
