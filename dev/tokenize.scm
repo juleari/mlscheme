@@ -87,10 +87,10 @@
                      (#f       tag-mul)))
                (#\t ((tag-sym  tag-sym)
                      (tag-diez tag-true)
-                     (#f       tag-mul)))
+                     (#f       tag-sym)))
                (#\f ((tag-sym  tag-sym)
                      (tag-diez tag-fls)
-                     (#f       tag-mul)))
+                     (#f       tag-sym)))
                (#\/ ((tag-sym  tag-sym)
                      (tag-rem  tag-div)
                      (#f       tag-rem)))
@@ -130,6 +130,15 @@
                ;(x-not-in-list #\/ ws)
                (++ position (length ws))
                (list (vector 'tag-num coords token-word)))))
+      
+      (define (iskw-part? token)
+        (define (helper kw w)
+          (and (not (null? kw))
+               (or (eq? w (car kw))
+                   (helper (cdr kw) w))))
+        (let ((word (get-token-value token)))
+          (and (helper kw (string->symbol word))
+               (vector 'tag-kw (get-token-coords token) word))))
       
       (define (iskw?)
         (define (helper kw w)
@@ -211,11 +220,14 @@
                (center     (cadr  cuted-list))
                (after      (caddr cuted-list))
                (nafter     (isnum? after))
-               (consed     (if nafter
-                               (list (set-token-tag center cut-tag) nafter)
+               (kwafter    (iskw-part? after))
+               (consed     (if (or nafter kwafter)
+                               (list (set-token-tag center cut-tag)
+                                     (or nafter kwafter))
                                (cons-tags cut-tag center after s))))
           (if old-tag
               (cons (or (isnum? before)
+                        (iskw-part? before)
                         (set-token-tag before old-tag))
                     consed)
               consed)))
@@ -346,6 +358,6 @@
       (let ((t (tokenize-words (reverse (read-words '() '())) '())))
         (and (print-errors) t)))))
 
-(define port (open-input-file "/Users/juleari/Desktop/иу9/диплом/examples/12.sm"))
+(define port (open-input-file "/Users/juleari/Desktop/иу9/диплом/examples/13.sm"))
 
 (define tokens (tokenize-file port))

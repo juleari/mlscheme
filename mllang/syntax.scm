@@ -211,15 +211,17 @@
                                       'simple-argument
                                       'tag-sym
                                       'tag-kw
-                                      'tag-str)))
+                                      'tag-str
+                                      'tag-num)))
                (and name
                     (let* ((name-token (get-simple-rule-token name))
-                           (:apply (syntax-apply (+ (get-token-pos name-token)
-                                                    1))))
+                           (:apply (syntax-apply (get-token-pos name-token))))
                       (if :apply
-                          (vector 'func-decl
-                                  (list (vector 'func-name name-token)
-                                        (vector 'argument (list :apply))))
+                          (make-syntax-expr (vector 'func-decl
+                                                    (list (vector 'func-name
+                                                                  name-token)
+                                                          (vector 'argument
+                                                                  (list :apply)))))
                           name))))))
 
       (define (syntax-argument start-pos
@@ -228,12 +230,7 @@
                                args-can-be-cont?)
         (and (start-in? start-pos)
              (let* ((arg (or (and (not args-can-be-funcs?)
-                                  (simple-rule start-pos
-                                               'simple-argument
-                                               'tag-sym
-                                               'tag-kw
-                                               'tag-str
-                                               'tag-num))
+                                  (syntax-simple-or-apply start-pos))
                              (syntax-array start-pos args-can-be-exprs?)
                              (and args-can-be-cont?
                                   (syntax-arg-continuous start-pos
@@ -243,7 +240,7 @@
                                   (syntax-expr start-pos
                                                (not args-can-be-cont?)))))
                     (larg (if (list? arg) arg (list arg))))
-               ;(print 'syntax-argument args-can-be-cont? arg)
+               ;(print 'syntax-argument token (not args-can-be-funcs?) arg)
                (and arg (vector 'argument larg)))))
 
       (define (syntax-arguments start-pos

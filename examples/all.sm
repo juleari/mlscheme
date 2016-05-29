@@ -170,3 +170,20 @@ prime? 11
 prime? 12
 prime? 3571
 
+bisection f a b e <-
+    sign 0 <- 0
+    sign x <- if | x > 0 -> 1
+                 |       -> -1
+
+    mid a b <- 
+        x <- a + (b - a) / 2
+
+        if  | (abs f x) <= e          -> x
+            | (sign f.[b]) = (sign f.[x]) -> mid a x
+            |                         -> mid x b
+
+    if | f.[a] = 0 -> a
+       | f.[b] = 0 -> b
+       |         -> mid a b
+
+bisection cos -3.0 0.0 0.001

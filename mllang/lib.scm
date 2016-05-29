@@ -221,16 +221,17 @@
 
 (define (find-in-model func-name model)
   (and (not-null? model)
-       (let* ((car-model model)
-              (in-model (assoc func-name car-model)))
-         (or (and in-model
-                  (append (cdr in-model)
+       (let* ((first  (car model))
+              (f-par (car first))
+              (f-val  (cdr first)))
+         (or (and (find-in-params func-name f-par)
+                  (append f-val
                           (or (find-in-model func-name (cdr model))
                               '())))
-             (and (find-in-params func-name car-model)
-                  (cons (make-arg-type)
-                        (or (find-in-model func-name (cdr model))
-                            '())))
+             ;(and (find-in-params func-name car-model)
+             ;     (cons (make-arg-type)
+             ;           (or (find-in-model func-name (cdr model))
+             ;               '())))
              (find-in-model func-name (cdr model))))))
 
 (define (get-args-from-type type)
@@ -242,11 +243,10 @@
            (and (list? (car xs)) (x-in-xs x (car xs)))
            (x-in-xs x (cdr xs)))))
 
-(define (find-in-params func-name model)
-  (and (not-null? model)
-       (:or-fold (map (lambda (type)
-                        (x-in-xs func-name (get-args-names-from-type type)))
-                      (cdar model)))))
+(define (find-in-params func-name param)
+  (or (and (list? param)
+           (x-in-xs func-name param))
+      (equal? func-name param)))
 
 (define (make-arg-type)
   (vector (vector `(lambda (:x) #t) (list) (list)) (list) (list)))
