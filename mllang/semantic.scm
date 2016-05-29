@@ -91,7 +91,7 @@
 
                (func-val (vector args-vector f-defs f-exprs))
                (add-list (list model func-name func-val)))
-          ;(print 'semantic-func-def add-list)
+          ;(print 'semantic-func-def func-name f-exprs in-model)
           (apply (if in-model
                      add-type-in-model
                      add-func-in-model)
@@ -172,7 +172,6 @@
 
       (define (get-arg-value arg-rule model)
         (let ((name (get-rule-name arg-rule)))
-          ;(print 'get-arg-value name model)
           (cond ((eq? name 'simple-argument) (get-simple-arg-value arg-rule))
                 ((eq? name 'array-simple)    (semantic-expr-arr (get-rule-terms arg-rule) model))
                 ((eq? name 'apply)           (cons (get-arg-value (car (get-rule-terms (cadr (get-rule-terms arg-rule))))
@@ -223,14 +222,15 @@
 
       (define (semantic-expr-elem elem model)
         (let ((type (get-rule-name elem)))
-          (cond ((eq? type 'func-decl)    (semantic-var (get-rule-terms elem) model))
-                ((eq? type 'array-simple) (semantic-expr-arr (get-rule-terms elem) model))
-                ((eq? type 'if-expression)(semantic-if-expr (get-rule-terms elem) model))
-                ((eq? type 'lambda-func)  (semantic-lambda (get-rule-terms elem) model))
-                (else                     (get-token-value elem)))))
+          (cond ((eq? type 'func-decl)      (semantic-var (get-rule-terms elem) model))
+                ((eq? type 'array-simple)   (semantic-expr-arr (get-rule-terms elem) model))
+                ((eq? type 'if-expression)  (semantic-if-expr (get-rule-terms elem) model))
+                ((eq? type 'lambda-func)    (semantic-lambda (get-rule-terms elem) model))
+                ((eq? type 'simple-argument)(get-simple-arg-value elem))
+                (else                       (get-token-value elem)))))
 
       (define (semantic-expr terms model)
-        (map (lambda (x) (semantic-expr-elem x model)) terms))
+        (list (map (lambda (x) (semantic-expr-elem x model)) terms)))
 
       ;; need to make semantic-model-exprs
       (define (semantic-model-exprs model)

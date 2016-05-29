@@ -6,6 +6,9 @@
 (define ** expt)
 
 (define ARGS-CAN-BE-EXPRS  #t)
+(define ARGS-IN-DECL-EXPR 'args-in-expr)
+(define ARGS-WITHOUT-F-CALLS 'without-func-calls)
+(define ARGS-ONLY-ARRAY 'only-array)
 (define ARGS-CANT-BE-EXPRS #f)
 (define ARGS-CAN-BE-FUNCS  #t)
 (define ARGS-CANT-BE-FUNCS #f)

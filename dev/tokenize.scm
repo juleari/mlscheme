@@ -49,8 +49,8 @@
   (vector-set! token T-VALUE value)
   token)
 
-(define kw '(scheme mod div if zero? eval abs odd? even? 
-             null? not sin cos tg ctg eq? eqv? equal? gcd lcm))
+(define kw '(scheme mod if zero? eval abs odd? even? div round
+             null? not sin cos tg ctg eq? eqv? equal? gcd lcm expt sqrt))
 
 (define (trim? s)
   (or (eqv? s #\space)

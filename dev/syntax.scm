@@ -6,6 +6,9 @@
 (define ** expt)
 
 (define ARGS-CAN-BE-EXPRS #t)
+(define ARGS-IN-DECL-EXPR 'args-in-expr)
+(define ARGS-WITHOUT-F-CALLS 'without-func-calls)
+(define ARGS-ONLY-ARRAY 'only-array)
 (define ARGS-CANT-BE-EXPRS #f)
 (define ARGS-CAN-BE-FUNCS #t)
 (define ARGS-CANT-BE-FUNCS #f)
@@ -50,113 +53,234 @@
 (define ERROR_UNDEFINED_VARIABLE "cannot reference undefined identifier")
 
 
-(define tokens '(#(tag-sym #(1 1) "bisection")
-                 #(tag-sym #(1 11) "f")
-                 #(tag-sym #(1 13) "a")
-                 #(tag-sym #(1 15) "b")
-                 #(tag-sym #(1 17) "e")
-                 #(tag-to #(1 19) "<-")
-                 #(tag-sym #(2 5) "sign")
-                 #(tag-num #(2 10) 0)
-                 #(tag-to #(2 12) "<-")
-                 #(tag-num #(2 15) 0)
-                 #(tag-sym #(3 5) "sign")
-                 #(tag-sym #(3 10) "x")
-                 #(tag-to #(3 12) "<-")
-                 #(tag-kw #(3 15) "if")
-                 #(tag-bor #(3 18) "|")
-                 #(tag-sym #(3 20) "x")
-                 #(tag-hghr #(3 22) ">")
-                 #(tag-num #(3 24) 0)
-                 #(tag-from #(3 26) "->")
-                 #(tag-num #(3 29) 1)
-                 #(tag-bor #(4 18) "|")
-                 #(tag-from #(4 26) "->")
-                 #(tag-num #(4 29) -1)
-                 #(tag-sym #(6 5) "mid")
-                 #(tag-sym #(6 9) "a")
-                 #(tag-sym #(6 11) "b")
-                 #(tag-to #(6 13) "<-")
-                 #(tag-sym #(7 9) "x")
-                 #(tag-to #(7 11) "<-")
-                 #(tag-sym #(7 14) "a")
-                 #(tag-pls #(7 16) "+")
-                 #(tag-lprn #(7 18) #\()
-                 #(tag-sym #(7 19) "b")
-                 #(tag-mns #(7 21) "-")
-                 #(tag-sym #(7 23) "a")
-                 #(tag-rprn #(7 24) #\))
-                 #(tag-rem #(7 26) "/")
-                 #(tag-num #(7 28) 2)
-                 #(tag-kw #(9 9) "if")
-                 #(tag-bor #(9 13) "|")
-                 #(tag-lprn #(9 15) #\()
-                 #(tag-kw #(9 16) "abs")
-                 #(tag-sym #(9 17) "f")
-                 #(tag-sym #(9 19) "x")
-                 #(tag-rprn #(9 20) #\))
-                 #(tag-leq #(9 22) "<=")
-                 #(tag-sym #(9 25) "e")
-                 #(tag-from #(9 36) "->")
-                 #(tag-sym #(9 39) "x")
-                 #(tag-bor #(10 13) "|")
-                 #(tag-lprn #(10 15) #\()
-                 #(tag-sym #(10 16) "sign")
-                 #(tag-sym #(10 21) "f")
-                 #(tag-dot #(10 22) #\.)
-                 #(tag-lbrk #(10 23) #\[)
-                 #(tag-sym #(10 24) "b")
-                 #(tag-rbrk #(10 25) #\])
-                 #(tag-rprn #(10 26) #\))
-                 #(tag-eq #(10 28) "=")
-                 #(tag-lprn #(10 30) #\()
-                 #(tag-sym #(10 31) "sign")
-                 #(tag-sym #(10 36) "f")
-                 #(tag-dot #(10 37) #\.)
-                 #(tag-lbrk #(10 38) #\[)
-                 #(tag-sym #(10 39) "x")
-                 #(tag-rbrk #(10 40) #\])
-                 #(tag-rprn #(10 41) #\))
-                 #(tag-from #(10 43) "->")
-                 #(tag-sym #(10 46) "mid")
-                 #(tag-sym #(10 50) "a")
-                 #(tag-sym #(10 52) "x")
-                 #(tag-bor #(11 13) "|")
-                 #(tag-from #(11 39) "->")
-                 #(tag-sym #(11 42) "mid")
-                 #(tag-sym #(11 46) "x")
-                 #(tag-sym #(11 48) "b")
-                 #(tag-kw #(13 5) "if")
-                 #(tag-bor #(13 8) "|")
-                 #(tag-sym #(13 10) "f")
-                 #(tag-dot #(13 11) #\.)
-                 #(tag-lbrk #(13 12) #\[)
-                 #(tag-sym #(13 13) "a")
-                 #(tag-rbrk #(13 14) #\])
-                 #(tag-eq #(13 16) "=")
-                 #(tag-num #(13 18) 0)
-                 #(tag-from #(13 20) "->")
-                 #(tag-sym #(13 23) "a")
-                 #(tag-bor #(14 8) "|")
-                 #(tag-sym #(14 10) "f")
-                 #(tag-dot #(14 11) #\.)
-                 #(tag-lbrk #(14 12) #\[)
-                 #(tag-sym #(14 13) "b")
-                 #(tag-rbrk #(14 14) #\])
-                 #(tag-eq #(14 16) "=")
-                 #(tag-num #(14 18) 0)
-                 #(tag-from #(14 20) "->")
-                 #(tag-sym #(14 23) "b")
-                 #(tag-bor #(15 8) "|")
-                 #(tag-from #(15 18) "->")
-                 #(tag-sym #(15 21) "mid")
-                 #(tag-sym #(15 25) "a")
-                 #(tag-sym #(15 27) "b")
-                 #(tag-sym #(17 1) "bisection")
-                 #(tag-kw #(17 11) "cos")
-                 #(tag-num #(17 15) -3.0)
-                 #(tag-num #(17 20) 0.0)
-                 #(tag-num #(17 24) 0.001)))
+(define tokens '(#(tag-sym #(1 1) "newton")
+                 #(tag-sym #(1 8) "f")
+                 #(tag-sym #(1 10) "df")
+                 #(tag-sym #(1 13) "x")
+                 #(tag-sym #(1 15) "e")
+                 #(tag-to #(1 17) "<-")
+                 #(tag-kw #(2 5) "if")
+                 #(tag-bor #(2 9) "|")
+                 #(tag-lprn #(2 11) #\()
+                 #(tag-kw #(2 12) "abs")
+                 #(tag-sym #(2 13) "f")
+                 #(tag-sym #(2 15) "x")
+                 #(tag-rprn #(2 16) #\))
+                 #(tag-lwr #(2 18) "<")
+                 #(tag-sym #(2 20) "e")
+                 #(tag-from #(2 22) "->")
+                 #(tag-sym #(2 25) "x")
+                 #(tag-bor #(3 9) "|")
+                 #(tag-from #(3 23) "->")
+                 #(tag-sym #(3 26) "newton")
+                 #(tag-sym #(3 33) "f")
+                 #(tag-sym #(3 35) "df")
+                 #(tag-lprn #(3 38) #\()
+                 #(tag-sym #(3 39) "x")
+                 #(tag-mns #(3 41) "-")
+                 #(tag-sym #(3 43) "f")
+                 #(tag-dot #(3 44) #\.)
+                 #(tag-lbrk #(3 45) #\[)
+                 #(tag-sym #(3 46) "x")
+                 #(tag-rbrk #(3 47) #\])
+                 #(tag-rem #(3 49) "/")
+                 #(tag-sym #(3 51) "df")
+                 #(tag-dot #(3 53) #\.)
+                 #(tag-lbrk #(3 54) #\[)
+                 #(tag-sym #(3 55) "x")
+                 #(tag-rbrk #(3 56) #\])
+                 #(tag-rprn #(3 57) #\))
+                 #(tag-sym #(3 59) "e")
+                 #(tag-sym #(5 1) "golden")
+                 #(tag-sym #(5 8) "f")
+                 #(tag-sym #(5 10) "x0")
+                 #(tag-sym #(5 13) "x1")
+                 #(tag-sym #(5 16) "e")
+                 #(tag-to #(5 18) "<-")
+                 #(tag-sym #(6 5) "fi")
+                 #(tag-to #(6 8) "<-")
+                 #(tag-lprn #(6 11) #\()
+                 #(tag-lprn #(6 12) #\()
+                 #(tag-kw #(6 13) "sqrt")
+                 #(tag-num #(6 14) 5)
+                 #(tag-rprn #(6 15) #\))
+                 #(tag-pls #(6 17) "+")
+                 #(tag-num #(6 19) 1)
+                 #(tag-rprn #(6 20) #\))
+                 #(tag-rem #(6 22) "/")
+                 #(tag-num #(6 24) 2)
+                 #(tag-sym #(8 5) "loop")
+                 #(tag-sym #(8 10) "f")
+                 #(tag-sym #(8 12) "x0")
+                 #(tag-sym #(8 15) "x1")
+                 #(tag-sym #(8 18) "e")
+                 #(tag-to #(8 20) "<-")
+                 #(tag-sym #(9 9) "a")
+                 #(tag-to #(9 11) "<-")
+                 #(tag-sym #(9 14) "x1")
+                 #(tag-mns #(9 17) "-")
+                 #(tag-lprn #(9 19) #\()
+                 #(tag-sym #(9 20) "x1")
+                 #(tag-mns #(9 23) "-")
+                 #(tag-sym #(9 25) "x0")
+                 #(tag-rprn #(9 27) #\))
+                 #(tag-rem #(9 29) "/")
+                 #(tag-sym #(9 31) "fi")
+                 #(tag-sym #(10 9) "b")
+                 #(tag-to #(10 11) "<-")
+                 #(tag-sym #(10 14) "x0")
+                 #(tag-pls #(10 17) "+")
+                 #(tag-lprn #(10 19) #\()
+                 #(tag-sym #(10 20) "x1")
+                 #(tag-mns #(10 23) "-")
+                 #(tag-sym #(10 25) "x0")
+                 #(tag-rprn #(10 27) #\))
+                 #(tag-rem #(10 29) "/")
+                 #(tag-sym #(10 31) "fi")
+                 #(tag-kw #(12 9) "if")
+                 #(tag-bor #(12 13) "|")
+                 #(tag-sym #(12 15) "f")
+                 #(tag-dot #(12 16) #\.)
+                 #(tag-lbrk #(12 17) #\[)
+                 #(tag-sym #(12 18) "a")
+                 #(tag-rbrk #(12 19) #\])
+                 #(tag-heq #(12 21) ">=")
+                 #(tag-sym #(12 24) "f")
+                 #(tag-dot #(12 25) #\.)
+                 #(tag-lbrk #(12 26) #\[)
+                 #(tag-sym #(12 27) "b")
+                 #(tag-rbrk #(12 28) #\])
+                 #(tag-from #(12 30) "->")
+                 #(tag-kw #(13 17) "if")
+                 #(tag-bor #(13 21) "|")
+                 #(tag-lprn #(13 23) #\()
+                 #(tag-kw #(13 24) "abs")
+                 #(tag-sym #(13 25) "x1")
+                 #(tag-mns #(13 28) "-")
+                 #(tag-sym #(13 30) "a")
+                 #(tag-rprn #(13 31) #\))
+                 #(tag-lwr #(13 33) "<")
+                 #(tag-sym #(13 35) "e")
+                 #(tag-from #(13 37) "->")
+                 #(tag-lprn #(13 40) #\()
+                 #(tag-sym #(13 41) "a")
+                 #(tag-pls #(13 43) "+")
+                 #(tag-sym #(13 45) "x1")
+                 #(tag-rprn #(13 47) #\))
+                 #(tag-rem #(13 49) "/")
+                 #(tag-num #(13 51) 2)
+                 #(tag-bor #(14 21) "|")
+                 #(tag-from #(14 40) "->")
+                 #(tag-sym #(14 43) "loop")
+                 #(tag-sym #(14 48) "f")
+                 #(tag-sym #(14 50) "a")
+                 #(tag-sym #(14 52) "x1")
+                 #(tag-sym #(14 55) "e")
+                 #(tag-bor #(15 13) "|")
+                 #(tag-from #(15 15) "->")
+                 #(tag-kw #(16 17) "if")
+                 #(tag-bor #(16 21) "|")
+                 #(tag-lprn #(16 23) #\()
+                 #(tag-kw #(16 24) "abs")
+                 #(tag-sym #(16 25) "b")
+                 #(tag-mns #(16 27) "-")
+                 #(tag-sym #(16 29) "x0")
+                 #(tag-rprn #(16 31) #\))
+                 #(tag-lwr #(16 33) "<")
+                 #(tag-sym #(16 35) "e")
+                 #(tag-from #(16 37) "->")
+                 #(tag-lprn #(16 40) #\()
+                 #(tag-sym #(16 41) "x0")
+                 #(tag-pls #(16 44) "+")
+                 #(tag-sym #(16 46) "b")
+                 #(tag-rprn #(16 47) #\))
+                 #(tag-rem #(16 49) "/")
+                 #(tag-num #(16 51) 2)
+                 #(tag-bor #(17 21) "|")
+                 #(tag-from #(17 40) "->")
+                 #(tag-sym #(17 43) "loop")
+                 #(tag-sym #(17 48) "f")
+                 #(tag-sym #(17 50) "x0")
+                 #(tag-sym #(17 53) "b")
+                 #(tag-sym #(17 55) "e")
+                 #(tag-sym #(19 5) "loop")
+                 #(tag-sym #(19 10) "f")
+                 #(tag-sym #(19 12) "x0")
+                 #(tag-sym #(19 15) "x1")
+                 #(tag-sym #(19 18) "e")
+                 #(tag-kw #(21 1) "round")
+                 #(tag-sym #(21 7) "newton")
+                 #(tag-lmbd #(21 14) "\\")
+                 #(tag-sym #(21 16) "x")
+                 #(tag-from #(21 18) "->")
+                 #(tag-sym #(21 21) "x")
+                 #(tag-pow #(21 23) "**")
+                 #(tag-num #(21 26) 2)
+                 #(tag-lmbd #(22 14) "\\")
+                 #(tag-sym #(22 16) "x")
+                 #(tag-from #(22 18) "->")
+                 #(tag-num #(22 21) 2)
+                 #(tag-mul #(22 23) "*")
+                 #(tag-sym #(22 25) "x")
+                 #(tag-num #(23 14) 1.0)
+                 #(tag-num #(24 14) 1e-08)
+                 #(tag-kw #(26 1) "round")
+                 #(tag-sym #(26 7) "newton")
+                 #(tag-lmbd #(26 14) "\\")
+                 #(tag-sym #(26 16) "x")
+                 #(tag-from #(26 18) "->")
+                 #(tag-sym #(26 21) "x")
+                 #(tag-pow #(26 23) "**")
+                 #(tag-num #(26 26) 2)
+                 #(tag-pls #(26 28) "+")
+                 #(tag-num #(26 30) 4)
+                 #(tag-mul #(26 32) "*")
+                 #(tag-sym #(26 34) "x")
+                 #(tag-pls #(26 36) "+")
+                 #(tag-num #(26 38) 4)
+                 #(tag-lmbd #(27 14) "\\")
+                 #(tag-sym #(27 16) "x")
+                 #(tag-from #(27 18) "->")
+                 #(tag-num #(27 21) 2)
+                 #(tag-mul #(27 23) "*")
+                 #(tag-sym #(27 25) "x")
+                 #(tag-pls #(27 27) "+")
+                 #(tag-num #(27 29) 4)
+                 #(tag-num #(28 14) 5.0)
+                 #(tag-num #(29 14) 1e-08)
+                 #(tag-kw #(31 1) "round")
+                 #(tag-sym #(31 7) "golden")
+                 #(tag-lmbd #(31 14) "\\")
+                 #(tag-sym #(31 16) "x")
+                 #(tag-from #(31 18) "->")
+                 #(tag-sym #(31 21) "x")
+                 #(tag-pow #(31 23) "**")
+                 #(tag-num #(31 26) 2)
+                 #(tag-num #(32 14) -2.0)
+                 #(tag-num #(33 14) 2.0)
+                 #(tag-num #(34 14) 1e-08)
+                 #(tag-kw #(36 1) "round")
+                 #(tag-sym #(36 7) "newton")
+                 #(tag-lmbd #(36 14) "\\")
+                 #(tag-sym #(36 16) "x")
+                 #(tag-from #(36 18) "->")
+                 #(tag-sym #(36 21) "x")
+                 #(tag-pow #(36 23) "**")
+                 #(tag-num #(36 26) 2)
+                 #(tag-pls #(36 28) "+")
+                 #(tag-num #(36 30) 4)
+                 #(tag-mul #(36 32) "*")
+                 #(tag-sym #(36 34) "x")
+                 #(tag-pls #(36 36) "+")
+                 #(tag-num #(36 38) 4)
+                 #(tag-num #(37 14) -5.0)
+                 #(tag-num #(38 14) 5.0)
+                 #(tag-num #(39 14) 1e-06)
+                 #(tag-num #(41 1) 5)
+                 #(tag-pls #(41 3) "+")
+                 #(tag-num #(41 5) 6)
+                 #(tag-not #(43 1) "!")
+                 #(tag-num #(43 3) 8)))
 
 (define-syntax neq?
   (syntax-rules ()
@@ -359,7 +483,7 @@
                                           second-rule-args)))
                                  (and error-name (add-error error-name))))))))
 
-      (define (syntax-array-simple start-pos)
+      #|(define (syntax-array-simple start-pos)
         (define ast-list '())
         (if (start-in? start-pos)
             (let ((first-rule (simple-rule start-pos 'open-braket 'tag-lbrk)))
@@ -378,9 +502,9 @@
                                                      (list last-rule)))))
                        (add-error ERR_NO_CLOSE_BRK))
                    (list (vector 'array-simple ast-list))))
-            ast-list))
+            ast-list))|#
 
-      (define (syntax-array start-pos args-can-be-exprs?)
+      (define (syntax-array start-pos array-in-expr?)
         (define ast-list '())
         (and (start-in? start-pos)
              (let ((first-rule (simple-rule start-pos 'open-braket 'tag-lbrk)))
@@ -389,8 +513,8 @@
                     (set! ast-list (cons first-rule
                                          (syntax-arguments (get-simple-start-pos 
                                                             first-rule)
-                                                           args-can-be-exprs?
-                                                           args-can-be-exprs?
+                                                           (and array-in-expr?
+                                                                ARGS-WITHOUT-F-CALLS)
                                                            ARGS-CAN-BE-CONT)))
                     (or (let ((last-rule (simple-rule start-pos
                                                       'close-braket
@@ -421,16 +545,15 @@
                            '()
                            ERR_NO_CONTINUOUS))
 
-      (define (syntax-arg-continuous start-pos args-can-be-exprs?)
+      (define (syntax-arg-continuous start-pos args-expr-type)
         (and (start-in? start-pos)
-             (if args-can-be-exprs?
+             (if args-expr-type
                  (let ((cont (syntax-continuous start-pos)))
                    (and cont (list cont)))
                  (let ((cont (syntax-continuous-simple start-pos)))
                    (and cont
                         (or (not (syntax-argument start-pos
-                                                  args-can-be-exprs?
-                                                  args-can-be-exprs?
+                                                  args-expr-type
                                                   ARGS-CANT-BE-CONT))
                             (add-error ERR_AFTER_continuous))
                         (list cont))))))
@@ -441,7 +564,7 @@
                            `(,simple-rule ,start-pos 'apply-dot 'tag-dot)
                            syntax-rule-
                            syntax-argument
-                           '(ARGS-CAN-BE-EXPRS ARGS-CAN-BE-FUNCS ARGS-CAN-BE-CONT)
+                           '(ARGS-ONLY-ARRAY ARGS-CANT-BE-CONT)
                            ERR_INCORRECT_APPLY))
 
       (define (syntax-simple-or-apply start-pos)
@@ -456,18 +579,37 @@
                     (let* ((name-token (get-simple-rule-token name))
                            (:apply (syntax-apply (get-token-pos name-token))))
                       (if :apply
-                          (make-syntax-expr (vector 'func-decl
-                                                    (list (vector 'func-name
-                                                                  name-token)
-                                                          (vector 'argument
-                                                                  (list :apply)))))
+                          (vector 'func-decl
+                                  (list (vector 'func-name
+                                                name-token)
+                                        (vector 'argument
+                                                (list :apply))))
                           name))))))
 
       (define (syntax-argument start-pos
-                               args-can-be-exprs?
-                               args-can-be-funcs?
+                               args-expr-type
                                args-can-be-cont?)
         (and (start-in? start-pos)
+             (let* ((arg (or (and (not args-expr-type)
+                                  (simple-rule start-pos
+                                               'simple-argument
+                                               'tag-sym
+                                               'tag-kw
+                                               'tag-str
+                                               'tag-num
+                                               'tag-fls
+                                               'tag-true))
+                             (syntax-array start-pos args-expr-type)
+                             (and args-can-be-cont?
+                                  (syntax-arg-continuous start-pos
+                                                         args-expr-type))
+                             (and (eq? ARGS-IN-DECL-EXPR args-expr-type)
+                                  (or (syntax-apply start-pos)
+                                      (let ((sa (syntax-simple-or-apply start-pos)))
+                                            (and sa (make-syntax-expr sa)))))
+                             (and args-expr-type
+                                  (syntax-expr start-pos args-expr-type))))
+             #|                ))))
              (let* ((arg (or (and (not args-can-be-funcs?)
                                   (syntax-simple-or-apply start-pos))
                              (syntax-array start-pos args-can-be-exprs?)
@@ -477,19 +619,16 @@
                              (and args-can-be-exprs? (syntax-apply start-pos))
                              (and args-can-be-exprs?
                                   (syntax-expr start-pos
-                                               (not args-can-be-cont?)))))
+                                               (not args-can-be-cont?)))))|#
                     (larg (if (list? arg) arg (list arg))))
-               ;(print 'syntax-argument token (not args-can-be-funcs?) arg)
                (and arg (vector 'argument larg)))))
 
       (define (syntax-arguments start-pos
-                                args-can-be-exprs?
-                                args-can-be-funcs?
+                                args-expr-type
                                 args-can-be-cont?)
         (define (helper ast-list)
           (let ((arg (syntax-argument start-pos
-                                      args-can-be-exprs?
-                                      args-can-be-funcs?
+                                      args-expr-type
                                       args-can-be-cont?)))
             (or (and arg (helper (cons arg ast-list)))
                 (reverse ast-list))))
@@ -498,7 +637,7 @@
       (define (syntax-func-lambda-decl start-pos
                                        name-rule-args
                                        rule-name
-                                       args-can-be-exprs?
+                                       args-expr-type
                                        args-can-be-cont?)
         (and (start-in? start-pos)
              (let ((first-rule (apply simple-rule
@@ -508,17 +647,18 @@
                             (cons first-rule
                                   (syntax-rule? syntax-arguments
                                                 (get-simple-start-pos first-rule)
-                                                args-can-be-exprs?
-                                                ARGS-CANT-BE-FUNCS
+                                                args-expr-type
                                                 args-can-be-cont?)))))))
 
       (define (syntax-func-declaration start-pos
-                                       args-can-be-exprs?
+                                       decl-in-expr?
                                        args-can-be-cont?)
+        
         (syntax-func-lambda-decl start-pos
                                  '(func-name tag-sym)
                                  'func-decl
-                                 args-can-be-exprs?
+                                 (and decl-in-expr?
+                                      ARGS-IN-DECL-EXPR)
                                  args-can-be-cont?))
 
       (define (syntax-func-body start-pos)
@@ -536,7 +676,7 @@
                                `(,simple-rule ,start-pos 'if-cond 'tag-bor)
                                `(cons (let ((expr (,syntax-rule? ,syntax-expr
                                                                  ,start-pos
-                                                                 ,ARGS-CAN-BE-CONT)))
+                                                                 ,ARGS-CAN-BE-EXPRS)))
                                         (if (and (list? expr) (null? expr))
                                             (,get-true-expr)
                                             expr))
@@ -555,14 +695,14 @@
       (define (syntax-rule- rule . args)
         (apply rule args))
 
-      (define (get-lambda-rules start-pos)
+      #|(define (get-lambda-rules start-pos)
         ;(print 'get-lambda-rules start-pos)
         (cons (syntax-arguments start-pos
                                 ARGS-CANT-BE-EXPRS
                                 ARGS-CANT-BE-FUNCS
                                 ARGS-CAN-BE-CONT)
               (or (syntax-lambda-body start-pos)
-                  (add-error ERROR_NO_TAG_TO))))
+                  (add-error ERROR_NO_TAG_TO))))|#
 
       (define (syntax-lambda start-pos)
         (let ((func-decl (syntax-func-lambda-decl start-pos
@@ -577,23 +717,24 @@
                           (vector 'lambda-func
                                   (cons func-decl func-body))))))))
 
-      (define (syntax-expr start-pos args-can-be-cont? . func-decl?)
-        ;(print 'syntax-expr token args)
+      (define (syntax-expr start-pos expr-type . func-decl?)
         (if (eq? (get-token-tag token) 'tag-end)
             (and (not-null? func-decl?)
                  (make-syntax-expr (car func-decl?)))
             (make-syntax-expr (or (syntax-array start-pos ARGS-CAN-BE-FUNCS)
                                   (syntax-if start-pos)
-                                  (syntax-lambda start-pos)
-                                  (apply shunting-yard
-                                         (append (list start-pos
-                                                       args-can-be-cont?)
-                                               func-decl?))))))
-    
-      (define (shunting-yard start-pos args-can-be-cont? . out)
+                                  (and (neq? expr-type ARGS-ONLY-ARRAY)
+                                       (or (syntax-lambda start-pos)
+                                           (apply shunting-yard
+                                                  (append (list start-pos
+                                                                expr-type)
+                                                          func-decl?))))))))
+
+      (define (shunting-yard start-pos expr-type . out)
         ;(print 'shunting-yard token start-pos out)
         (define stack '())
         (define start-flag #t)
+        (define start-pos-changed? #f)
 
         (define (op? t)
           (or (x-in-xs? (get-token-tag t)
@@ -613,11 +754,11 @@
                  (x-in-xs? val "sin" "cos" "tg" "ctg"))))
 
         (define (is-unar-func? val)
-          (or (x-in-xs? val "zero?" "odd?" "even?" "null?" "not" "abs" "!")
+          (or (x-in-xs? val "zero?" "odd?" "even?" "null?" "not" "abs" "!" "round" "sqrt")
               (trigonometric)))
 
         (define (is-binar-func? val)
-          (x-in-xs? val "eq?" "eqv?" "equal?" "gcd" "lcm"))
+          (x-in-xs? val "eq?" "eqv?" "equal?" "gcd" "lcm" "expt"))
 
         (define (is-nar-func? val)
           (x-in-xs? val "and" "or"))
@@ -648,6 +789,13 @@
         (define (unar? t)
           (x-in-xs? t 'tag-not))
 
+        (define (get-pos t)
+          (let ((tag (get-token-tag t)))
+            (cond ((eq? tag 'simple-argument) (get-simple-start-pos t))
+                  ((eq? tag 'func-decl)       (get-simple-start-pos
+                                               (car (get-rule-list t))))
+                  (else                       (get-token-pos t)))))
+
         (define (try-get)
           (set! start-flag (> (get-token-pos token) start-pos))
           (and start-flag
@@ -666,9 +814,15 @@
                                     (or (null? out)
                                         (> (prior (car (reverse out))) 0)
                                         (not-null? stack))))
-                      (proc (syntax-func-declaration start-pos
-                                                     ARGS-CAN-BE-FUNCS
-                                                     args-can-be-cont?))
+                      (proc (and (or (null? out)
+                                     (> (prior (car (reverse out))) 0)
+                                     (not-null? stack))
+                                 (if (neq? expr-type ARGS-WITHOUT-F-CALLS)
+                                     (syntax-func-declaration start-pos
+                                                              ARGS-CAN-BE-EXPRS
+                                                              (neq? expr-type
+                                                                    ARGS-IN-DECL-EXPR))
+                                     (syntax-simple-or-apply start-pos))))
                       (flag #f)
                       (end-flag #f))
                  (and (cond (valid-op             (op-to-out op)
@@ -685,6 +839,14 @@
                                                            (set! start-flag #f))))
                             (else                 (set! start-flag #f)
                                                   #f))
+                      (or start-pos-changed?
+                          (and (set! start-pos
+                                     (or (and (not-null? out)
+                                              (get-pos (car out)))
+                                         (and (not-null? stack)
+                                              (get-pos (car stack)))
+                                         start-pos))
+                               (set! start-pos-changed? #t)))
                       (cond (end-flag #f)
                             (flag     (try-get))
                             (else     (and (next-token)
@@ -727,21 +889,34 @@
                (reverse out)))
 
         (define def #f)
-        (if (and (not-null? out)
-                 (> (get-token-pos token) start-pos)
-                 (not (> (prior token) 0)))
-            (begin (set! def (car out))
-                   (set! out '())
-                   (let ((res-out (shunting-alg)))
-                     (if res-out
-                         (begin (vector-set! def
-                                             R-TERMS
-                                             (cdns (vector 'argument
-                                                           (list res-out))
-                                                   (get-rule-list def)))
-                                def)
-                         def)))
-            (shunting-alg)))
+
+        (define (shunting-alg-expr)
+          (if (and (not-null? out)
+                   (> (get-token-pos token) start-pos)
+                   (not (> (prior token) 0)))
+              (begin (set! def (car out))
+                     (set! start-pos-changed? #t)
+                     (set! out '())
+                     (let ((res-out (shunting-alg)))
+                       (if res-out
+                           (begin (vector-set! def
+                                               R-TERMS
+                                               (cdns (vector 'argument
+                                                             (list res-out))
+                                                     (get-rule-list def)))
+                                  def)
+                           def)))
+              (shunting-alg)))
+        
+        (if (eq? expr-type ARGS-IN-DECL-EXPR)
+            (and (x-in-xs? (get-token-tag token)
+                          'tag-num
+                          'tag-str
+                          'tag-fls
+                          'tag-true
+                          'tag-lprn)
+                 (shunting-alg-expr))
+            (shunting-alg-expr)))
 
       (define (syntax-scheme start-pos)
         (syntax-whole-rule 'scheme
@@ -754,7 +929,7 @@
 
       (define (syntax-program start-pos)
         (let ((func-decl (syntax-func-declaration start-pos
-                                                  ARGS-CANT-BE-FUNCS
+                                                  ARGS-CANT-BE-EXPRS
                                                   ARGS-CAN-BE-CONT)))
           (or (and func-decl
                    (let* ((new-start-pos (get-expr-start-pos func-decl))
@@ -763,15 +938,14 @@
                               (vector 'func-def
                                       (cons func-decl func-body)))
                          (let ((func-args (syntax-arguments new-start-pos
-                                                            ARGS-CAN-BE-EXPRS
-                                                            ARGS-CANT-BE-FUNCS
+                                                            ARGS-IN-DECL-EXPR
                                                             ARGS-CAN-BE-CONT)))
                            (syntax-expr new-start-pos
-                                        ARGS-CAN-BE-CONT
+                                        ARGS-CAN-BE-EXPRS
                                         (append-to-rule-list func-decl
                                                              func-args))))))
               (syntax-scheme start-pos)
-              (syntax-expr start-pos ARGS-CAN-BE-CONT))))
+              (syntax-expr start-pos ARGS-CAN-BE-EXPRS))))
 
       (let ((ast (syntax-rule+ syntax-program 0)))
         (and (neq? (get-token-tag token) 'tag-end)

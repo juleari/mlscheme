@@ -151,7 +151,7 @@
   (x-in-xs? t "+" "-" "/" "%" "*" "//" ">" "<" ">=" "<=" "=" "!=" "++" "&&" "||"))
 
 (define (is-uop? x)
-  (x-in-xs? x "abs" "zero?" "null?"))
+  (x-in-xs? x "zero?" "null?" "odd?" "even?" "abs" "not" "round" "sqrt"))
 
 (define (x-in-xs? x . xs)
   (and (not-null? xs)
