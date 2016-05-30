@@ -107,8 +107,8 @@
                (correct-types (filter (lambda (type)
                                         ((eval-i (get-args-num-from-type type)) arg-len))
                                       func-types)))
-          ;(print 'semantic-func-call1 name arg-len func-types)
-          (and (not-null? correct-types)
+          ;(print 'semantic-func-call1 name arg-len func-types correct-types)
+          (and (not-null? func-types)
                (or  (and (zero? arg-len)
                          (or (and (> (length func-types) (length correct-types))
                                   (list ':func-call name))
@@ -117,10 +117,11 @@
                                              (get-arg-value (car (get-rule-terms arg))
                                                             model))
                                            args)))
-                      ;(print 'semantic-func-call2 name arg-values)
-                      (if (is-apply? arg-values)
-                          (list ':func-call "apply" name (caar arg-values))
-                          (append (list ':func-call name) arg-values)))))))
+                      ;(print 'semantic-func-call2 name arg-values (is-apply? arg-values))
+                      (or (and (is-apply? arg-values)
+                               (list ':func-call "apply" name (caar arg-values)))
+                          (and (not-null? correct-types)
+                               (append (list ':func-call name) arg-values))))))))
 
       ;; надо связывать индексы в списке с функциями сравнения
       ;; для тех элементов, которые являются символами нужно хранить имена... ЖИЗНЬ БОЛЬ
@@ -148,8 +149,9 @@
         (let* ((terms       (get-rule-terms argument))
                (f-term      (car terms))
                (f-term-name (get-rule-name f-term)))
-          ;(print 'argument-to-expr f-term-name)
           (cond ((eq? f-term-name 'simple-argument) (get-simple-arg-value f-term))
+                ((eq? f-term-name 'array-simple)    (semantic-expr-arr (get-rule-terms f-term)
+                                                                       model))
                 ((eq? f-term-name 'continuous)      (get-continuous-expr f-term model))
                 ((eq? f-term-name 'func-decl)       (car (semantic-expr terms model)))
                 ((eq? f-term-name 'expr)            (semantic-expr (get-rule-terms f-term)
@@ -185,7 +187,8 @@
                                                                     model)))
                 ((eq? name 'continuous)      (cons (get-arg-value (cadr (get-rule-terms arg-rule))
                                                                   model)
-                                                   '(:apply))))))
+                                                   '(:apply)))
+                ((eq? name 'func-decl)       (semantic-var (get-rule-terms arg-rule) model)))))
       ;; if-cond: (#if-cond
       ;;           #expr
       ;;           #then
@@ -226,6 +229,7 @@
                 ((eq? type 'array-simple)   (semantic-expr-arr (get-rule-terms elem) model))
                 ((eq? type 'if-expression)  (semantic-if-expr (get-rule-terms elem) model))
                 ((eq? type 'lambda-func)    (semantic-lambda (get-rule-terms elem) model))
+                ((eq? type 'apply)          (get-arg-value elem model))
                 ((eq? type 'simple-argument)(get-simple-arg-value elem))
                 (else                       (get-token-value elem)))))
 
