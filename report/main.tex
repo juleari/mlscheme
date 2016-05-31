@@ -73,13 +73,32 @@
 \DeclareGraphicsExtensions{{.jpg}}
 \usepackage{color, colortbl}
 
+
+\usepackage[pdftex]{graphicx}  % поддержка картинок для пдф
+\usepackage{rotating}
+\usepackage{graphicx}
+
+\usepackage{tikz} %для рисования графиков
+\usepackage{pgfplots}
+\usepackage{rotating}
+\newcommand*\rot{\rotatebox{90}}
+
+\usepackage{ccaption}%изменяет подпись к рисунку
+\makeatletter 
+\renewcommand{\fnum@figure}[1]{Рисунок~\thefigure~---~\sffamily}
+\makeatother
+
+\newcommand{\specialcell}[2][c]{%
+   \begin{tabular}[#1]{@{}c@{}}#2\end{tabular}}
+
 \begin{document}
-    %\include{titlepage}
+    \include{titlepage}
 
     \tableofcontents
     \clearpage
 
-    \include{part1}
+    %\include{part1}
+    \include{economic}
     \include{bible}
 
 \clearpage
