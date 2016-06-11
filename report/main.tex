@@ -92,14 +92,25 @@
    \begin{tabular}[#1]{@{}c@{}}#2\end{tabular}}
 
 \begin{document}
-    \include{titlepage}
+    \include{parts/titlepage}
 
     \tableofcontents
     \clearpage
-
-    %\include{part1}
-    \include{economic}
-    \include{bible}
+    \include{parts/intro}
+    \clearpage
+    \include{parts/langs_proto}
+    \clearpage
+    \include{parts/syntax}
+    \clearpage
+    \include{parts/realize}
+    \clearpage
+    \include{parts/components}
+    \clearpage
+    \include{parts/economy}
+    \clearpage
+    \include{parts/examples}
+    \clearpage
+    \include{parts/bible}
 
 \clearpage
 \end{document}
