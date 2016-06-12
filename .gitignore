@@ -15,11 +15,6 @@ tz/*
 *.ppt
 *.pptx
 *.scm#1#
-
-*.sm~
-
-*.sm~
-
 *.sm~
 
 examples/sample1.sm~
@@ -42,6 +37,4 @@ dev/generated.scm
 
 *.toc
 
-*.toc
-
-report/main.toc
+report/*.toc
