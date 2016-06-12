@@ -39,3 +39,9 @@ dev/generated.sm
 *.sm#1#
 
 dev/generated.scm
+
+*.toc
+
+*.toc
+
+report/main.toc
