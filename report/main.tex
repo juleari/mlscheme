@@ -1,9 +1,10 @@
-\documentclass[12pt]{article}
+\documentclass[14pt]{extarticle}
 
+\usepackage[14]{extsizes}
 \usepackage{ucs}
-\usepackage{amsmath}                    % gather* для вывода формул по центру страницы
-\usepackage[utf8x]{inputenc}        % Включаем поддержку UTF8
-\usepackage[russian]{babel}         % Включаем пакет для поддержки русского языка
+\usepackage{amsmath}            % gather* для вывода формул по центру страницы
+\usepackage[utf8x]{inputenc}    % Включаем поддержку UTF8
+\usepackage[russian]{babel}     % Включаем пакет для поддержки русского языка
 
 \usepackage[
     left=2cm,           % Поле левое : 200 мм
@@ -18,7 +19,7 @@
 \usepackage[pdftex]{graphicx, color}
 \usepackage{color}
 \usepackage{tikz}
-\usepackage{url}            % использование URL в библиографии
+\usepackage{url}                % использование URL в библиографии
 \usepackage{listings}           % использование листингов кода
 \usepackage[nooneline]{caption}
 \captionsetup[table]{justification=raggedleft}
@@ -48,21 +49,21 @@
         numbers=left,
         numberstyle=\tiny,
         numbersep=5pt,
-        stepnumber=1,                   % размер шага между двумя номерами строк
+        stepnumber=1,                % размер шага между двумя номерами строк
         backgroundcolor=\color{white},
         showspaces=false,            % показывать или нет пробелы специальными отступами
         showstringspaces=false,      % показывать или нет пробелы в строках
-        showtabs=false,             % показывать или нет табуляцию в строках
+        showtabs=false,              % показывать или нет табуляцию в строках
         frame=none,
-        tabsize=2,                 % размер табуляции по умолчанию равен 2 пробелам
-        captionpos=t,              % позиция заголовка вверху [t] или внизу [b] 
-        breaklines=true,           % автоматически переносить строки (да\нет)
-        breakatwhitespace=false} % переносить строки только если есть пробел
+        tabsize=2,                   % размер табуляции по умолчанию равен 2 пробелам
+        captionpos=t,                % позиция заголовка вверху [t] или внизу [b] 
+        breaklines=true,             % автоматически переносить строки (да\нет)
+        breakatwhitespace=false}     % переносить строки только если есть пробел
         
 %\input{listings-python.prf}
 \renewcommand{\lstlistingname}{Листинг}
 
-\setcounter{tocdepth}{4}    % chapter, section, subsection, subsubsection и paragraph
+\setcounter{tocdepth}{4}        % chapter, section, subsection, subsubsection и paragraph
 \setcounter{secnumdepth}{4}
 
 \parindent=1,25cm               % красная строка = 1 см
@@ -96,11 +97,11 @@
 
     \tableofcontents
     \clearpage
-    \include{parts/intro}
+    \include{parts/intro} %1
     \clearpage
-    \include{parts/langs_proto}
+    \include{parts/langs_proto} %3
     \clearpage
-    \include{parts/syntax}
+    \include{parts/syntax} %5
     \clearpage
     \include{parts/realize}
     \clearpage
