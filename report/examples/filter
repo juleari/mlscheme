@@ -1,0 +1,4 @@
+filter pred? [] <- []
+filter pred? [x : xs] <-
+    if  | pred? x -> [x] ++ filter pred? xs
+        |         -> filter pred? xs
