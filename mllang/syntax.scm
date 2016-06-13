@@ -388,7 +388,8 @@
                  (x-in-xs? val "sin" "cos" "tg" "ctg"))))
 
         (define (is-unar-func? val)
-          (or (x-in-xs? val "zero?" "odd?" "even?" "null?" "not" "abs" "!" "round" "sqrt")
+          (or (x-in-xs? val "zero?" "odd?" "even?" "null?" "not" "abs" "!" 
+                            "round" "sqrt" "reverse")
               (trigonometric)))
 
         (define (is-binar-func? val)
@@ -574,7 +575,16 @@
                            syntax-rule-
                            simple-rule
                            '(scheme-expr tag-schm)
-                           ERROR_NO_IF_CONDS))
+                           ERROR_NO_SCHEME))
+
+      (define (syntax-export start-pos)
+        (syntax-whole-rule 'export
+                           start-pos
+                           `(,simple-func-name 'export-word "export")
+                           syntax-rule+
+                           simple-rule
+                           '(export-name tag-sym)
+                           ERROR_NO_EXPORTS))
 
       (define (syntax-program start-pos)
         (let ((func-decl (syntax-func-declaration start-pos
@@ -594,6 +604,7 @@
                                         (append-to-rule-list func-decl
                                                              func-args))))))
               (syntax-scheme start-pos)
+              (syntax-export start-pos)
               (syntax-expr start-pos ARGS-CAN-BE-EXPRS))))
 
       (let ((ast (syntax-rule+ syntax-program 0)))

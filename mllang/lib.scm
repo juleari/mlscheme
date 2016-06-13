@@ -249,7 +249,8 @@
       (equal? func-name param)))
 
 (define (make-arg-type)
-  (vector (vector `(lambda (:x) #t) (list) (list)) (list) (list)))
+  (vector (vector `(lambda (:x) #t) (list) (list) `(lambda :args #t))
+          (list) (list)))
 
 (define (make-alist xs)
   (define (helper xs alist)
@@ -287,7 +288,7 @@
   (x-in-xs? t "+" "-" "/" "%" "*" "//" ">" "<" ">=" "<=" "=" "!=" "++" "&&" "||" "**"))
 
 (define (is-uop? x)
-  (x-in-xs? x "zero?" "null?" "odd?" "even?" "abs" "not" "round" "sqrt"))
+  (x-in-xs? x "zero?" "null?" "odd?" "even?" "abs" "not" "round" "sqrt" "reverse"))
 
 (define (op-in-xs? x . xs)
   (and (not-null? xs)
@@ -388,11 +389,13 @@
                      (ind-target 1)
                      (get-arg (lambda (ind) (vector-ref vec ind)))
                      (compare-args (lambda (ind1 ind2)
-                                     (if (equal? (get-arg ind1)
-                                                 (get-arg ind2))
+                                     (if (and (neq? (get-arg ind1) ':continuous)
+                                              (equal? (get-arg ind1)
+                                                      (get-arg ind2)))
                                          (begin (vector-set! vec ind2 (s-name))
                                                 (list (list ind1 ind2)))
                                          (list)))))
+                ;(print 'find-similar args)
                 (letrec ((helper (lambda (ind-source ind-target similar)
                                    (or (and (eq? ind-source len) similar)
                                        (and (>= ind-target len)
@@ -492,10 +495,9 @@
                         ,x))))
 
 (define (is-cont-name? name)
-  ;(print name)
   (and (list? name)
        (not-null? name)
-       (eq? (car name) 'continuous)))
+       (eq? (car name) ':continuous)))
 
 (define (make-lambda-var-from-list xs)
   (if (null? xs)
@@ -545,9 +547,8 @@
          (has-let? (not-null? (filter (lambda (x)
                                         (and (list? x)
                                              (or (null? x)
-                                                 (neq? (car x) 'continuous))))
+                                                 (neq? (car x) ':continuous))))
                                       names))))
-
     (if has-let?
         (let ((cor-names (make-lambda-var-from-list names)))
           (list cor-names (make-let-var-list names cor-names)))
@@ -560,7 +561,7 @@
           ;(print 'get-args-for-check last)
           (if (and (list? last)
                    (not-null? last)
-                   (eq? (car last) 'continuous))
+                   (eq? (car last) ':continuous))
               `(give-first ,name ,(- (length names) 1))
               name))
         name)))

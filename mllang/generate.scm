@@ -90,10 +90,13 @@
   (let* ((name (string->symbol (car def)))
          (types (cdr def)))
     (to-gen-file (if (:and-fold (map check-expr-or-func types))
-                     (let ((type (car (reverse types))))
-                       `(define ,name
-                                ,(generate-let (get-defs-from-type type)
-                                               type)))
+                     (let* ((type (car (reverse types)))
+                            (exprs (get-exprs-from-type type)))
+                       (if (not-null? exprs)  
+                           `(define ,name
+                              ,(generate-let (get-defs-from-type type)
+                                             type))
+                           ""))
                      `(define (,name . :args)
                         ,(generate-func-types types))))))
 

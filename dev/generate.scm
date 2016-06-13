@@ -1,40 +1,20 @@
 ;; examp
-(define v '((("0->1"
-              #(#((lambda (:x) (= :x 1))
-                  ((lambda (:x) (and (list? :x) (null? :x))))
-                  (())
-                  (lambda :args #t))
-                ()
-                (('())))
-              #(#((lambda (:x) (= :x 1))
-                  ((lambda (:x)
-                     (and (list? :x)
-                          (:and-fold
-                           (cons
-                            (>= (length :x) 1)
-                            (map
-                             (lambda (:lambda-i :xi) ((eval-i :lambda-i) :xi))
-                             '((lambda (x) (eqv? x 0)))
-                             (give-first :x 1)))))))
-                  ((:_ (continuous "xs")))
-                  (lambda :args #t))
-                ()
-                (((:func-call append-s (:list (1)) (:list (:func-call "0->1" "xs"))))))
-              #(#((lambda (:x) (= :x 1))
-                  ((lambda (:x)
-                     (and (list? :x)
-                          (:and-fold
-                           (cons
-                            (>= (length :x) 1)
-                            (map
-                             (lambda (:lambda-i :xi) ((eval-i :lambda-i) :xi))
-                             '((lambda (x) #t))
-                             (give-first :x 1)))))))
-                  (("x" (continuous "xs")))
-                  (lambda :args #t))
-                ()
-                (((:func-call append-s (:list ("x")) (:list (:func-call "0->1" "xs"))))))))
-            ((:func-call "0->1" (:qlist 0 2 7 0 5)) (:func-call "0->1" (:qlist 0 1 0 1 0)))))
+(define v '((("insertion-sort"
+   #(#((lambda (:x) #t) () () (lambda :args #t)) () ()))
+  ("selection-sort"
+   #(#((lambda (:x) #t) () () (lambda :args #t)) () ())))
+ ((:scheme
+   "(define (selection-sort pred? xs)\n         (define (min-xs xs x)\n           (cond ((null? xs)         x)\n                 ((pred? (car xs) x) (min-xs (cdr xs) (car xs)))\n                 (else               (min-xs (cdr xs) x))))\n  \n         (define (swap j xs)\n           (let ((xj (list-ref xs j))\n                 (vs (list->vector xs)))\n             (vector-set! vs j (car xs))\n             (vector-set! vs 0 xj)\n             (vector->list vs)))\n  \n         (define (ind x xs)\n           (- (length xs) (length (member x xs))))\n  \n         (define (helper xs)\n           (if (null? xs)\n               '()\n               (let ((x (min-xs xs (car xs))))\n                 (cons x (helper (cdr (swap (ind x xs) xs)))))))\n  \n         (helper xs))")
+  (:scheme
+   "(define (insertion-sort pred? xs)\n         (define (insert xs ys x)\n           (cond ((null? ys) (append xs (list x)))\n                 ((pred? (car ys) x) (insert (append xs (list (car ys))) (cdr ys) x))\n                 (else               (append xs (list x) ys))))\n  \n         (define (helper xs ys)\n           (if (null? ys)\n               xs\n               (helper (insert '() xs (car ys)) (cdr ys))))\n  \n         (helper '() xs))")
+  ((:func-call
+    "selection-sort"
+    (((:lambda ("x" "y") ((("x" "y" "<="))))))
+    (:qlist 9 6 2 4 3 5 7 1 8 0)))
+  ((:func-call
+    "insertion-sort"
+    (((:lambda ("x" "y") ((("x" "y" "<="))))))
+    (:qlist 9 6 2 4 3 5 7 1 8 0))))))
 ;; end examp
 
 ;; defs
@@ -151,7 +131,7 @@
   (x-in-xs? t "+" "-" "/" "%" "*" "//" ">" "<" ">=" "<=" "=" "!=" "++" "&&" "||"))
 
 (define (is-uop? x)
-  (x-in-xs? x "zero?" "null?" "odd?" "even?" "abs" "not" "round" "sqrt"))
+  (x-in-xs? x "zero?" "null?" "odd?" "even?" "abs" "not" "round" "sqrt" "reverse"))
 
 (define (x-in-xs? x . xs)
   (and (not-null? xs)
@@ -212,10 +192,9 @@
            (:and-fold (cdr xs)))))
 
 (define (is-cont-name? name)
-  ;(print name)
   (and (list? name)
        (not-null? name)
-       (eq? (car name) 'continuous)))
+       (eq? (car name) ':continuous)))
 
 (define (make-lambda-var-from-list xs)
   (if (null? xs)
@@ -265,9 +244,8 @@
          (has-let? (not-null? (filter (lambda (x)
                                         (and (list? x)
                                              (or (null? x)
-                                                 (neq? (car x) 'continuous))))
+                                                 (neq? (car x) ':continuous))))
                                       names))))
-
     (if has-let?
         (let ((cor-names (make-lambda-var-from-list names)))
           (list cor-names (make-let-var-list names cor-names)))
@@ -281,7 +259,7 @@
           ;(print 'get-args-for-check last)
           (if (and (list? last)
                    (not-null? last)
-                   (eq? (car last) 'continuous))
+                   (eq? (car last) ':continuous))
               `(give-first ,name ,(- (length names) 1))
               name))
         name)))
@@ -380,10 +358,13 @@
   (let* ((name (string->symbol (car def)))
          (types (cdr def)))
     (to-gen-file (if (:and-fold (map check-expr-or-func types))
-                     (let ((type (car (reverse types))))
-                       `(define ,name
-                                ,(generate-let (get-defs-from-type type)
-                                               type)))
+                     (let* ((type (car (reverse types)))
+                            (exprs (get-exprs-from-type type)))
+                       (if (not-null? exprs)  
+                           `(define ,name
+                              ,(generate-let (get-defs-from-type type)
+                                             type))
+                           ""))
                      `(define (,name . :args)
                         ,(generate-func-types types))))))
 

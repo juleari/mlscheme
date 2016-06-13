@@ -21,7 +21,6 @@ scheme (define (selection-sort pred? xs)
                  (cons x (helper (cdr (swap (ind x xs) xs)))))))
   
          (helper xs))
-
 scheme (define (insertion-sort pred? xs)
          (define (insert xs ys x)
            (cond ((null? ys) (append xs (list x)))
@@ -35,5 +34,9 @@ scheme (define (insertion-sort pred? xs)
   
          (helper '() xs))
 
-scheme (selection-sort <= '(9 6 2 4 3 5 7 1 8 0))
-scheme (insertion-sort <= '(9 6 2 4 3 5 7 1 8 0))
+export selection-sort insertion-sort
+
+selection-sort \ x y -> x <= y 
+               [9 6 2 4 3 5 7 1 8 0]
+insertion-sort \ x y -> x <= y 
+               [9 6 2 4 3 5 7 1 8 0]

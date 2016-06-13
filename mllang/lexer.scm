@@ -1,4 +1,4 @@
-(define kw '(scheme mod if zero? eval abs odd? even? div round
+(define kw '(scheme export mod if zero? eval abs odd? even? div round reverse
              null? not sin cos tg ctg eq? eqv? equal? gcd lcm expt sqrt))
 
 (define (trim? s)

@@ -47,7 +47,7 @@
         (let* ((terms (get-rule-terms cont-rule))
                ; terms : (list 'colon first-term)
                (first-term (cadr terms)))
-          (list 'continuous (get-simple-arg-name first-term))))
+          (list ':continuous (get-simple-arg-name first-term))))
 
       (define (get-name-of-arg arg-rule)
         (let* ((terms (get-rule-terms arg-rule))
@@ -141,7 +141,10 @@
       (define (get-continuous-expr cont-rule model)
         (let* ((terms   (get-rule-terms cont-rule))
                (expr    (cadr terms))
-               (e-terms (get-rule-terms expr)))
+               (e-ts    (get-rule-terms expr))
+               (e-terms (if (list? e-ts)
+                            e-ts
+                            (list e-ts))))
           (semantic-expr e-terms model)))
 
       ;; нужно проверять, что simple-argument в model
@@ -244,6 +247,13 @@
       (define (semantic-scheme terms model)
         (list (list ':scheme (get-simple-arg-value (cadr terms)))))
 
+      (define (semantic-export terms model)
+        (append model
+                (map (lambda (term)
+                       (list (get-token-value (get-token-from-simple-rule term))
+                             (make-arg-type)))
+                     (cadr terms))))
+
       ;; parse exprs after defs
       (define (semantic-program ast model exprs)
         (if (null? ast)
@@ -263,7 +273,11 @@
                     ((eq? name 'scheme)
                      (semantic-program (cdr ast)
                                        model
-                                       (append exprs (semantic-scheme terms model))))))))
+                                       (append exprs (semantic-scheme terms model))))
+                    ((eq? name 'export)
+                     (semantic-program (cdr ast)
+                                       (semantic-export terms model)
+                                       exprs))))))
 
       (let ((m (semantic-program ast '() '())))
         (and (print-errors) m)))))

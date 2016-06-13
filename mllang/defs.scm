@@ -58,3 +58,5 @@
 
 (define ERROR_NUM_OF_ARGS "the expected number of arguments does not match the given number")
 (define ERROR_UNDEFINED_VARIABLE "cannot reference undefined identifier")
+(define ERROR_NO_SCHEME "no scheme-code after key-word 'scheme'")
+(define ERROR_NO_EXPORTS "no export funcs after key-word 'export'")
