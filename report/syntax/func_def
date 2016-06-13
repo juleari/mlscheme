@@ -1,0 +1,6 @@
+FunctionDefinition    ::= FunctionDeclaration '<-' FunctionBody.
+FunctionDeclaration   ::= SimpleIdent ArgumentDeclaration?.
+ArgumentDeclaration   ::= SimpleArgument* ContinuousDeclaration?
+SimpleArgument        ::= SimpleIdent|Number|ListDeclaration.
+ListDeclaration       ::= '['ArgumentDeclaration?']'.
+ContinuousDeclaration ::= ':' SimpleIdent|ListDeclaration.
