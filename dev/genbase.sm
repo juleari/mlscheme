@@ -45,5 +45,5 @@
 (define ++ append)
 (define (&& x y) (and x y))
 
-(define :ERROR_FUNC_CALL "the arguments does not match any types of this function")
+(define :ERROR_FUNC_CALL "RUNTIME-ERROR: the arguments does not match any types of this function")
 
