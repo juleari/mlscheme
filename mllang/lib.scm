@@ -11,7 +11,7 @@
   (syntax-rules ()
     ((_ x) (not (null? x)))))
 
-(define-syntax eval-i
+(define-syntax :eval-i
   (syntax-rules ()
     ((_ x) (eval x (interaction-environment)))))
 
@@ -82,7 +82,7 @@
            (apply x-in-xs? (cons x (cdr xs))))))
 
 (define (make-map-cond if-conds)
-  `(map-cond ,(map (lambda (if-cond)
+  `(:map-cond ,(map (lambda (if-cond)
                      (list (calc-rpn (car if-cond))
                            (calc-rpn (cadr if-cond))))
                    if-conds)))
@@ -279,10 +279,10 @@
 (define (to-sym xs)
   (map string->symbol xs))
 
-(define (hash f-list a-list)
+(define (:hash f-list a-list)
   (or (null? f-list)
-      (and ((eval-i (car f-list)) (car a-list))
-           (hash (cdr f-list) (cdr a-list)))))
+      (and ((:eval-i (car f-list)) (car a-list))
+           (:hash (cdr f-list) (cdr a-list)))))
 
 (define (is-op? t)
   (x-in-xs? t "+" "-" "/" "%" "*" "//" ">" "<" ">=" "<=" "=" "!=" "++" "&&" "||" "**"))
@@ -296,7 +296,7 @@
            (apply op-in-xs? (cons x (cdr xs))))))
 
 (define (is-str-op? s)
-  (procedure? (eval-i (string->symbol s))))
+  (procedure? (:eval-i (string->symbol s))))
 
 ;; new lib
 (define (get-list-inner xs)
@@ -431,7 +431,7 @@
 (define (make-rec-model func-name args-vector)
   (list func-name (vector args-vector (list) (list))))
 
-(define-syntax map-cond
+(define-syntax :map-cond
   (syntax-rules ()
     ((_ ((cond-1 value-1) ...)) (cond (cond-1 value-1) ...))))
 
@@ -488,7 +488,7 @@
 (define (get-array-args-rules l-lambda inner x)
   `(:and-fold (cons ,l-lambda
                    (map (lambda (:lambda-i :xi)
-                          ((eval-i :lambda-i) :xi))
+                          ((:eval-i :lambda-i) :xi))
                         ',(map (lambda (:i)
                                 (get-type-of-arg :i))
                               inner)

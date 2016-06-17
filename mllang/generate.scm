@@ -44,14 +44,14 @@
      ,inner))
 
 (define (generate-func-types types)
-  `(map-cond ,(map (lambda (type)
+  `(:map-cond ,(map (lambda (type)
                      (let* ((lambda-and-let (make-var-lists type))
                             (lambda-list (car lambda-and-let))
                             (lambda-let  (cdr lambda-and-let))
                             (hash-args (get-args-for-check ':args type)))
                        ;(print 'generate-def type)
                        `((and (,(get-args-num-from-type type) (length :args))
-                              (hash ',(get-args-check-from-type type) ,hash-args)
+                              (:hash ',(get-args-check-from-type type) ,hash-args)
                               (,(get-similar-from-type type) :args))
                          (apply (lambda ,lambda-list
                                   ,(if (not-null? lambda-let)
@@ -84,7 +84,7 @@
   (calc-rpn expr))
 
 (define (check-expr-or-func type)
-  ((eval-i (get-args-num-from-type type)) 0))
+  ((:eval-i (get-args-num-from-type type)) 0))
 
 (define (generate-def def)
   (let* ((name (string->symbol (car def)))

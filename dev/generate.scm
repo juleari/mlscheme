@@ -42,7 +42,7 @@
 (define (// a b) (quotient a b))
 (define (% a b) (remainder a b))
 
-(define-syntax eval-i
+(define-syntax :eval-i
   (syntax-rules ()
     ((_ x) (eval x (interaction-environment)))))
 
@@ -107,9 +107,9 @@
 
 (define (hash f-list a-list)
   ;(print 'hash f-list a-list)
-  ;(print ((eval-i (car f-list)) (car a-list)))
+  ;(print ((:eval-i (car f-list)) (car a-list)))
   (or (null? f-list)
-      (and ((eval-i (car f-list)) (car a-list))
+      (and ((:eval-i (car f-list)) (car a-list))
            (hash (cdr f-list) (cdr a-list)))))
 
 (define-syntax neq?
@@ -139,10 +139,10 @@
            (apply x-in-xs? (cons x (cdr xs))))))
 
 (define (is-str-op? s)
-  (procedure? (eval-i (string->symbol s))))
+  (procedure? (:eval-i (string->symbol s))))
 
 (define (make-map-cond if-conds)
-  `(map-cond ,(map (lambda (if-cond)
+  `(:map-cond ,(map (lambda (if-cond)
                      (list (calc-rpn (car if-cond))
                            (calc-rpn (cadr if-cond))))
                    if-conds)))
@@ -162,7 +162,7 @@
         (else x)))
 
 ;; new lib
-(define-syntax map-cond
+(define-syntax :map-cond
   (syntax-rules ()
     ((_ ((cond-1 value-1) ...)) (cond (cond-1 value-1) ...))))
 
@@ -312,14 +312,14 @@
      ,inner))
 
 (define (generate-func-types types)
-  `(map-cond ,(map (lambda (type)
+  `(:map-cond ,(map (lambda (type)
                      (let* ((lambda-and-let (make-var-lists type))
                             (lambda-list (car lambda-and-let))
                             (lambda-let  (cdr lambda-and-let))
                             (hash-args (get-args-for-check ':args type)))
                        ;(print 'generate-def type)
                        `((and (,(get-args-num-from-type type) (length :args))
-                              (hash ',(get-args-check-from-type type) ,hash-args)
+                              (:hash ',(get-args-check-from-type type) ,hash-args)
                               (,(get-similar-from-type type) :args))
                          (apply (lambda ,lambda-list
                                   ,(if (not-null? lambda-let)
@@ -352,7 +352,7 @@
   (calc-rpn expr))
 
 (define (check-expr-or-func type)
-  ((eval-i (get-args-num-from-type type)) 0))
+  ((:eval-i (get-args-num-from-type type)) 0))
 
 (define (generate-def def)
   (let* ((name (string->symbol (car def)))

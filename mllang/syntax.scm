@@ -40,7 +40,7 @@
 
       (define (syntax-rule rule-expr . args)
         ;(print 'syntax-rule rule-expr)
-        (eval-i rule-expr))
+        (:eval-i rule-expr))
 
       (define (syntax-rule? rule . args)
         (or (apply rule args) '()))
@@ -81,7 +81,7 @@
 
       (define (get-first-rule start-pos first-rule-expr)
         (and (start-in? start-pos)
-             (eval-i first-rule-expr)))
+             (:eval-i first-rule-expr)))
 
       (define (get-program-rule start-pos)
         `(or (,syntax-rule+ ,syntax-program ,start-pos)
@@ -98,7 +98,7 @@
         (let ((first-rule (get-first-rule start-pos first-rule-expr)))
           (and first-rule
                (cons first-rule
-                     (eval-i next-rules)))))
+                     (:eval-i next-rules)))))
 
       (define (syntax-whole-rule rule-name
                                  start-pos

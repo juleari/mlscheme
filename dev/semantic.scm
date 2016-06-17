@@ -135,7 +135,7 @@
 ;; end defs
 
 ;; lib
-(define-syntax eval-i
+(define-syntax :eval-i
   (syntax-rules ()
     ((_ x) (eval x (interaction-environment)))))
 
@@ -328,7 +328,7 @@
 (define (get-array-args-rules l-lambda inner x)
   `(:and-fold (cons ,l-lambda
                    (map (lambda (:lambda-i :xi)
-                          ((eval-i :lambda-i) :xi))
+                          ((:eval-i :lambda-i) :xi))
                         ',(map (lambda (:i)
                                 (get-type-of-arg :i))
                               inner)
@@ -688,7 +688,7 @@
         (let* ((name (get-token-value name-token))
                (arg-len (length args))
                (correct-types (filter (lambda (type)
-                                        ((eval-i (get-args-num-from-type type)) arg-len))
+                                        ((:eval-i (get-args-num-from-type type)) arg-len))
                                       func-types)))
           ;(print 'semantic-func-call1 name arg-len func-types correct-types)
           (and (not-null? func-types)
@@ -754,7 +754,7 @@
                      (f-term      (car terms))
                      (f-term-name (get-rule-name f-term)))
                 (if (eq? f-term-name 'continuous)
-                    `(:func-call append-s ,(cons ':list (map (lambda (x) (argument-to-expr x model)) list-elems))
+                    `(:func-call :append-s ,(cons ':list (map (lambda (x) (argument-to-expr x model)) list-elems))
                                  ,(cons ':list (get-continuous-expr f-term model)))
                     `,(cons ':qlist (map (lambda (x) (argument-to-expr x model)) inner)))))))
 
