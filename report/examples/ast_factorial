@@ -1,0 +1,29 @@
+(#(func-def
+   (#(func-decl
+      (#(func-name #(tag-sym #(1 1) "n!"))
+       #(argument (#(simple-argument #(tag-num #(1 4) 0))))))
+    #(func-to #(tag-to #(1 6) "<-"))
+    #(expr (#(tag-num #(1 9) 1)))))
+ #(func-def
+   (#(func-decl
+      (#(func-name #(tag-sym #(2 1) "n!"))
+       #(argument (#(simple-argument #(tag-sym #(2 4) "n"))))))
+    #(func-to #(tag-to #(2 6) "<-"))
+    #(expr
+      (#(func-decl (#(func-name #(tag-sym #(2 9) "n"))))
+       #(func-decl
+         (#(func-name #(tag-sym #(2 13) "n!"))
+          #(argument
+            (#(expr
+               (#(func-decl (#(func-name #(tag-sym #(2 17) "n"))))
+                #(tag-num #(2 21) 1)
+                #(tag-mns #(2 19) "-")))))))
+       #(tag-mul #(2 11) "*")))))
+ #(expr
+   (#(func-decl
+      (#(func-name #(tag-sym #(4 1) "n!"))
+       #(argument (#(simple-argument #(tag-num #(4 4) 5))))))))
+ #(expr
+   (#(func-decl
+      (#(func-name #(tag-sym #(5 1) "n!"))
+       #(argument (#(simple-argument #(tag-num #(5 4) 10)))))))))

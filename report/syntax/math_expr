@@ -1,17 +1,17 @@
-MathExpression     ::= StringExpression|ListExpression|Number|Bool|
-                       FunctionApply|FunctionCall|
-                       (MathExpression BinoryOperator MathExpression)|
-                       ('('MathExpression')')|
-                       (UnarOperator MathExpression).
-StringExpression   ::= String ('++' StringExpression)*.
-ListExpression     ::= List ('++' ListExpression).
-List               ::= '[' ArgumentExpression? ']'.
-ArgumentExpression ::= ComplexArgument* ContinuousExpression?.
-ComplexArgument    ::= Ident|FunctionApply|StringExpression|Number|
-                      (ComplexArgument BinoryOperator ComplexArgument)|
-                       ListExpression|('('ComplexArgument')').
-FunctionCall       ::= Ident ArgumentExpression?.
-FunctionApply      ::= Ident '.' (Ident|ListExpression).
-BinoryOperator     ::= '+'|'++'|'-'|'*'|'**'|'/'|'//'|'%'|
-                       '='|'!='|'>'|'<'|'<='|'>='|'&&'|'||'.
-UnarOperator       ::= '+'|'-'|'!'.
+MathExpression    ::=StringExpression|ListExpression|Number|Bool|
+                     FunctionApply|FunctionCall|
+                     (MathExpression BinoryOperator MathExpression)|
+                     ('('MathExpression')')|
+                     (UnaryOperator MathExpression).
+StringExpression  ::= String ('++' StringExpression)*.
+ListExpression    ::= List ('++' ListExpression).
+List              ::= '[' ArgumentExpression? ']'.
+ArgumentExpression::= ComplexArgument* ContinuousExpression?.
+ComplexArgument   ::= Ident|FunctionApply|StringExpression|Number|
+                   (ComplexArgument BinoryOperator ComplexArgument)|
+                      ListExpression|('('ComplexArgument')').
+FunctionCall      ::= Ident ArgumentExpression?.
+FunctionApply     ::= Ident '.' (Ident|ListExpression).
+BinoryOperator    ::= '+'|'++'|'-'|'*'|'**'|'/'|'//'|'%'|
+                      '='|'!='|'>'|'<'|'<='|'>='|'&&'|'||'.
+UnaryOperator     ::= '+'|'-'|'!'.

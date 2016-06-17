@@ -1,5 +1,8 @@
-Ident      ::=BinarFunc|UnarFunc|SimpleIdent.
-SimpleIdent::=(?! [\(\)\[\]\{\}\.\:\"]|Number|BinarFunc|UnarFunc).
-BinarFunc ::='mod'|'div'|'eq?'|'eqv?'|'equal?'|'gcd'|'lcm'|'expt'.
-UnarFunc   ::='zero?'|'null?'|'abs'|'odd?'|'even?'|'round'|
-              'reverse'|'not'|'sin'|'cos'|'tg'|'ctg'|'sqrt'.
+Ident       ::= BinaryFunc|UnaryFunc|SimpleIdent.
+SimpleIdent ::= (?! [\(\)\[\]\{\}\.\:\"]|Number|
+                BinaryFunc|UnaryFunc).
+BinaryFunc  ::= 'mod'|'div'|'eq?'|'eqv?'|'equal?'|'gcd'|
+                'lcm'|'expt'|'map'|'filter'.
+UnaryFunc   ::= 'zero?'|'null?'|'abs'|'odd?'|'even?'|
+                'round'|'reverse'|'not'|'sin'|'cos'|
+                'tg'|'ctg'|'sqrt'.
