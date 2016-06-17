@@ -60,3 +60,5 @@
 (define ERROR_UNDEFINED_VARIABLE "cannot reference undefined identifier")
 (define ERROR_NO_SCHEME "no scheme-code after key-word 'scheme'")
 (define ERROR_NO_EXPORTS "no export funcs after key-word 'export'")
+
+(define :ERROR_FUNC_CALL "the arguments does not match any types of this function")
