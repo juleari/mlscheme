@@ -1,0 +1,49 @@
+\section{Тестирование}
+    \subsection{Удобство использования языка}
+    В таблице~\ref{tabular:code_scheme} приведены реализации одних и тех же функций на Языке и на Scheme.
+    Как видно из таблицы, код на Языке легче читается из-за отстутствия большого количества скобок, привычной инфиксной нотации и сопоставления с образцом.
+    Язык позволяет достичь более краткой записи при заметно меньшем числе повторяющихся элементов синтаксиса.
+    Использование повторных переменных в примере #2 позволяет существенно улучшить восприятие кода.
+    \begin{table}[ht!]
+        \caption{Соответствие конструкций Языка конструкциям языка Scheme \bigskip}
+        \centering
+        \label{tabular:code_scheme}
+        \begin{tabular}{|l|l|}
+            \hline
+            \bf{Входной язык}            & \bf{Scheme} \\ \hline
+            \verb,n! 0 <- 1,             & \verb,(define (n! n), \\
+            \verb,n! n <- n * n! (n - 1),& \verb,  (if (zero? n),\\
+                                         & \verb,      1, \\
+                                         & \verb,      (* n (n! (- n 1))))), \\ \hline
+
+            \verb,count x []         <- 0,     & \verb,(define (count x xs), \\
+            \verb,count x [ x : xs ] <-,       & \verb,  (if (null? xs), \\
+            \verb,    1 + count x xs,          & \verb,      0, \\
+            \verb,count x [ y : xs ] <-,       & \verb,      (if (equal? x (car xs)), \\
+            \verb,    count x xs,              & \verb,          (+ 1 (count x (cdr xs))), \\
+                                               & \verb,          (count x (cdr xs))))), \\ \hline
+            
+            \verb,cycle xs 0 <- [],            & \verb,(define (cycle xs n), \\
+            \verb,cycle xs n <- ,              & \verb,  (if (zero? n),\\
+            \verb,    xs ++ cycle xs ( n - 1 ),& \verb,      '(), \\
+                                               & \verb,      (append xs, \\
+                                               & \verb,              (cycle xs, \\
+                                               & \verb,                     (- n 1))))), \\ \hline
+            % \verb,nil? 0  <- #t,               & \verb,(define (nil? x), \\
+            % \verb,nil? [] <- #t,               & \verb,  (or (zero? x),\\
+            % \verb,nil? x  <- #f,               & \verb,      (null? x))),\\ \hline
+            
+            \verb,day-of-week day month year <-,& \verb,(define (day-of-week day month year), \\
+            \verb,    a <- (14 - month) // 12,  & \verb,  (let* ((a (quotient (- 14 month) 12)),\\
+            \verb,    y <- year - a,            & \verb,         (y (- year a)), \\
+            \verb,    m <- month + (a * 12) - 2,& \verb,         (m (- (+ month (* a 12)) 2))), \\
+                                                & \\
+            \verb,    (7000 + day + y,          & \verb,    (remainder (- (+ 7000 day y, \\
+            \verb,          + (y // 4),         & \verb,                     (quotient y 4), \\
+            \verb,          + (y // 400),       & \verb,                     (quotient y 400),\\
+            \verb,          + (31 * m // 12),   & \verb,                     (quotient (* 31 m) 12)),\\
+            \verb,          - (y // 100)) % 7,  & \verb,                     (quotient y 100)), \\
+                                                & \verb,                     7))), \\ \hline
+        \end{tabular}
+    \end{table}
+    \subsection{Тестирование корректности работы}

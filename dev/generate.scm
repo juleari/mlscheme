@@ -1,17 +1,61 @@
 ;; examp
-(define v '((("n!" #(#((lambda (:x) (= :x 1))
-            ((lambda (x) (eqv? x 0)))
-            (:_)
-            (lambda :args #t))
-          ()
-          (((1))))
-        #(#((lambda (:x) (= :x 1))
-            ((lambda (x) #t))
-            ("n")
-            (lambda :args #t))
-          ()
-          ((("n" (:func-call "n!" (("n" 1 "-"))) "*"))))))
- (((:func-call "n!" 5)) ((:func-call "n!" 10)))))
+(define v '((("0?"
+              #f
+              #(#((lambda (:x) (= :x 1)) ((lambda (x) (eqv? x 0))) (:_) (lambda :args #t))
+                ()
+                (((#t))))
+              #(#((lambda (:x) (= :x 1)) ((lambda (x) #t)) ("x") (lambda :args #t))
+                ()
+                (((#f)))))
+             ("my-gcd"
+              :memo
+              #(#((lambda (:x) (= :x 2))
+                  ((lambda (x) #t) (lambda (x) #t))
+                  ("a" "b")
+                  (lambda :args #t))
+                (("r"
+                  #f
+                  #(#((lambda (x) (zero? x)) () () (lambda :args #t)) () ((("a" "b" "%"))))))
+                ((((:cond
+                    ((("a" "b" "<")) (((:func-call "my-gcd" "b" "a"))))
+                    ((((:func-call "0?" "r"))) (("b")))
+                    (((#t)) (((:func-call "my-gcd" "b" "r"))))))))))
+             ("my-lcm"
+              #f
+              #(#((lambda (:x) (= :x 2))
+                  ((lambda (x) #t) (lambda (x) #t))
+                  ("a" "b")
+                  (lambda :args #t))
+                ()
+                ((("a" "b" "*" (:func-call "my-gcd" "a" "b") "/" "abs")))))
+             ("prime?"
+              (:memo :memo-prime?-fact)
+              #(#((lambda (:x) (= :x 1)) ((lambda (x) #t)) ("n") (lambda :args #t))
+                (("fact"
+                  :memo-prime?-fact
+                  #(#((lambda (:x) (= :x 1))
+                      ((lambda (x) (eqv? x 0)))
+                      (:__)
+                      (lambda :args #t))
+                    ()
+                    (((1))))
+                  #(#((lambda (:x) (= :x 1)) ((lambda (x) #t)) ("n") (lambda :args #t))
+                    ()
+                    ((("n" (:func-call "fact" (("n" 1 "-"))) "*"))))))
+                ((((:func-call
+                    "apply"
+                    "0?"
+                    (:qlist
+                     (((:func-call "apply" "fact" (:qlist (("n" 1 "-"))))
+                       1
+                       "+"
+                       "n"
+                       "%"))))))))))
+            (((:func-call "my-gcd" 3542 2464))
+             ((:func-call "my-lcm" 3 4))
+             ((:func-call "prime?" 11))
+             ((:func-call "prime?" 12))
+             ((:func-call "prime?" 3571)))))
 ;; end examp
 
 ;; defs
@@ -317,7 +361,7 @@
                               (lambda-list (car lambda-and-let))
                               (lambda-let  (cdr lambda-and-let))
                               (hash-args (get-args-for-check ':args type)))
-                         ;(print 'generate-def type)
+                         ;(print 'generate-func-types type lambda-and-let hash-args)
                          `((and (,(get-args-num-from-type type) (length :args))
                                 (:hash ',(get-args-check-from-type type) ,hash-args)
                                 (,(get-similar-from-type type) :args))
@@ -332,9 +376,19 @@
                      types)
                 `,(list (list 'else ':ERROR_FUNC_CALL)))))
 
-(define (generate-let-func name types inner)
-  `(letrec ((,name (lambda :args ,(generate-func-types types))))
-     ,inner))
+(define (generate-let-func name memo-name types inner)
+  (if memo-name
+      `(letrec ((,name (lambda :args
+                         (let ((:m (assoc :args ,memo-name)))
+                           (if :m
+                               (cadr :m)
+                               (let ((:res ,(generate-func-types types)))
+                                 (set! ,memo-name
+                                       (cons (list :args :res) ,memo-name))
+                                 :res))))))
+         ,inner)
+      `(letrec ((,name (lambda :args ,(generate-func-types types))))
+         ,inner)))
 
 (define (generate-let defs type)
   (if (null? defs)
@@ -342,12 +396,15 @@
             (map generate-expr (get-exprs-from-type type)))
       (let* ((def (car defs))
              (name (string->symbol (car def)))
-             (types (cdr def)))
+             (memo-and-types (cdr def))
+             (is-memo? (car memo-and-types))
+             (types (cdr memo-and-types)))
+        ;(print name types)
         (if (is-variable types)
             (generate-let-var name
                               (get-exprs-from-type (car types))
                               (generate-let (cdr defs) type))
-            (generate-let-func name types (generate-let (cdr defs) type))))))
+            (generate-let-func name is-memo? types (generate-let (cdr defs) type))))))
 
 (define (generate-expr expr)
   (calc-rpn expr))
@@ -355,9 +412,28 @@
 (define (check-expr-or-func type)
   ((:eval-i (get-args-num-from-type type)) 0))
 
+(define (generate-memo-let memo-list)
+  (if (list? memo-list)
+      (map (lambda (name) (list name `(list))) memo-list)
+      (list (list memo-list `(list)))))
+
+(define (generate-memo-lambda memo-name inner)
+  `(lambda :args
+     (let ((:m (assoc :args ,memo-name)))
+       (if :m
+           (cadr :m)
+           (let ((:res ,inner))
+             (set! ,memo-name
+                   (cons (list :args :res)
+                         ,memo-name))
+             :res)))))
+
 (define (generate-def def)
   (let* ((name (string->symbol (car def)))
-         (types (cdr def)))
+         (memo-and-types (cdr def))
+         (is-memo? (car memo-and-types))
+         (types (cdr memo-and-types)))
+    ;(print name types)
     (to-gen-file (if (:and-fold (map check-expr-or-func types))
                      (let* ((type (car (reverse types)))
                             (exprs (get-exprs-from-type type)))
@@ -366,8 +442,16 @@
                               ,(generate-let (get-defs-from-type type)
                                              type))
                            ""))
-                     `(define (,name . :args)
-                        ,(generate-func-types types))))))
+                     (if is-memo?
+                         `(define ,name
+                            (let ,(generate-memo-let is-memo?)
+                              ,(if (and (list? is-memo?)
+                                        (not (x-in-xs? ':memo is-memo?)))
+                                   `(lambda :args ,(generate-func-types types))
+                                   (generate-memo-lambda ':memo
+                                                         (generate-func-types types)))))
+                         `(define (,name . :args)
+                            ,(generate-func-types types)))))))
 
 (define (generate-defs defs)
   (map generate-def defs))

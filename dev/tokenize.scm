@@ -50,7 +50,7 @@
   token)
 
 (define kw '(scheme export mod if zero? eval abs odd? even? div round reverse
-             null? not sin cos tg ctg eq? eqv? equal? gcd lcm expt sqrt))
+             null? not sin cos tg ctg eq? eqv? equal? gcd lcm expt sqrt memo))
 
 (define (trim? s)
   (or (eqv? s #\space)
@@ -358,6 +358,6 @@
       (let ((t (tokenize-words (reverse (read-words '() '())) '())))
         (and (print-errors) t)))))
 
-(define port (open-input-file "/Users/juleari/Desktop/иу9/диплом/examples/2.sm"))
+(define port (open-input-file "/Users/juleari/Desktop/иу9/диплом/examples/17.sm"))
 
 (define tokens (tokenize-file port))

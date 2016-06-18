@@ -483,7 +483,12 @@
                             (can-be-lprn?         (set! stack 
                                                         (cons token stack)))
                             ((eqv? tag 'tag-rprn) (or (and (not-null? stack)
-                                                           (op-before-laren-to-out 0))
+                                                           (op-before-laren-to-out 0)
+                                                           (or (neq? expr-type
+                                                                     ARGS-IN-DECL-EXPR)
+                                                               (not-null? stack)
+                                                               (and (next-token)
+                                                                    (set! end-flag #t))))
                                                       (and (set! end-flag #t)
                                                            (set! start-flag #f))))
                             (else                 (set! start-flag #f)
@@ -586,6 +591,15 @@
                            '(export-name tag-sym)
                            ERROR_NO_EXPORTS))
 
+      (define (syntax-memo start-pos)
+        (syntax-whole-rule 'memo
+                           start-pos
+                           `(,simple-func-name 'memo-word "memo")
+                           syntax-rule+
+                           simple-rule
+                           '(func-name tag-sym)
+                           ERROR_NO_FUNC_NAME))
+
       (define (syntax-program start-pos)
         (let ((func-decl (syntax-func-declaration start-pos
                                                   ARGS-CANT-BE-EXPRS
@@ -605,6 +619,7 @@
                                                              func-args))))))
               (syntax-scheme start-pos)
               (syntax-export start-pos)
+              (syntax-memo start-pos)
               (syntax-expr start-pos ARGS-CAN-BE-EXPRS))))
 
       (let ((ast (syntax-rule+ syntax-program 0)))

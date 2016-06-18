@@ -86,11 +86,13 @@
                (body-list (semantic-func-body func-def-terms
                                               names-of-args
                                               this-model))
-               (f-defs (car body-list))
+               (memo-var (get-memo-list (car body-list) func-name))
+               (memo-list (car memo-var))
+               (f-defs (cdr memo-var))
                (f-exprs (cadr body-list))
 
                (func-val (vector args-vector f-defs f-exprs))
-               (add-list (list model func-name func-val)))
+               (add-list (list model func-name memo-list func-val)))
           ;(print 'semantic-func-def func-name f-exprs in-model)
           (apply (if in-model
                      add-type-in-model
@@ -104,13 +106,17 @@
       (define (semantic-func-call name-token args func-types model)
         (let* ((name (get-token-value name-token))
                (arg-len (length args))
+               (types (filter vector? func-types))
                (correct-types (filter (lambda (type)
-                                        ((:eval-i (get-args-num-from-type type)) arg-len))
-                                      func-types)))
-          ;(print 'semantic-func-call1 name arg-len func-types correct-types)
-          (and (not-null? func-types)
+                                        ((:eval-i (get-args-num-from-type type))
+                                              arg-len))
+                                      types)))
+          ;(print 'semantic-func-call1 name model arg-len args 'func-types func-types 'correct-types correct-types)
+          (and ;(print name 'func-types func-types (length func-types) (length correct-types))
+               (not-null? (length types))
                (or  (and (zero? arg-len)
-                         (or (and (> (length func-types) (length correct-types))
+                         (or (and (> (length types)
+                                     (length correct-types))
                                   (list ':func-call name))
                              name))
                     (let ((arg-values (map (lambda (arg)
@@ -131,7 +137,7 @@
                (name (get-token-value name-token))
                (args (cdr func-decl-terms))
                (in-model (find-in-model name model)))
-          ;(print 'semantic-var name args in-model model)
+          ;(print 'semantic-var name 'args args 'in-model in-model 'model model)
           (or (and in-model
                    (or (semantic-func-call name-token args in-model model)
                        (add-error ERROR_NUM_OF_ARGS name-token)))
@@ -185,7 +191,7 @@
                 ((eq? name 'expr)            (semantic-expr (get-rule-terms arg-rule)
                                                             (append (make-alist
                                                                      (vector-ref (get-args-from-type
-                                                                                  (cadar model))
+                                                                                  (car (cddar model)))
                                                                                  TYPE-ARGS-NAMES))
                                                                     model)))
                 ((eq? name 'continuous)      (cons (get-arg-value (cadr (get-rule-terms arg-rule))
@@ -251,8 +257,18 @@
         (append model
                 (map (lambda (term)
                        (list (get-token-value (get-token-from-simple-rule term))
+                             #f
                              (make-arg-type)))
                      (cadr terms))))
+
+      (define (semantic-memo terms model)
+        (map (lambda (term)
+               (set! model
+                     (set-memo-in-model model
+                                        (get-token-value (get-token-from-simple-rule term))
+                                        ':memo)))
+             (cadr terms))
+        model)
 
       ;; parse exprs after defs
       (define (semantic-program ast model exprs)
@@ -265,6 +281,10 @@
               (cond ((eq? name 'func-def)
                      (semantic-program (cdr ast)
                                        (semantic-func-def terms model)
+                                       exprs))
+                    ((eq? name 'memo)
+                     (semantic-program (cdr ast)
+                                       (semantic-memo terms model)
                                        exprs))
                     ((eq? name 'expr)
                      (semantic-program (cdr ast)

@@ -6,6 +6,7 @@
               ((and ((lambda (:x) (= :x 1)) (length :args))
                     (:hash (quote ((lambda (x) #t))) :args)
                     ((lambda :args #t) :args))
-               (apply (lambda (n) (begin (* n (n! (- n 1))))) :args)))))
+               (apply (lambda (n) (begin (* n (n! (- n 1))))) 
+                      :args)))))
 (n! 5)
 (n! 10)

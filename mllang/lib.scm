@@ -208,14 +208,31 @@
             `(lambda (:x) (>= :x ,(- num 1)))
             `(lambda (:x) (= :x ,num))))))
 
-(define (add-func-in-model model name obj)
-  (cons (list name obj) model))
+(define (add-func-in-model model name memo-list obj)
+  (cons (list name memo-list obj) model))
 
-(define (add-type-in-model model name val)
+(define (add-type-in-model model name memo-list val)
   (map (lambda (model-func)
          (let ((f-name (car model-func)))
            (if (equal? name f-name)
-               (cdns val model-func)
+               (append (list f-name memo-list)
+                       (cddr model-func)
+                       (list val))
+               model-func)))
+       model))
+
+(define (set-memo-in-model model name memo-name)
+  (map (lambda (model-func)
+         (let ((f-name (car model-func)))
+           (if (equal? name f-name)
+               (append (list f-name
+                             (let ((memo-names (cadr model-func)))
+                               (if memo-names
+                                   (if (list? memo-names)
+                                       (cons memo-name memo-names)
+                                       (list memo-names memo-name))
+                                   memo-name)))
+                       (cddr model-func))
                model-func)))
        model))
 
@@ -256,7 +273,7 @@
   (define (helper xs alist)
     (if (null? xs)
         alist
-        (helper (cdr xs) (cons (list (car xs) (make-arg-type)) alist))))
+        (helper (cdr xs) (cons (list (car xs) #f (make-arg-type)) alist))))
   (helper xs '()))
 
 (define (remove-first n xs)
@@ -429,7 +446,7 @@
     (map get-func-body f-inners)))
 
 (define (make-rec-model func-name args-vector)
-  (list func-name (vector args-vector (list) (list))))
+  (list func-name #f (vector args-vector (list) (list))))
 
 (define-syntax :map-cond
   (syntax-rules ()
@@ -582,3 +599,31 @@
        (vector 'expr (if (list? terms)
                     terms
                     (list terms)))))
+
+(define (symbol-append . symbols)
+  (string->symbol (apply string-append (map symbol->string symbols))))
+
+(define (symbol-append-to-strings symbol . strings)
+  (string->symbol (apply string-append (cons (symbol->string symbol) strings))))
+
+(define (get-memo-name var name)
+  (print 'get-memo-name name var)
+  (symbol-append-to-strings (cadr var) "-" name "-" (car var)))
+
+;; @returns memo-var:
+;; (car memo-var) -- memo-list || #f
+;; (cdr memo-var) -- new var-list
+(define (get-memo-list var-list name)
+  (let ((memo-names '()))
+    (set! var-list (map (lambda (var)
+                          (if (cadr var)
+                              (let ((memo-name (get-memo-name var name)))
+                                (set! memo-names (cons memo-name memo-names))
+                                (append (list (car var)
+                                              memo-name)
+                                        (cddr var)))
+                              var))
+                          var-list))
+    (cons (and (not-null? memo-names)
+               memo-names)
+          var-list)))

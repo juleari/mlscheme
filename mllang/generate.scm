@@ -65,9 +65,19 @@
                      types)
                 `,(list (list 'else ':ERROR_FUNC_CALL)))))
 
-(define (generate-let-func name types inner)
-  `(letrec ((,name (lambda :args ,(generate-func-types types))))
-     ,inner))
+(define (generate-let-func name memo-name types inner)
+  (if memo-name
+      `(letrec ((,name (lambda :args
+                         (let ((:m (assoc :args ,memo-name)))
+                           (if :m
+                               (cadr :m)
+                               (let ((:res ,(generate-func-types types)))
+                                 (set! ,memo-name
+                                       (cons (list :args :res) ,memo-name))
+                                 :res))))))
+         ,inner)
+      `(letrec ((,name (lambda :args ,(generate-func-types types))))
+         ,inner)))
 
 (define (generate-let defs type)
   (if (null? defs)
@@ -75,12 +85,15 @@
             (map generate-expr (get-exprs-from-type type)))
       (let* ((def (car defs))
              (name (string->symbol (car def)))
-             (types (cdr def)))
+             (memo-and-types (cdr def))
+             (is-memo? (car memo-and-types))
+             (types (cdr memo-and-types)))
+        ;(print name types)
         (if (is-variable types)
             (generate-let-var name
                               (get-exprs-from-type (car types))
                               (generate-let (cdr defs) type))
-            (generate-let-func name types (generate-let (cdr defs) type))))))
+            (generate-let-func name is-memo? types (generate-let (cdr defs) type))))))
 
 (define (generate-expr expr)
   (calc-rpn expr))
@@ -88,9 +101,28 @@
 (define (check-expr-or-func type)
   ((:eval-i (get-args-num-from-type type)) 0))
 
+(define (generate-memo-let memo-list)
+  (if (list? memo-list)
+      (map (lambda (name) (list name `(list))) memo-list)
+      (list (list memo-list `(list)))))
+
+(define (generate-memo-lambda memo-name inner)
+  `(lambda :args
+     (let ((:m (assoc :args ,memo-name)))
+       (if :m
+           (cadr :m)
+           (let ((:res ,inner))
+             (set! ,memo-name
+                   (cons (list :args :res)
+                         ,memo-name))
+             :res)))))
+
 (define (generate-def def)
   (let* ((name (string->symbol (car def)))
-         (types (cdr def)))
+         (memo-and-types (cdr def))
+         (is-memo? (car memo-and-types))
+         (types (cdr memo-and-types)))
+    ;(print name types)
     (to-gen-file (if (:and-fold (map check-expr-or-func types))
                      (let* ((type (car (reverse types)))
                             (exprs (get-exprs-from-type type)))
@@ -99,8 +131,16 @@
                               ,(generate-let (get-defs-from-type type)
                                              type))
                            ""))
-                     `(define (,name . :args)
-                        ,(generate-func-types types))))))
+                     (if is-memo?
+                         `(define ,name
+                            (let ,(generate-memo-let is-memo?)
+                              ,(if (and (list? is-memo?)
+                                        (not (x-in-xs? ':memo is-memo?)))
+                                   `(lambda :args ,(generate-func-types types))
+                                   (generate-memo-lambda ':memo
+                                                         (generate-func-types types)))))
+                         `(define (,name . :args)
+                            ,(generate-func-types types)))))))
 
 (define (generate-defs defs)
   (map generate-def defs))

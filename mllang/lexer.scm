@@ -1,5 +1,5 @@
 (define kw '(scheme export mod if zero? eval abs odd? even? div round reverse
-             null? not sin cos tg ctg eq? eqv? equal? gcd lcm expt sqrt))
+             null? not sin cos tg ctg eq? eqv? equal? gcd lcm expt sqrt memo))
 
 (define (trim? s)
   (or (eqv? s #\space)
