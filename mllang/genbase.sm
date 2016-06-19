@@ -30,7 +30,8 @@
   (if (or (zero? n)
           (null? xs))
       '()
-      (cons (car xs) (- n 1))))
+      (cons (car xs)
+            (give-first xs (- n 1)))))
 
 (define (multi-list->vector xs)
   (define (helper xs)
@@ -42,8 +43,11 @@
 (define // quotient)
 (define % remainder)
 (define ** expt)
-(define ++ append)
 (define (&& x y) (and x y))
+(define ++ (lambda :args (if (null? :args)
+                             :args
+                             (if (string? (car :args))
+                                 (apply string-append :args)
+                                 (apply append :args)))))
 
-(define :ERROR_FUNC_CALL "RUNTIME-ERROR: the arguments does not match any types of this function")
-
+(define :error-func-call "RUNTIME-ERROR: the arguments does not match any types of this function")

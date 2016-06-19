@@ -81,8 +81,11 @@
 
 (define (generate-let defs type)
   (if (null? defs)
-      (cons 'begin
-            (map generate-expr (get-exprs-from-type type)))
+      (let ((exprs (get-exprs-from-type type)))
+        (if (> (length exprs) 1)
+            (cons 'begin
+                  (map generate-expr exprs))
+            (generate-expr (car exprs))))
       (let* ((def (car defs))
              (name (string->symbol (car def)))
              (memo-and-types (cdr def))

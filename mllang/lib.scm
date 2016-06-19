@@ -607,7 +607,6 @@
   (string->symbol (apply string-append (cons (symbol->string symbol) strings))))
 
 (define (get-memo-name var name)
-  (print 'get-memo-name name var)
   (symbol-append-to-strings (cadr var) "-" name "-" (car var)))
 
 ;; @returns memo-var:

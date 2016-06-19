@@ -274,3 +274,8 @@ memo fibonacci fact
 
 fibonacci 99
 fibonacci 100
+
+привет имя <- "Привет, " ++ имя ++ "!"
+
+привет "Вася"
+привет "Петя"
