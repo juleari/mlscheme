@@ -62,4 +62,4 @@
 (define ERROR_NO_EXPORTS "no export funcs after key-word 'export'")
 (define ERROR_NO_FUNC_NAME "no function names after key-word 'memo'")
 
-(define :ERROR_FUNC_CALL "RUNTIME-ERROR: the arguments does not match any types of this function")
+(define :error-func-call "RUNTIME-ERROR: the arguments does not match any types of this function")

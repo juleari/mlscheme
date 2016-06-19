@@ -40,6 +40,21 @@
         (list xs)))
   (list->vector (helper xs)))
 
+(define (:print x)
+  (if (list? x)
+      (begin (display "[ ")
+             (map :print x)
+             (display "] "))
+      (begin (display x)
+             (display " "))))
+
+(define (print . xs)
+  (or (and (not (null? xs))
+           (:print (car xs))
+           (newline)
+           (apply print (cdr xs))
+      (newline))))
+
 (define // quotient)
 (define % remainder)
 (define ** expt)

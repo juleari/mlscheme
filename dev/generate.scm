@@ -361,7 +361,7 @@
                               (lambda-list (car lambda-and-let))
                               (lambda-let  (cdr lambda-and-let))
                               (hash-args (get-args-for-check ':args type)))
-                         ;(print 'generate-func-types type lambda-and-let hash-args)
+                         ;(print 'generate-def type)
                          `((and (,(get-args-num-from-type type) (length :args))
                                 (:hash ',(get-args-check-from-type type) ,hash-args)
                                 (,(get-similar-from-type type) :args))
@@ -374,7 +374,7 @@
                                                        type)))
                                   :args))))
                      types)
-                `,(list (list 'else ':ERROR_FUNC_CALL)))))
+                `,(list (list 'else ':error-func-call)))))
 
 (define (generate-let-func name memo-name types inner)
   (if memo-name
@@ -459,8 +459,15 @@
 (define (generate-defs defs)
   (map generate-def defs))
 
+(define (print-val val)
+  (if (and (string? val)
+           (> (string-length val) 8)
+           (equal? (give-first (string->list val) 8) (string->list "(define ")))
+      val
+      `(print ,val)))
+
 (define (calc-expr expr)
-  (to-gen-file (generate-expr (list expr))))
+  (to-gen-file (print-val (generate-expr (list expr)))))
 
 (define (calc-exprs exprs)
   (map calc-expr exprs))
