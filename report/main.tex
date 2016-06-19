@@ -1,127 +1,314 @@
 \documentclass[14pt,a4paper,oneside]{extarticle}
+    \righthyphenmin=2 %минимально переносится 2 символа %%%
+    \sloppy
 
-\usepackage[14pt]{extsizes}
-\usepackage{ucs}
-\usepackage{amsmath}            % gather* для вывода формул по центру страницы
-\usepackage[utf8x]{inputenc}    % Включаем поддержку UTF8
-\usepackage[russian]{babel}     % Включаем пакет для поддержки русского языка
+\renewcommand{\baselinestretch}{1.5}
 
-\usepackage[
-    left=3cm,           % Поле левое : 200 мм
-    right=1cm,          % Поле правое : 200 мм
-    top=2cm,            % Поле верхнее: 200 мм
-    bottom=2cm,         % Поле нижнее : 200 мм
-    bindingoffset=0cm]{geometry}
+% Рукопись оформлена в соответствии с ГОСТом
+% За основы были взяты стили от Дубанова В.Н., а также с ресурсов:
+%    https://habrahabr.ru/post/144648/
+%    https://raw.githubusercontent.com/protsenkovi/latex-ssau-gost-style/master/mutavel.sty
 
-\setlength{\parindent}{1.25cm}          % Абзацный отступ: 1,25 см
-\usepackage{indentfirst}                % 1-й абзац имеет отступ
+\usepackage{geometry} % А4, примерно 28-31 строк(а) на странице
+    \geometry{paper=a4paper}
+    \geometry{includehead=false} % Нет верх. колонтитула
+    \geometry{includefoot=true}  % Есть номер страницы
+    \geometry{bindingoffset=0mm} % Переплет    : 0  мм
+    \geometry{top=20mm}          % Поле верхнее: 20 мм
+    \geometry{bottom=20mm}       % Поле нижнее : 25 мм
+    \geometry{left=30mm}         % Поле левое  : 25 мм
+    \geometry{right=10mm}        % Поле правое : 25 мм
+    \geometry{headsep=10mm}  % От края до верх. колонтитула: 10 мм
+    \geometry{footskip=20mm} % От края до нижн. колонтитула: 20 мм
 
-\usepackage[pdftex]{graphicx, color}
-\usepackage{color}
-\usepackage{tikz}
-\usepackage{url}                % использование URL в библиографии
-\usepackage{listings}           % использование листингов кода
-\usepackage[nooneline]{caption}
-\captionsetup[table]{justification=raggedleft}
-\captionsetup[figure]{justification=centering,labelsep=endash}
-%\usepackage{array}
+\usepackage{cmap}
+\usepackage[T2A]{fontenc}
+\usepackage[utf8x]{inputenc}
+\usepackage[english,russian]{babel}
+\usepackage{misccorr}
 
-\usepackage[nodisplayskipstretch]{setspace}
-\setstretch{1.5}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+%\usepackage{unicode-math}
 
-\usepackage{caption}
+%\usepackage{cm-super} %человеческий рендер русских шрифтов
+
+\setlength{\parindent}{1.27cm}  % Абзацный отступ: 1,27 см
+\usepackage{indentfirst}        % 1-й абзац имеет отступ
+
+\usepackage{setspace}
+
+\onehalfspacing % Полуторный интервал между строками
+
+\makeatletter
+\renewcommand{\@oddfoot }{\hfil\thepage\hfil} % Номер стр.
+\renewcommand{\@evenfoot}{\hfil\thepage\hfil} % Номер стр.
+\renewcommand{\@oddhead }{} % Нет верх. колонтитула
+\renewcommand{\@evenhead}{} % Нет верх. колонтитула
+\makeatother
+
+\usepackage{fancyvrb}
+
+%\usepackage[nounderscore]{syntax} %для поддержки рбнф
+%\setlength{\grammarindent}{12em} %устанавливает нужный отступ перед ::=
+%\setlength{\grammarparsep}{6pt plus 1pt minus 1pt}  %сокращает расстояние между правилами
+
+
+\usepackage[pdftex]{graphicx}  % поддержка картинок для пдф
+\graphicspath{ {./pictures/} }
+\usepackage{rotating}
 \usepackage{graphicx}
-\usepackage{subcaption}
-\usepackage{cases}
-\usepackage{placeins}
+%\DeclareGraphicsExtensions{.jpg,.png}
+
+%\renewcommand{\labelenumi}{\theenumi.} %меняет вид нумерованного списка
+
+\usepackage{enumitem}
+\makeatletter
+    \AddEnumerateCounter{\asbuk}{\@asbuk}{м)}
+\makeatother
+\setlist{nolistsep}
+\renewcommand{\labelitemi}{-}
+\renewcommand{\labelenumi}{\asbuk{enumi})}
+\renewcommand{\labelenumii}{\arabic{enumii})}
+
+\usepackage{perpage} %нумерация сносок
+\MakePerPage{footnote}
+
+\usepackage[all]{xy} %поддержка графов
+
+\usepackage{listings} %листинги
+\usepackage{textcomp}
+\renewcommand{\lstlistingname}{Листинг}
+\lstset{
+  inputencoding=utf8x,
+  extendedchars=false,
+  keepspaces=true,
+  basicstyle=\small\sffamily,
+  numbers=left,
+  numberstyle=\tiny,
+  numbersep=5pt,
+  stepnumber=1,
+  basicstyle=\small,
+  breaklines=true,
+  upquote=true
+  }
+
+\usepackage{url}
+
+
+\usepackage{tikz} %для рисования графиков
+\usepackage{pgfplots}
+
+\usepackage{rotating}
+\newcommand*\rot{\rotatebox{90}}
+
+%\usepackage[nooneline]{caption}
+%\captionsetup[table]{justification=raggedright} %
+
+\usepackage{ccaption}%изменяет подпись к рисунку
+\makeatletter
+\renewcommand{\fnum@figure}[1]{Рисунок~\thefigure~---~\sffamily}
+\makeatother
+
+\makeatletter
+\renewcommand{\fnum@table}[1]{Таблица~\thetable~---~\sffamily}
+\captionstyle{\raggedright}
+\makeatother
+
 \usepackage{longtable} 
 \usepackage{multirow}
 \usepackage{hhline}
 
-\renewcommand{\baselinestretch}{1.5}
-
-\definecolor{grey}{HTML}{EEEEEE}
-% вставка листингов с кодом
-\lstset{inputencoding=utf8x,
-        extendedchars=false,
-        keepspaces=true,
-        basicstyle=\small\sffamily,
-        numbers=left,
-        numberstyle=\tiny,
-        numbersep=5pt,
-        stepnumber=1,                % размер шага между двумя номерами строк
-        backgroundcolor=\color{white},
-        showspaces=false,            % показывать или нет пробелы специальными отступами
-        showstringspaces=false,      % показывать или нет пробелы в строках
-        showtabs=false,              % показывать или нет табуляцию в строках
-        frame=none,
-        tabsize=2,                   % размер табуляции по умолчанию равен 2 пробелам
-        captionpos=t,                % позиция заголовка вверху [t] или внизу [b] 
-        breaklines=true,             % автоматически переносить строки (да\нет)
-        breakatwhitespace=false}     % переносить строки только если есть пробел
-        
-%\input{listings-python.prf}
-\renewcommand{\lstlistingname}{Листинг}
-
-\setcounter{tocdepth}{4}        % chapter, section, subsection, subsubsection и paragraph
-\setcounter{secnumdepth}{4}
-
-\parindent=1,25cm               % красная строка = 1 см
-\usepackage{enumitem}
-\setlist[enumerate,1]{leftmargin=2.25cm}
-\setlist[itemize]{leftmargin=2.25cm}
-\graphicspath{{pics/}}
-\DeclareGraphicsExtensions{{.jpg}}
-\usepackage{color, colortbl}
+%\captionsetup[table]{singlelinecheck=off, justification=raggedright}
 
 
-\usepackage[pdftex]{graphicx}  % поддержка картинок для пдф
-\usepackage{rotating}
-\usepackage{graphicx}
+\usepackage{array}
 
-\usepackage{tikz} %для рисования графиков
-\usepackage{pgfplots}
-\usepackage{rotating}
-\newcommand*\rot{\rotatebox{90}}
-
-\usepackage{ccaption}%изменяет подпись к рисунку
-\makeatletter 
-\renewcommand{\fnum@figure}[1]{Рисунок~\thefigure~---~\sffamily}
-\makeatother
-
+% перенос ячеек в таблице
 \newcommand{\specialcell}[2][c]{%
    \begin{tabular}[#1]{@{}c@{}}#2\end{tabular}}
 
+ \usepackage{multirow}
+
+\usepackage{lastpage}
+
+
+%%% Счётчики для страницы реферата. Подсчёт общего количества элементов: иллюстраций, таблиц, приложений, страниц, источников.
+%%% (Источник http://habrahabr.ru/post/144648/)
+%%% Объявление счётчиков.
+\newcounter{totpages}
+\newcounter{totfigures}
+\newcounter{tottables}
+\newcounter{totreferences}
+%%% Корректировка некоторых счётчиков перед записью.
+%%% Запись всех необходимых значений в .aux файл в конце документа.
+\makeatletter
+    \AtEndDocument{
+      \clearpage
+      \addtocounter{page}{-1}
+      \addtocounter{totreferences}{-1}
+      \addtocounter{totpages}{\value{page}}
+      \addtocounter{totfigures}{\value{figure}}
+      \addtocounter{tottables}{\value{table}}
+      \immediate\write\@mainaux{
+        \string\gdef\string\totpages{\number\value{totpages}}
+        \string\gdef\string\totfig{\number\value{totfigures}}
+        \string\gdef\string\tottab{\number\value{tottables}}
+        \string\gdef\string\totbibref{\number\value{totreferences}}
+      }
+    }
+\makeatother
+%%% Объявление глобальных переменных. Необходимы при отсутствии файла .aux для компиляции без ошибок.
+\gdef\totpages{??}
+\gdef\totfig{??}
+\gdef\tottab{??}
+\gdef\totbibref{??}
+
+
+%%%
+%%% Работа с библиографическим списком.
+%%%
+%%% Формат списка источников. По-умолчанию <<[1]>>, в стандарте <<1.>>.
+%%% Увеличение счётчика количества источников для команды \totbibref.
+\makeatletter
+\renewcommand{\@biblabel}[1]{\stepcounter{totreferences}#1.\hfill}
+\makeatother
+
+\usepackage{calc}
+\RequirePackage{misccorr}
+
+%%% Пакет для настройки оформления стиля заголовков.
+\usepackage{titlesec}
+\usepackage{hyphenat}
+%%%
+%%% 4.1.3 Основную часть документа следует делить на разделы (\section), подразделы (\subsection) и пункты (\subsubsection).
+%%% Пункты, при необходиомсти делятся на подпункты (\paragraph). Разделы, подразделы, пункты и подпункты следует нумеровать
+%%% последовательно арабскими цифрами и записывать с абзацного отступа. Разделы должны иметь порядковую нумерацию в пределах
+%%% всего текста, за исключением приложений.
+%%%
+%%% Номер подраздела или пункта включает номера раздела и подраздела или пункта, разделённые точкой. Номер подпункта включает номера
+%%% раздела, подраздела, пункта и подпункта, разделённые точкой. После последней цифры номера раздела, подраздела, пункта и подпункта
+%%% точка не ставится.
+%%% Установка используемой далее переменной \normalparindent в величину абзацного отступа, в начале документа.
+\newlength{\normalparindent}
+\AtBeginDocument{\setlength{\normalparindent}{\parindent}}
+%%%
+%%% 4.1.10 Каждый раздел учебного текстового документа следует начинать с новой страницы.
+%%% Команда \clearpage заставляет все отложенные до неё фигуры, таблицы, листинги отрисоваться, \newpage - команда начала новой страницы.
+\newcommand{\sectionbreak}{\clearpage\newpage}
+%%%
+%%% 4.1.9 Разделы и подразделы должны иметь заголовки. Пункты и подпункты, как правило, заголовков не имеют. Заголовки должны чётко и
+%%% кратко отражать содержание разделов и подразделов. Заголовки начинаются с прописной буквы, без точки в конце (ответственность
+%%% оформителя), не подчеркиваются. Переносы слов в заголовках не допускаются. ...
+%%%
+%%% Latex по-умолчанию нумерует разделы, подразделы, пункты арабскими цифрами. Выполняются требования абзаца о разделении номеров точкой.
+%%% Ниже добавляются: абзацные отступы, запрещается перенос слов, новая строка начинается под первым словом предыдущей.
+\newcommand{\sectionFormat}[2][0em]{
+         \begin{minipage}[t]{\textwidth-\normalparindent-\widthof{\quad#1}}   % \quad is hardcoded value for separator between number and body.
+             %\tolerance=10000                                                 % Длинные слова не вылезут за пределы границы отступа.
+             \raggedright                                                     % Сбивка слов влево. По-умолчанию слова растягиваются по всей строке,
+                                                                              % равномерно заполняя пространство между словами пробелами.
+             \nohyphens{#2}                                                  % Запрет переносов.
+         \end{minipage}}
+
+
+%%% Изменяется формат для раздела. Шрифт: \Large, жирный.
+\titleformat{name=\section}[block]
+            {\Large\bfseries}                        % Стиль.
+            {\hspace*{\normalparindent}\thesection}  % Запись с абзацного отступа.
+            {0em}                                    % Без дополнительного пробела между номером и текстом заголовка.
+            {\sectionFormat[\thesection]}
+%%% Изменяется формат для подраздела.
+\titleformat{name=\subsection}[block]
+    {\large\bfseries}
+    {\hspace*{\normalparindent}\thesubsection}
+    {0em}
+    {\sectionFormat[\thesubsection]}
+%%% Изменяется формат для пунтка.
+\titleformat{name=\subsubsection}[block]
+    {\large\bfseries}
+    {\hspace*{\normalparindent}\thesubsubsection}
+    {0em}
+    {\sectionFormat[\thesubsubsection]}
+
+%%%
+%%% Оформление содержания.
+%%%
+\RequirePackage{tocloft}
+%%%
+%%% Центрирование заголовка содержания, стиль: размер шрифта \Large, жирный.
+\renewcommand{\cfttoctitlefont}{~\hfill\Large\bfseries\MakeUppercase}
+\renewcommand{\cftaftertoctitle}{\hfill~}
+%%%
+%%% 4.1.1 Структурными элементами учебного текстового документа в порядке их расположения в документе являются:
+%%% титульный лист, задание(при наличии), реферат, содержание, определения/обозначения/сокращения(при наличии),
+%%% введение, основная часть, заключение, список использованных источников(при наличии), приложения(при наличии).
+%%%
+%%% 4.1.2 .. Заголовки структурных элементов следует располагать в середине строки без точки в конце и печатать прописными буквами,
+%%% не подчёркивая, например ВВЕДЕНИЕ, ЗАКЛЮЧЕНИЕ.
+%%%
+%%% 5.4.2 (В содержании) Введение, заключение, список использованных источников и приложения не нумеруются как разделы.
+\newcommand{\structureElementFormat}[1]{
+    \tolerance=10000
+    \nohyphens{#1}
+}
+\titleformat{name=\section, numberless=true}[block] % [shape]
+    {\Large\bfseries}                               % format
+    {}                                              % label
+    {0em}                                           % separation
+    {}                                              % before section text.
+%%% Структурный элемент: реферат.
+%%% В тексте прописными, в центре страницы, жирным, не добавляется в содержание.
+\newcommand{\summarytitle}{
+    \section*{\hfillАННОТАЦИЯ\hfill}
+}
+%%% Структурный элемент: введение.
+%%% В тексте прописными, в центре страницы, жирным, добавляется в содержание, в содержании с большой буквы.
+\newcommand{\introductiontitle}{
+    \section*{\hfillВВЕДЕНИЕ\hfill}
+    \addcontentsline{toc}{section}{Введение}  % Добавление в toc.
+}
+
+%%% Структурный элемент: заключение.
+%%% В тексте прописными,в центре страницы, жирным, добавляется в содержание, в содержании с большой буквы.
+\newcommand{\conclusiontitle}{
+    \section*{\hfillЗАКЛЮЧЕНИЕ\hfill}
+    \addcontentsline{toc}{section}{Заключение} % Добавление в toc.
+}
+
+
+%%% Заголовок списка использованных источников. По-умолчанию <<Список литературы>>.
+%%% Заголовок центрируется, также добавляется \phantomsection для правильной ссылки (для hyperref).
+\AtBeginDocument{\renewcommand{\refname}{\large\hfillСПИСОК ИСПОЛЬЗОВАННЫХ ИСТОЧНИКОВ\hfill\phantomsection\addcontentsline{toc}{section}{Список использованных источников}}}
+
 \begin{document}
-    \include{parts/titlepage}
+    костыль 1
+    \clearpage
+    костыль 2
+    \clearpage
+    костыль 3
+    \clearpage
+    костыль 4
+    \clearpage
+    \include{parts/annotation}
 
     \tableofcontents
-    \clearpage
     \include{parts/intro} %1
-    \clearpage
     \include{parts/langs_proto} %7
-    \clearpage
     \include{parts/design} %2.5
     %\include{parts/syntax} %8
-    \clearpage
     \include{parts/components} %7
-    \clearpage
     \include{parts/capability} %1
-    \clearpage
     \include{parts/guide} %1
-    \clearpage
     %\include{parts/realize} %1
     %\clearpage
     \include{parts/testing} %1
-    \clearpage
     \include{parts/economy} %15
-    \clearpage
     \include{parts/ending} %15
-    \clearpage
     \include{parts/bible} %1
-    \clearpage
     \include{parts/examples} %8
 
-%54
+%63
 \clearpage
 \end{document}
