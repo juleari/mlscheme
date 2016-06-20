@@ -19,11 +19,14 @@
                 #(tag-num #(2 21) 1)
                 #(tag-mns #(2 19) "-")))))))
        #(tag-mul #(2 11) "*")))))
+ #(memo
+   (#(memo-word #(tag-kw #(4 1) "memo"))
+    (#(func-name #(tag-sym #(4 6) "n!")))))
  #(expr
    (#(func-decl
-      (#(func-name #(tag-sym #(4 1) "n!"))
-       #(argument (#(simple-argument #(tag-num #(4 4) 5))))))))
+      (#(func-name #(tag-sym #(6 1) "n!"))
+       #(argument (#(simple-argument #(tag-num #(6 4) 5))))))))
  #(expr
    (#(func-decl
-      (#(func-name #(tag-sym #(5 1) "n!"))
-       #(argument (#(simple-argument #(tag-num #(5 4) 10)))))))))
+      (#(func-name #(tag-sym #(7 1) "n!"))
+       #(argument (#(simple-argument #(tag-num #(7 4) 10)))))))))

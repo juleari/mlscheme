@@ -1,1 +1,1 @@
-FunctionBody       ::= FunctionDefinition* Expression+.
+FunctionBody       ::= FunctionDefinition* Memoize* Expression+.

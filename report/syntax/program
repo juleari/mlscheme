@@ -1,2 +1,2 @@
-Program ::= FunctionDefinition|MathExpression|
-            Scheme|Export|Comment.
+Program ::= FunctionDefinition|InfixExpression|
+            Scheme|Export|Comment|Memoize.

@@ -1,1 +1,1 @@
-Expression ::= IfExpression|LambdaFunction|MathExpression.
+Expression ::= IfExpression|LambdaFunction|InfixExpression.

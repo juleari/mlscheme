@@ -1,12 +1,21 @@
-(define (n! . :args) 
-  (:map-cond (((and ((lambda (:x) (= :x 1)) (length :args))
-                    (:hash (quote ((lambda (x) (eqv? x 0)))) :args)
-                    ((lambda :args #t) :args))
-               (apply (lambda (:g_) (begin 1)) :args))
-              ((and ((lambda (:x) (= :x 1)) (length :args))
-                    (:hash (quote ((lambda (x) #t))) :args)
-                    ((lambda :args #t) :args))
-               (apply (lambda (n) (begin (* n (n! (- n 1))))) 
-                      :args)))))
+(define n!
+  (let ((:memo (list)))
+    (lambda :args
+      (let ((:m (assoc :args :memo)))
+        (if :m
+            (cadr :m)
+            (let ((:res 
+                  (:map-cond
+                    (((and ((lambda (:x) (= :x 1)) (length :args))
+                            (:hash '((lambda (x) (eqv? x 0))) :args)
+                            ((lambda :args #t) :args))
+                      (apply (lambda (:g_) 1) :args))
+                     ((and ((lambda (:x) (= :x 1)) (length :args))
+                            (:hash '((lambda (x) #t)):args)
+                            ((lambda :args #t) :args))
+                      (apply (lambda (n) (* n (n! (- n 1)))) :args))
+                     (else :error-func-call)))))
+              (set! :memo (cons (list :args :res) :memo))
+              :res))))))
 (n! 5)
 (n! 10)

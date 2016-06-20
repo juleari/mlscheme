@@ -1,8 +1,8 @@
-MathExpression    ::=StringExpression|ListExpression|Number|Bool|
+InfixExpression   ::=StringExpression|ListExpression|Number|Bool|
                      FunctionApply|FunctionCall|
-                     (MathExpression BinoryOperator MathExpression)|
-                     ('('MathExpression')')|
-                     (UnaryOperator MathExpression).
+                   (InfixExpression BinoryOperator InfixExpression)|
+                     ('('InfixExpression')')|
+                     (UnaryOperator InfixExpression).
 StringExpression  ::= String ('++' StringExpression)*.
 ListExpression    ::= List ('++' ListExpression).
 List              ::= '[' ArgumentExpression? ']'.
