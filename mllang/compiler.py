@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+from subprocess import call
 import sys
 import os
 import re
@@ -11,6 +11,7 @@ PATH_TESTS   = 'tests.scm'
 RE_INCLUE    = '\(import \"([a-z]+.scm)\"\)'
 
 REPLACE_PATH     = '###PATH-TO-INPUT-FILE###'
+REPLACE_GEN      = '###PATH-TO-GEN-FILE###'
 REPLACE_TESTS_IN = '###TESTS-INPUT###'
 REPLACE_TESTS_OUT= '###TESTS-OUTPUT###'
 
@@ -18,10 +19,12 @@ PATH_TESTS_IN  = '../tests/in'
 PATH_TESTS_OUT = '../tests/out'
 
 DEFAULT_IN     = '../examples/1.sm'
-DEFAULT_OUT_DIR= 'build'
-DEFAULT_OUT    = 'build/compile.scm'
+DEFAULT_OUT_DIR= ''
+DEFAULT_OUT    = 'build.scm'
+DEFAULT_GEN    = 'gen.scm'
 DEFAULT_MODULE = 'modules'
 DEFAULT_TESTS  = 'tests.scm'
+DEFAULT_ECHO   = 'guile'
 
 ARG_INDEX = 2
 
@@ -34,20 +37,31 @@ class Arg(object):
         self.many = many
 
 DESCS = {
-    '-g': 'compile path_in file to path_out',
+    '-g': 'generate compiler for path_in file to compiler_file to out_file',
+    '-c': 'compile echo_program path_in to out_file',
+    '-l': 'load compiled echo_program path_in',
     '-h': 'help',
     '-m': 'make modules',
     '-t': 'run tests'
 }
 ARGS = {
     '-g': [ Arg('path_in', DEFAULT_IN),
-            Arg('path_out', DEFAULT_OUT) ],
+            Arg('compiler_file', DEFAULT_OUT),
+            Arg('path_out', DEFAULT_GEN) ],
+    '-c': [ Arg('echo_program', DEFAULT_ECHO),
+            Arg('path_in', DEFAULT_IN),
+            Arg('path_out', DEFAULT_GEN) ],
+    '-l': [ Arg('echo_program', DEFAULT_ECHO),
+            Arg('path_in', DEFAULT_IN),
+            Arg('path_out', DEFAULT_GEN) ],
     '-h': [],
     '-m': [ Arg('module_name', DEFAULT_MODULE, '*') ],
     '-t': []
 }
 FUNCS = {
-    '-g': 'compile_file',
+    '-g': 'generate_file',
+    '-c': 'compile_file',
+    '-l': 'load_file',
     '-h': 'print_usage',
     '-m': 'module_concat',
     '-t': 'run_tests'
@@ -79,19 +93,30 @@ def get_file_inner(path):
 def get_files_inner(files):
     return map(get_file_inner, files)
 
-def get_compile(path):
-    return get_file_inner(PATH_COMPILE).replace(REPLACE_PATH, '\"%s\"' % path)
+def get_compile(path_in, path_out):
+    #print path, get_file_inner(PATH_COMPILE).replace(REPLACE_PATH, '\"%s\"' % path)
+    return get_file_inner(PATH_COMPILE).replace(REPLACE_PATH, '\"%s\"' % path_in)\
+                                       .replace(REPLACE_GEN, '\"%s\"' % path_out)
 
 def global_concat(compile_):
     files = get_files_inner(re.findall(RE_INCLUE, compile_))
     files.append(compile_)
     return '\n\n'.join(files)
 
-def compile_file(path_in, path_out):
-    compile_ = get_compile( get_normal_path(path_in) )
-    output = open(path_out, 'w')
+def generate_file(path_in, path_comp, path_out):
+    compile_ = get_compile( get_normal_path(path_in), get_normal_path(path_out) )
+    output = open(path_comp, 'w')
 
     output.write( global_concat(compile_) )
+
+def compile_file(echo_program, path_in, path_out):
+    generate_file(path_in, DEFAULT_OUT, path_out)
+    call(echo_program + " " + DEFAULT_OUT, shell=True)
+
+def load_file(echo_program, path_in, path_out):
+    generate_file(path_in, DEFAULT_OUT, path_out)
+    call(echo_program + " " + DEFAULT_OUT, shell=True)
+    call(echo_program + " -l " + path_out, shell=True)
 
 def module_concat(compile_):
     return False
@@ -122,7 +147,7 @@ def run_tests(compile_):
     files.append(tests)
     return '\n\n'.join(files)
 
-KEYS = ['-h', '-g', '-m', '-t']
+KEYS = ['-h', '-g', '-c', '-l', '-m', '-t']
 
 def main():
     argv = sys.argv

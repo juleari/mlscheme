@@ -191,7 +191,7 @@
                         (or (not (syntax-argument start-pos
                                                   args-expr-type
                                                   ARGS-CANT-BE-CONT))
-                            (add-error ERR_AFTER_continuous))
+                            (add-error ERR_AFTER_CONTINUOUS))
                         (list cont))))))
 
       (define (syntax-apply start-pos)

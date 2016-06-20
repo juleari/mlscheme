@@ -5,6 +5,8 @@
 ;(import "semantic.scm")
 ;(import "generate.scm")
 
+(define gen-file (open-output-file ###PATH-TO-GEN-FILE###))
+(prepare-gen-file)
 (define port (open-input-file ###PATH-TO-INPUT-FILE###))
 (define tokens (tokenize-file port))
 (define ast (syntax))

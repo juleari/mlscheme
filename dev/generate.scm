@@ -1,61 +1,24 @@
 ;; examp
-(define v '((("0?"
-              #f
-              #(#((lambda (:x) (= :x 1)) ((lambda (x) (eqv? x 0))) (:_) (lambda :args #t))
-                ()
-                (((#t))))
-              #(#((lambda (:x) (= :x 1)) ((lambda (x) #t)) ("x") (lambda :args #t))
-                ()
-                (((#f)))))
-             ("my-gcd"
-              :memo
-              #(#((lambda (:x) (= :x 2))
-                  ((lambda (x) #t) (lambda (x) #t))
-                  ("a" "b")
-                  (lambda :args #t))
-                (("r"
-                  #f
-                  #(#((lambda (x) (zero? x)) () () (lambda :args #t)) () ((("a" "b" "%"))))))
-                ((((:cond
-                    ((("a" "b" "<")) (((:func-call "my-gcd" "b" "a"))))
-                    ((((:func-call "0?" "r"))) (("b")))
-                    (((#t)) (((:func-call "my-gcd" "b" "r"))))))))))
-             ("my-lcm"
+(define v '((("replicate"
               #f
               #(#((lambda (:x) (= :x 2))
-                  ((lambda (x) #t) (lambda (x) #t))
-                  ("a" "b")
+                  ((lambda (x) #t) (lambda (x) (eqv? x 0)))
+                  ("x" :_)
                   (lambda :args #t))
                 ()
-                ((("a" "b" "*" (:func-call "my-gcd" "a" "b") "/" "abs")))))
-             ("prime?"
-              (:memo :memo-prime?-fact)
-              #(#((lambda (:x) (= :x 1)) ((lambda (x) #t)) ("n") (lambda :args #t))
-                (("fact"
-                  :memo-prime?-fact
-                  #(#((lambda (:x) (= :x 1))
-                      ((lambda (x) (eqv? x 0)))
-                      (:__)
-                      (lambda :args #t))
-                    ()
-                    (((1))))
-                  #(#((lambda (:x) (= :x 1)) ((lambda (x) #t)) ("n") (lambda :args #t))
-                    ()
-                    ((("n" (:func-call "fact" (("n" 1 "-"))) "*"))))))
+                ((('()))))
+              #(#((lambda (:x) (= :x 2))
+                  ((lambda (x) #t) (lambda (x) #t))
+                  ("x" "n")
+                  (lambda :args #t))
+                ()
                 ((((:func-call
-                    "apply"
-                    "0?"
-                    (:qlist
-                     (((:func-call "apply" "fact" (:qlist (("n" 1 "-"))))
-                       1
-                       "+"
-                       "n"
-                       "%"))))))))))
-            (((:func-call "my-gcd" 3542 2464))
-             ((:func-call "my-lcm" 3 4))
-             ((:func-call "prime?" 11))
-             ((:func-call "prime?" 12))
-             ((:func-call "prime?" 3571)))))
+                    :append-s
+                    (:list "x")
+                    (:list ((:func-call "replicate" "x" (("n" 1 "-"))))))))))))
+            (((:func-call "replicate" "\"a\"" 5))
+             ((:func-call "replicate" (:qlist "\"a\"" "\"b\"") 3))
+             ((:func-call "replicate" "\"a\"" 0)))))
 ;; end examp
 
 ;; defs
@@ -191,7 +154,8 @@
                    if-conds)))
 
 (define (func-apply x)
-  (cond ((string? x) (string->symbol x))
+  ;(print 'apply (if (string? x) (string->list x)))
+  (cond ((string? x) x)
         ((list? x)   (cond ((or (null? x) (eq? (car x) 'quote))   x)
                            ((x-in-xs? (car x) ':list ':func-call) (map func-apply (cdr x)))
                            ((eq? (car x) ':qlist)                 (cons 'list
@@ -324,20 +288,19 @@
 
 (define (string-op->symbol x stack)
   (cond ((equal? x "!") (list (cons 'not stack)))
-        (else           (cons (string->symbol x) stack))))
+        (else           (cons x stack))))
 
 (define (calc-rpn xs)
   (define (helper stack xs)
-    ;(print 'calc-rpn xs stack)
     (if (null? xs)
         (car stack)
         (let ((x (car xs))
               (s (cdr xs)))
           (cond ((number? x) (helper (cons x stack) s))
-                ((is-op? x)  (helper (cons `(,(string->symbol x) ,(cadr stack) ,(car stack))
+                ((is-op? x)  (helper (cons `(,x ,(cadr stack) ,(car stack))
                                            (cddr stack))
                                      s))
-                ((is-uop? x) (helper (cons `(,(string->symbol x) ,(car stack))
+                ((is-uop? x) (helper (cons `(,x ,(car stack))
                                            (cdr stack))
                                      s))
                 ((list? x)   (helper (cons (func-apply x) stack) s))
@@ -398,7 +361,7 @@
                   (map generate-expr exprs))
             (generate-expr (car exprs))))
       (let* ((def (car defs))
-             (name (string->symbol (car def)))
+             (name (car def))
              (memo-and-types (cdr def))
              (is-memo? (car memo-and-types))
              (types (cdr memo-and-types)))
@@ -432,7 +395,7 @@
              :res)))))
 
 (define (generate-def def)
-  (let* ((name (string->symbol (car def)))
+  (let* ((name (car def))
          (memo-and-types (cdr def))
          (is-memo? (car memo-and-types))
          (types (cdr memo-and-types)))
@@ -459,15 +422,15 @@
 (define (generate-defs defs)
   (map generate-def defs))
 
-(define (print-val val)
+#|(define (print-val val)
   (if (and (string? val)
            (> (string-length val) 8)
            (equal? (give-first (string->list val) 8) (string->list "(define ")))
       val
-      `(print ,val)))
+      `(print ,val)))|#
 
 (define (calc-expr expr)
-  (to-gen-file (print-val (generate-expr (list expr)))))
+  (to-gen-file (generate-expr (list expr))))
 
 (define (calc-exprs exprs)
   (map calc-expr exprs))

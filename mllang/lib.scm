@@ -88,7 +88,7 @@
                    if-conds)))
 
 (define (func-apply x)
-  (cond ((string? x) (string->symbol x))
+  (cond ((string? x) x)
         ((list? x)   (cond ((or (null? x) (eq? (car x) 'quote))   x)
                            ((x-in-xs? (car x) ':list ':func-call) (map func-apply (cdr x)))
                            ((eq? (car x) ':qlist)                 (cons 'list

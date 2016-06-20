@@ -1,11 +1,7 @@
-(define gen-file (open-output-file "generated.scm"))
-
 (define (prepare-gen-file)
   (let ((lib-funcs-file (open-input-file "genbase.sm")))
     (while (not (eof-object? (peek-char lib-funcs-file)))
            (display (read-char lib-funcs-file) gen-file))))
-
-(prepare-gen-file)
 
 (define (to-gen-file text)
   (display text gen-file)
@@ -13,20 +9,19 @@
 
 (define (string-op->symbol x stack)
   (cond ((equal? x "!") (list (cons 'not stack)))
-        (else           (cons (string->symbol x) stack))))
+        (else           (cons x stack))))
 
 (define (calc-rpn xs)
   (define (helper stack xs)
-    ;(print 'calc-rpn xs stack)
     (if (null? xs)
         (car stack)
         (let ((x (car xs))
               (s (cdr xs)))
           (cond ((number? x) (helper (cons x stack) s))
-                ((is-op? x)  (helper (cons `(,(string->symbol x) ,(cadr stack) ,(car stack))
+                ((is-op? x)  (helper (cons `(,x ,(cadr stack) ,(car stack))
                                            (cddr stack))
                                      s))
-                ((is-uop? x) (helper (cons `(,(string->symbol x) ,(car stack))
+                ((is-uop? x) (helper (cons `(,x ,(car stack))
                                            (cdr stack))
                                      s))
                 ((list? x)   (helper (cons (func-apply x) stack) s))
@@ -87,7 +82,7 @@
                   (map generate-expr exprs))
             (generate-expr (car exprs))))
       (let* ((def (car defs))
-             (name (string->symbol (car def)))
+             (name (car def))
              (memo-and-types (cdr def))
              (is-memo? (car memo-and-types))
              (types (cdr memo-and-types)))
@@ -121,7 +116,7 @@
              :res)))))
 
 (define (generate-def def)
-  (let* ((name (string->symbol (car def)))
+  (let* ((name (car def))
          (memo-and-types (cdr def))
          (is-memo? (car memo-and-types))
          (types (cdr memo-and-types)))
@@ -148,15 +143,15 @@
 (define (generate-defs defs)
   (map generate-def defs))
 
-(define (print-val val)
+#|(define (print-val val)
   (if (and (string? val)
            (> (string-length val) 8)
            (equal? (give-first (string->list val) 8) (string->list "(define ")))
       val
-      `(print ,val)))
+      `(print ,val)))|#
 
 (define (calc-expr expr)
-  (to-gen-file (print-val (generate-expr (list expr)))))
+  (to-gen-file (generate-expr (list expr))))
 
 (define (calc-exprs exprs)
   (map calc-expr exprs))
