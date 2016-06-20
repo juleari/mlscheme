@@ -13,8 +13,8 @@ install-dir:
 	sudo install -d $(PREFIX) $(BIN_DIR) $(LIB_DIR)
 
 install-package: install-dir clean
-	#PYTHONPATH=$(LIB_DIR) python setup.py test
-	PYTHONPATH=$(LIB_DIR) python setup.py install --prefix=$(PREFIX)
+	#PYTHONPATH=$(LIB_DIR) python setup.py install --prefix=$(PREFIX)
+	@sudo python setup.py install
 	@echo 'MLScheme successfully installed'
 
 clean:

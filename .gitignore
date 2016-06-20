@@ -42,3 +42,7 @@ report/*.toc
 mllang/all.scm
 
 mllang/gen.scm
+
+*.egg
+
+mllang/mlscheme.egg-info/*

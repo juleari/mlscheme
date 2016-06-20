@@ -5,8 +5,6 @@ setup(name='mlscheme',
       entry_points = {
         'console_scripts': [
             'mlscheme = mlscheme.compiler:main',
-            'tests = mlscheme.compiler:main',
         ]
       },
-      zip_safe=False,
-      test_suite="tests")
+)
