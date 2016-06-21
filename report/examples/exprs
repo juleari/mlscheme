@@ -1,0 +1,5 @@
+; "string1 string2"
+"string1" ++ " " ++ "string2"
+
+; 6
+2 + 2 * 2

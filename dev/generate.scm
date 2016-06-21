@@ -1,24 +1,100 @@
 ;; examp
-(define v '((("replicate"
+(define v '((("fab"
               #f
-              #(#((lambda (:x) (= :x 2))
-                  ((lambda (x) #t) (lambda (x) (eqv? x 0)))
-                  ("x" :_)
+              #(#((lambda (:x) (= :x 1))
+                  ((lambda (:x) (and (list? :x) (null? :x))))
+                  (())
                   (lambda :args #t))
                 ()
                 ((('()))))
-              #(#((lambda (:x) (= :x 2))
-                  ((lambda (x) #t) (lambda (x) #t))
-                  ("x" "n")
+              #(#((lambda (:x) (= :x 1))
+                  ((lambda (:x)
+                     (and (list? :x)
+                          (:and-fold
+                           (cons
+                            (>= (length :x) 1)
+                            (map
+                             (lambda (:lambda-i :xi) ((:eval-i :lambda-i) :xi))
+                             '((lambda (x) (eqv? x 0)))
+                             (give-first :x 1)))))))
+                  ((:_ (:continuous "xs")))
+                  (lambda :args #t))
+                ()
+                ((((:func-call :append-s (:list 1) (:list ((:func-call "fab" "xs"))))))))
+              #(#((lambda (:x) (= :x 1))
+                  ((lambda (:x)
+                     (and (list? :x)
+                          (:and-fold
+                           (cons
+                            (>= (length :x) 1)
+                            (map
+                             (lambda (:lambda-i :xi) ((:eval-i :lambda-i) :xi))
+                             '((lambda (:x)
+                                 (and (list? :x)
+                                      (:and-fold
+                                       (cons
+                                        (>= (length :x) 1)
+                                        (map
+                                         (lambda (:lambda-i :xi)
+                                           ((:eval-i :lambda-i) :xi))
+                                         '((lambda (x) (eqv? x 0)))
+                                         (give-first :x 1)))))))
+                             (give-first :x 1)))))))
+                  (((:__ (:continuous "xs")) (:continuous "ys")))
+                  (lambda :args #t))
+                ()
+                ((((:func-call
+                    :append-s
+                    (:list
+                     (:func-call :append-s (:list 1) (:list ((:func-call "fab" "xs")))))
+                    (:list ((:func-call "fab" "ys"))))))))
+              #(#((lambda (:x) (= :x 1))
+                  ((lambda (:x)
+                     (and (list? :x)
+                          (:and-fold
+                           (cons
+                            (>= (length :x) 1)
+                            (map
+                             (lambda (:lambda-i :xi) ((:eval-i :lambda-i) :xi))
+                             '((lambda (:x)
+                                 (and (list? :x)
+                                      (:and-fold
+                                       (cons
+                                        (>= (length :x) 1)
+                                        (map
+                                         (lambda (:lambda-i :xi)
+                                           ((:eval-i :lambda-i) :xi))
+                                         '((lambda (x) #t))
+                                         (give-first :x 1)))))))
+                             (give-first :x 1)))))))
+                  ((("x" (:continuous "xs")) (:continuous "ys")))
+                  (lambda :args #t))
+                ()
+                ((((:func-call
+                    :append-s
+                    (:list
+                     (:func-call :append-s (:list "x") (:list ((:func-call "fab" "xs")))))
+                    (:list ((:func-call "fab" "ys"))))))))
+              #(#((lambda (:x) (= :x 1))
+                  ((lambda (:x)
+                     (and (list? :x)
+                          (:and-fold
+                           (cons
+                            (>= (length :x) 1)
+                            (map
+                             (lambda (:lambda-i :xi) ((:eval-i :lambda-i) :xi))
+                             '((lambda (x) #t))
+                             (give-first :x 1)))))))
+                  (("x" (:continuous "xs")))
                   (lambda :args #t))
                 ()
                 ((((:func-call
                     :append-s
                     (:list "x")
-                    (:list ((:func-call "replicate" "x" (("n" 1 "-"))))))))))))
-            (((:func-call "replicate" "\"a\"" 5))
-             ((:func-call "replicate" (:qlist "\"a\"" "\"b\"") 3))
-             ((:func-call "replicate" "\"a\"" 0)))))
+                    (:list ((:func-call "fab" "xs"))))))))))
+            (((:func-call
+               "fab"
+               (:qlist 0 1 (:qlist 0 0 0) (:qlist 2 (:qlist 3 0 0 3) 0) 0))))))
 ;; end examp
 
 ;; defs
@@ -220,7 +296,6 @@
       (make-lambda-var-from-list elem)
       (get-sym-name elem)))
 
-;; только один уровень вложенности
 (define (make-let-var-list names cor-names)
   #| Строит список определений для аргументов-списков
    | @param {list of arg-names} n-list Список имён аргументов
@@ -236,7 +311,9 @@
                   `(cdr ,a-list)
                   (if (is-cont-name? cur-name)
                       (cons `(,(get-sym-name (cadr cur-name)) ,a-list) l-list)
-                      (cons `(,(get-sym-name cur-name) (car ,a-list)) l-list))))))
+                      (if (list? cur-name)
+                          (append (helper cur-name `(car ,a-list) l-list) l-list)
+                          (cons `(,(get-sym-name cur-name) (car ,a-list)) l-list)))))))
 
   (apply append (map (lambda (name cor-name)
                        (if (list? name)
@@ -324,7 +401,7 @@
                               (lambda-list (car lambda-and-let))
                               (lambda-let  (cdr lambda-and-let))
                               (hash-args (get-args-for-check ':args type)))
-                         ;(print 'generate-def type)
+                         ;(print 'generate-def lambda-and-let)
                          `((and (,(get-args-num-from-type type) (length :args))
                                 (:hash ',(get-args-check-from-type type) ,hash-args)
                                 (,(get-similar-from-type type) :args))

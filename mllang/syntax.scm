@@ -1,4 +1,4 @@
-(define syntax
+(define syntaxis-c
   (let ((errors '())
         (ast '()))
     (lambda ()

@@ -1,0 +1,7 @@
+fab []              <- []
+fab [0  : xs]       <- [1  : fab xs]
+fab [[0 : xs] : ys] <- [[1 : fab xs] : fab ys]
+fab [[x : xs] : ys] <- [[x : fab xs] : fab ys]
+fab [x  : xs]       <- [x  : fab xs]
+
+fab [0 1 [0 0 0] [2 [3 0 0 3] 0] 0]

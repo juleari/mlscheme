@@ -9,6 +9,6 @@
 (prepare-gen-file)
 (define port (open-input-file ###PATH-TO-INPUT-FILE###))
 (define tokens (tokenize-file port))
-(define ast (syntax))
+(define ast (syntaxis-c))
 (define model (semantic ast))
 (generate model)

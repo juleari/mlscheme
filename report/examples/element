@@ -1,0 +1,3 @@
+element? x [] <- #f
+element? x [x : xs] <- #t
+element? x [y : ys] <- element? x ys

@@ -533,7 +533,6 @@
       (make-lambda-var-from-list elem)
       (get-sym-name elem)))
 
-;; только один уровень вложенности
 (define (make-let-var-list names cor-names)
   #| Строит список определений для аргументов-списков
    | @param {list of arg-names} n-list Список имён аргументов
@@ -549,14 +548,18 @@
                   `(cdr ,a-list)
                   (if (is-cont-name? cur-name)
                       (cons `(,(get-sym-name (cadr cur-name)) ,a-list) l-list)
-                      (cons `(,(get-sym-name cur-name) (car ,a-list)) l-list))))))
-  
+                      (if (list? cur-name)
+                          (append (helper cur-name `(car ,a-list) l-list) l-list)
+                          (cons `(,(get-sym-name cur-name) (car ,a-list)) l-list)))))))
+
   (apply append (map (lambda (name cor-name)
                        (if (list? name)
                            (helper name cor-name '())
                            '()))
                      names
                      cor-names)))
+
+
 
 ;; @returns (list lambda-var-list let-var-list)
 (define (make-var-lists type)
