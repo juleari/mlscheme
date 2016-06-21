@@ -46,8 +46,138 @@
                                                 & \verb,                     7))), \\ \hline
         \end{tabular}
     \end{table}
+    \clearpage
     \subsection{Корректность работы программ}
+
+    Тестирование корректности работы программы представлено в таблице~\ref{tabular:corr}.
+
+    \LTcapwidth=\textwidth
+    \begin{longtable}[ht!]{|l|l|l|c|}
+        %\LTcapwidth{5in}
+        \caption[plates vibr-ortotrop-edge]{Тестирование корректности работы программы}\label{tabular:corr}\\
+        %\multicolumn{2}{c}{Ключевые слова и зарезервированные символы} \\
+        %\begin{tabular}
+            \hline
+            \bf{Код программы,}             & \bf{Вывод}         & \bf{Результат}  & \bf{Статус} \\
+            \bf{на исходном языке}          & \bf{компилятора}   & \bf{выполнения} & \\ \hline\endhead
+
+            \verb,day-of-week day month year <-,& \verb,LEXER OK!,   & 2 & ok \\
+            \verb,    a <- (14 - month) // 12,  &                    & 0 & \\
+            \verb,    y <- year - a,            & \verb,SYNTAX OK!,  & 2 & \\
+            \verb,    m <- month + (a * 12) - 2,&                    & 3 & \\
+                                                & \verb,SEMANTIC OK!,& & \\
+            \verb,    (7000 + day + y ,         &                    & & \\
+            \verb,          + (y // 4),         &                    & & \\
+            \verb,          + (y // 400),       &                    & & \\
+            \verb,          + (31 * m // 12) ,  &                    & & \\
+            \verb,          - (y // 100)) % 7,  &                    & & \\
+                                                &                    & & \\
+            \verb,day-of-week 17 5 2016,        &                    & & \\
+            \verb,day-of-week 10 4 2016,        &                    & & \\
+            \verb,day-of-week 29 3 2016,        &                    & & \\
+            \verb,day-of-week 20 4 2016,        &                    & & \\ \hline
+
+            \verb,n! 0 <- 1,                & \verb,LEXER OK!,   &                 & ok \\
+            \verb,n! n <- n * n! (n - 1),   &                    &                 & \\
+                                            & \verb,SYNTAX OK!,  &                 & \\
+            \verb,n! 5,                     &                    & \verb,120,      & \\
+            \verb,n! 10,                    & \verb,SEMANTIC OK!,& \verb,3628800,  & \\ \hline
+
+            \pagebreak
+        
+            \verb,replace pred? proc [] <- [],& \verb,LEXER OK!,   & & ok \\
+            \verb,replace pred?,              &                    & & \\
+            \verb,        proc ,              & \verb,SYNTAX OK!,  & & \\
+            \verb,        [ x : xs ] <-,      &                    & & \\
+            \verb,  if | pred? x ->,          & \verb,SEMANTIC OK!,& & \\
+            \verb,       [ proc.[x] :,        &                    & & \\
+            \verb,         replace pred? proc xs ], &                    & & \\
+            \verb,     |         -> ,               &                    & & \\
+            \verb,       [ x :,                     &                    & & \\
+            \verb,       replace pred? proc xs ],   &                    & & \\  
+                                                &                    & & \\
+            \verb,replace zero?,                &                    & [1 1 2 3 0] & \\
+            \verb,        \ x -> x + 1,         &                    & & \\
+            \verb,        [ 0 1 2 3 0 ],        &                    & & \\
+                                                &                    & & \\
+            \verb,replace odd?,                 &                    & [2 2 6 4 10 6] & \\
+            \verb,        \ x -> x * 2,         &                    & & \\
+            \verb,        [ 1 2 3 4 5 6 ],      &                    & & \\
+                                                &                    & & \\
+            \verb,replace \ x -> 0 > x,         &                    & [0 1 & \\
+            \verb,        exp,                  &                    &  0.3678794 2& \\
+            \verb,        [ 0 1 -1 2 -2 3 -3],  &                    &  0.1353352 3& \\
+                                                &                    &  0.0497870]& \\ \hline
+
+            \pagebreak
+
+            \verb,sum <- 0,                  & \verb,LEXER OK!,   &                 & ok \\
+            \verb,sum x : xs <- x + sum . xs,&                    &                 & \\
+                                             & \verb,SYNTAX OK!,  &                 & \\
+            \verb,sum 1 2 3 4,               &                    & \verb,10,       & \\
+            \verb,sum.[5 6 7 8 9 10],        & \verb,SEMANTIC OK!,& \verb,45,       & \\ \hline
+
+            \verb,count x []         <- 0,  & \verb,LEXER OK!,   & & ok \\
+            \verb,count x [ x : xs ] <-,    &                    & & \\
+            \verb,    1 + count x xs,       & \verb,SYNTAX OK!,  & & \\
+            \verb,count x [ y : xs ] <-,    &                    & & \\
+            \verb,    count x xs,           & \verb,SEMANTIC OK!,& & \\
+                                            &                    & & \\
+            \verb,count 1 [1 2 3 1],        &                    & 2 & \\
+            \verb,count 0 [1 2 3 4],        &                    & 0 & \\
+            \verb,count 5 [1 2 3 4 5 5 5],  &                    & 3 & \\ \hline
+        %\end{tabular}
+    \end{longtable}
+
     \subsection{Производительность}
         \subsubsection{Производительность работы компилятора}
         \subsubsection{Производительность работы программы}
         \subsubsection{Производительность при мемоизации}
+
+        Тестирование производительности при мемоизации производилось для функции вычисления \verb,n,~-~ного числа фибоначчи.
+
+        Сравнение результатов на рисунке~\ref{pic:memo}.
+
+        \begin{figure}[ht!]
+            \centering
+            \begin{tikzpicture}[scale=1]
+                \begin{axis}[ylabel=время выполнения (c.), xlabel=число n,
+                ] %\tiny
+                    \addplot coordinates {
+                        (1, 0.000000)
+                        (5, 0.000000)
+                        (10, 0.000000)
+                        (15, 0.000000)
+                        (20, 0.010000)
+                        (25, 0.010000)
+                        (30, 0.130000)
+                        (35, 1.410000)
+                        (40, 15.440000)
+                        (45, 176.380000)
+                        (50, 1851.720000)
+                    };
+                    \addplot coordinates {
+                        (1, 0.010000)
+                        (5, 0.000000)
+                        (10, 0.000000)
+                        (15, 0.000000)
+                        (20, 0.010000)
+                        (25, 0.000000)
+                        (30, 0.000000)
+                        (35, 0.000000)
+                        (40, 0.000000)
+                        (45, 0.000000)
+                        (50, 0.000000)
+                    };
+                \end{axis}
+            \end{tikzpicture}
+            \caption{График тестирования производительности при мемоизации}
+            \label{pic:memo}
+        \end{figure}
+
+    На графике синим цветом обозначена зависимость времени выполнения функции вычисления \verb,n,~-~ного числа ряда Фибоначчи от числа \verb,n,, без мемоизации.
+    Красным цветом --- c мемоизацией.
+
+    Как видно из графика мемоизация существенно увеличивает скорость вычислений для числа \verb,n, большего 40.
+
+    Сравнение проведено с помощью \verb;,time; для версии компилятора \verb,guile (GNU Guile) 2.0.11,

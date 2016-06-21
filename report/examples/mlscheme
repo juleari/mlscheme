@@ -1,0 +1,5 @@
+usage: mlscheme <key> <args>
+                -h : help
+                -g <path_in> <compiler_file> <path_out>: generate compiler for path_in file to compiler_file to out_file
+                -c <echo_program> <path_in> <path_out>: compile echo_program path_in to out_file
+                -l <echo_program> <path_in> <path_out>: load compiled echo_program path_in
