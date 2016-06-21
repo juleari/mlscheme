@@ -58,8 +58,8 @@
         %\multicolumn{2}{c}{Ключевые слова и зарезервированные символы} \\
         %\begin{tabular}
             \hline
-            \bf{Код программы,}             & \bf{Вывод}         & \bf{Результат}  & \bf{Статус} \\
-            \bf{на исходном языке}          & \bf{компилятора}   & \bf{выполнения} & \\ \hline\endhead
+            \bf{Код программы,}             & \bf{Вывод}         & \bf{Результат}  & \bf{ok} \\
+            \bf{на исходном языке}          &                    &                 & \\ \hline\endhead
 
             \verb,day-of-week day month year <-,& \verb,LEXER OK!,   & 2 & ok \\
             \verb,    a <- (14 - month) // 12,  &                    & 0 & \\
@@ -126,6 +126,21 @@
             \verb,count 1 [1 2 3 1],        &                    & 2 & \\
             \verb,count 0 [1 2 3 4],        &                    & 0 & \\
             \verb,count 5 [1 2 3 4 5 5 5],  &                    & 3 & \\ \hline
+
+            \verb,flatten [] <- [],         & \verb,LEXER OK!,   &                 & ok \\
+            \verb,flatten [x : xs] <- ,     &                    &                 & \\
+            \verb,  flatten x ++ flatten xs,& \verb,SYNTAX OK!,  &                 & \\
+            \verb,flatten x <- [x],         &                    &                 & \\
+                                            & \verb,SEMANTIC OK!,&                 & \\
+            \verb,flatten [[1] 2 [[3 4] [5 [6]]]],&              & \verb,[1 2 3 4 5 6],& \\ \hline
+
+            \verb,element? x [] <- #f,      & \verb,LEXER OK!,   &                 & ok \\
+            \verb,element? x [x : xs] <- #t,&                    &                 & \\
+            \verb,element? x [y : ys] <-,   & \verb,SYNTAX OK!,  &                 & \\
+            \verb,  element? x ys,          &                    &                 & \\
+                                            & \verb,SEMANTIC OK!,&                 & \\
+            \verb,element? 1 [3 2 1],       &                    & \verb,#t,       & \\
+            \verb,element? 4 [3 2 1],       &                    & \verb,#f,       & \\ \hline
         %\end{tabular}
     \end{longtable}
 
