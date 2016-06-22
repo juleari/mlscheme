@@ -11,14 +11,5 @@ my-gcd a b <-
 my-lcm a b <-
     abs (a * b / my-gcd a b)
 
-prime? n <-
-    fact 0 <- 1
-    fact n <- n * fact (n - 1)
-    
-    0?.[ (fact.[n - 1] + 1) % n ]
-
 my-gcd 3542 2464
 my-lcm 3 4
-prime? 11
-prime? 12
-prime? 3571

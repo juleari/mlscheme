@@ -1,0 +1,4 @@
+test x ... x 1 <- 1
+test x ... x 2 <- 1
+...
+test x ... x n <- 1

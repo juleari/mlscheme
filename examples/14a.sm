@@ -1,0 +1,5 @@
+range a b d <-
+    if  | a < b -> [a] ++ range (a + d) b d
+        |       -> []
+
+range 0 11 3

@@ -1,6 +1,14 @@
-inc x <- x + 1
+0? 0 <- #t
+0? x <- #f
 
-inc-expr <- "inc f"
+prime? n <-
+    fact 0 <- 1
+    fact n <- n * fact (n - 1)
 
-eval inc-expr { f <- 4 }
-eval inc-expr { f <- 5 }
+    memo fact
+    
+    0?.[ (fact.[n - 1] + 1) % n ]
+
+prime? 11
+prime? 12
+prime? 3571

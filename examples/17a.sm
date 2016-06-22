@@ -1,0 +1,9 @@
+filter pred? [] <- []
+filter pred? [x : xs] <-
+    if  | pred? x -> [x] ++ filter pred? xs
+        |         -> filter pred? xs
+
+filter odd?
+       range.[0 10 1]
+filter \ x -> x % 3 = 0
+       range.[0 13 1]
