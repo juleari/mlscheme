@@ -1,82 +1,15 @@
 ;; examp
-(define v '((("fab"
+(define v '((("count"
               #f
-              #(#((lambda (:x) (= :x 1))
-                  ((lambda (:x) (and (list? :x) (null? :x))))
-                  (())
+              #(#((lambda (:x) (= :x 2))
+                  ((lambda (x) #t) (lambda (:x) (and (list? :x) (null? :x))))
+                  ("x" ())
                   (lambda :args #t))
                 ()
-                ((('()))))
-              #(#((lambda (:x) (= :x 1))
-                  ((lambda (:x)
-                     (and (list? :x)
-                          (:and-fold
-                           (cons
-                            (>= (length :x) 1)
-                            (map
-                             (lambda (:lambda-i :xi) ((:eval-i :lambda-i) :xi))
-                             '((lambda (x) (eqv? x 0)))
-                             (give-first :x 1)))))))
-                  ((:_ (:continuous "xs")))
-                  (lambda :args #t))
-                ()
-                ((((:func-call :append-s (:list 1) (:list ((:func-call "fab" "xs"))))))))
-              #(#((lambda (:x) (= :x 1))
-                  ((lambda (:x)
-                     (and (list? :x)
-                          (:and-fold
-                           (cons
-                            (>= (length :x) 1)
-                            (map
-                             (lambda (:lambda-i :xi) ((:eval-i :lambda-i) :xi))
-                             '((lambda (:x)
-                                 (and (list? :x)
-                                      (:and-fold
-                                       (cons
-                                        (>= (length :x) 1)
-                                        (map
-                                         (lambda (:lambda-i :xi)
-                                           ((:eval-i :lambda-i) :xi))
-                                         '((lambda (x) (eqv? x 0)))
-                                         (give-first :x 1)))))))
-                             (give-first :x 1)))))))
-                  (((:__ (:continuous "xs")) (:continuous "ys")))
-                  (lambda :args #t))
-                ()
-                ((((:func-call
-                    :append-s
-                    (:list
-                     (:func-call :append-s (:list 1) (:list ((:func-call "fab" "xs")))))
-                    (:list ((:func-call "fab" "ys"))))))))
-              #(#((lambda (:x) (= :x 1))
-                  ((lambda (:x)
-                     (and (list? :x)
-                          (:and-fold
-                           (cons
-                            (>= (length :x) 1)
-                            (map
-                             (lambda (:lambda-i :xi) ((:eval-i :lambda-i) :xi))
-                             '((lambda (:x)
-                                 (and (list? :x)
-                                      (:and-fold
-                                       (cons
-                                        (>= (length :x) 1)
-                                        (map
-                                         (lambda (:lambda-i :xi)
-                                           ((:eval-i :lambda-i) :xi))
-                                         '((lambda (x) #t))
-                                         (give-first :x 1)))))))
-                             (give-first :x 1)))))))
-                  ((("x" (:continuous "xs")) (:continuous "ys")))
-                  (lambda :args #t))
-                ()
-                ((((:func-call
-                    :append-s
-                    (:list
-                     (:func-call :append-s (:list "x") (:list ((:func-call "fab" "xs")))))
-                    (:list ((:func-call "fab" "ys"))))))))
-              #(#((lambda (:x) (= :x 1))
-                  ((lambda (:x)
+                (((0))))
+              #(#((lambda (:x) (= :x 2))
+                  ((lambda (x) #t)
+                   (lambda (:x)
                      (and (list? :x)
                           (:and-fold
                            (cons
@@ -85,16 +18,36 @@
                              (lambda (:lambda-i :xi) ((:eval-i :lambda-i) :xi))
                              '((lambda (x) #t))
                              (give-first :x 1)))))))
-                  (("x" (:continuous "xs")))
+                  ("x" (:s_ (:continuous "xs")))
+                  (lambda (:args)
+                    (let ((:v-args
+                           (:multi-list->vector
+                            :args
+                            '("x" (:s_ (:continuous "xs"))))))
+                      (:and-fold-s
+                       ((equal?
+                         (vector-ref :v-args 0)
+                         (vector-ref :v-args 1)))))))
+                ()
+                (((1 (:func-call "count" "x" "xs") "+"))))
+              #(#((lambda (:x) (= :x 2))
+                  ((lambda (x) #t)
+                   (lambda (:x)
+                     (and (list? :x)
+                          (:and-fold
+                           (cons
+                            (>= (length :x) 1)
+                            (map
+                             (lambda (:lambda-i :xi) ((:eval-i :lambda-i) :xi))
+                             '((lambda (x) #t))
+                             (give-first :x 1)))))))
+                  ("x" ("y" (:continuous "xs")))
                   (lambda :args #t))
                 ()
-                ((((:func-call
-                    :append-s
-                    (:list "x")
-                    (:list ((:func-call "fab" "xs"))))))))))
-            (((:func-call
-               "fab"
-               (:qlist 0 1 (:qlist 0 0 0) (:qlist 2 (:qlist 3 0 0 3) 0) 0))))))
+                ((((:func-call "count" "x" "xs")))))))
+            (((:func-call "count" 1 (:qlist 1 2 3 1)))
+             ((:func-call "count" 0 (:qlist 1 2 3 4)))
+             ((:func-call "count" 5 (:qlist 1 2 3 4 5 5 5))))))
 ;; end examp
 
 ;; defs

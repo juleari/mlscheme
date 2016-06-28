@@ -46,3 +46,5 @@ mllang/gen.scm
 *.egg
 
 mllang/mlscheme.egg-info/*
+
+*.zip

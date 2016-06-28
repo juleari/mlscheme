@@ -358,6 +358,6 @@
       (let ((t (tokenize-words (reverse (read-words '() '())) '())))
         (and (print-errors) t)))))
 
-(define port (open-input-file "/Users/juleari/Desktop/иу9/диплом/examples/18.sm"))
+(define port (open-input-file "/Users/juleari/mlscheme/examples/3.sm"))
 
 (define tokens (tokenize-file port))
