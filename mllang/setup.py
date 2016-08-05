@@ -1,10 +1,10 @@
 from setuptools import setup, find_packages
 
-setup(name='testmlscheme',
+setup(name='mlscheme',
       packages=find_packages(),
       entry_points = {
         'console_scripts': [
-            'testmlscheme = mlscheme.compiler:main',
+            'mlscheme = mlscheme.compiler:main',
         ]
       },
 )
