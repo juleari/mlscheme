@@ -1,11 +1,22 @@
 # Usage
 ## build compiler to sm file
-```
-./compiler.py -g [path_to_input_file] [path_to_output_file]
-./compiler.py -g '../examples/sample1.sm' 'build/compiler.scm'
+```bash
+mlscheme -g <path_in> <path_compiler> <path_out>
+mlscheme -g example.sm compiler.scm example.scm
 ```
 
-## build tests run
+## compile sm file to scm
+```bash
+mlscheme -c <echo_program> <path_in> <path_out>
+mlscheme -c guile example.sm example.scm
+mlscheme -c guile example.sm
+mlscheme -c csi example.sm
 ```
-./compiler.py -t 'runtests.scm'
+
+## load sm file
+```bash
+mlscheme -l <echo_program> <path_in> <path_out>
+mlscheme -l guile example.sm example.scm
+mlscheme -l guile example.sm
+mlscheme -l csi example.sm
 ```
