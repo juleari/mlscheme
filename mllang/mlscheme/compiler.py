@@ -124,7 +124,7 @@ def module_concat(compile_):
 def get_tests_list(list_dir, path_in=PATH_TESTS_IN):
     return ' '.join(map(
                 lambda x: get_normal_path(
-                            os.path.join(os.getcwd(), list_dir, x)), 
+                            os.path.join(os.getcwd(), list_dir, x)),
                 os.listdir(path_in)
             ))
 
@@ -134,8 +134,8 @@ def get_tests():
                      .replace(REPLACE_TESTS_OUT, get_tests_list(PATH_TESTS_OUT))
 
 def print_usage():
-    print 'usage: ./compiler.py <key> <args>\n' +\
-          '\n'.join(['                     %s %s: %s' % (
+    print 'usage: mlscheme <key> <args>\n' +\
+          '\n'.join(['                %s %s: %s' % (
                 key,
                 ' '.join(['<' + a.name + '>' for a in ARGS[key]]),
                 DESCS[key]

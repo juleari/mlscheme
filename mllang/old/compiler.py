@@ -18,7 +18,7 @@ REPLACE_TESTS_OUT= '###TESTS-OUTPUT###'
 PATH_TESTS_IN  = '../tests/in'
 PATH_TESTS_OUT = '../tests/out'
 
-DEFAULT_IN     = '../examples/1.sm'
+DEFAULT_IN     = '../examples/all.sm'
 DEFAULT_OUT_DIR= ''
 DEFAULT_OUT    = 'build.scm'
 DEFAULT_GEN    = 'gen.scm'
@@ -124,7 +124,7 @@ def module_concat(compile_):
 def get_tests_list(list_dir, path_in=PATH_TESTS_IN):
     return ' '.join(map(
                 lambda x: get_normal_path(
-                            os.path.join(os.getcwd(), list_dir, x)), 
+                            os.path.join(os.getcwd(), list_dir, x)),
                 os.listdir(path_in)
             ))
 
