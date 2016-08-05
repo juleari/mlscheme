@@ -4,7 +4,7 @@ setup(name='testmlscheme',
       packages=find_packages(),
       entry_points = {
         'console_scripts': [
-            'mlscheme = mlscheme.compiler:main',
+            'testmlscheme = mlscheme.compiler:main',
         ]
       },
 )
