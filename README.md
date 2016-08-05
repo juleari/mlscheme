@@ -38,7 +38,7 @@ mlscheme -c csi example.sm
 
 - -l -- load -- выполняет программу на языке (по адресу path_in) с помощью echo_program (скомпилированная программа на языке Scheme будет по адресу path_out)
 ```bash
-mlscheme -l <echo_program> <path_in>
+mlscheme -l <echo_program> <path_in> <path_out>
 mlscheme -l guile example.sm example.scm
 mlscheme -l guile example.sm
 mlscheme -l csi example.sm
