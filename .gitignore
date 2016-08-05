@@ -48,3 +48,13 @@ mllang/gen.scm
 mllang/mlscheme.egg-info/*
 
 *.zip
+
+report/Novy_zagolovok.pdf
+
+*.aux
+
+*.key
+
+*.log
+
+*.gz
