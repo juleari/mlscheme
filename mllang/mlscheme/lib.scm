@@ -48,9 +48,12 @@
   token)
 
 (define (string-join xs sep)
-  (apply string-append
-         (cons (car xs)
-               (map (lambda (x) (string-append sep x)) (cdr xs)))))
+  (if (length xs)
+      (apply string-append
+             (cons (car xs)
+                   (map (lambda (x) (string-append sep x))
+                        (cdr xs))))
+      xs))
 
 (define (xs-to-string open-b xs sep)
   (string-append open-b
@@ -203,7 +206,7 @@
              (terms (get-rule-terms last))
              (term (car terms))
              (type (get-rule-name term))
-             (num  (length func-args)))  
+             (num  (length func-args)))
           (if (eq? type 'continuous)
             `(lambda (:x) (>= :x ,(- num 1)))
             `(lambda (:x) (= :x ,num))))))
@@ -280,7 +283,7 @@
   (if (zero? n)
       xs
       (remove-first (- n 1) (cdr xs))))
-  
+
 (define (get-args-check-from-type type)
   (vector-ref (get-args-from-type type) TYPE-ARGS-CHECK))
 
@@ -550,7 +553,7 @@
                   (if (is-cont-name? cur-name)
                       (cons `(,(get-sym-name (cadr cur-name)) ,a-list) l-list)
                       (cons `(,(get-sym-name cur-name) (car ,a-list)) l-list))))))
-  
+
   (apply append (map (lambda (name cor-name)
                        (if (list? name)
                            (helper name cor-name '())

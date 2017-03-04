@@ -29,7 +29,6 @@ DEFAULT_ECHO   = 'guile'
 ARG_INDEX = 2
 
 class Arg(object):
-    """docstring for Arg"""
     def __init__(self, name, default, many=''):
         super(Arg, self).__init__()
         self.name = name
@@ -68,7 +67,6 @@ FUNCS = {
 }
 
 class CompilerType(object):
-    """description, args, func for CompilerType"""
     def __init__(self, name):
         super(CompilerType, self).__init__()
         self.name = name
