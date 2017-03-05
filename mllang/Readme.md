@@ -1,3 +1,11 @@
+# Install
+```bash
+git clone git@github.com:juleari/mlscheme.git
+cd mlscheme/mllang
+python setup.py build
+sudo python setup.py install
+```
+
 # Usage
 ## build compiler to sm file
 ```bash
