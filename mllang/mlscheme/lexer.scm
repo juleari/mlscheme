@@ -1,5 +1,6 @@
 (define kw '(scheme export mod if zero? eval abs odd? even? div round reverse
-             null? not sin cos tg ctg eq? eqv? equal? gcd lcm expt sqrt memo))
+             null? not sin cos tg ctg eq? eqv? equal? gcd lcm expt sqrt memo
+             last heads take give-first))
 
 (define (trim? s)
   (or (eqv? s #\space)
@@ -65,12 +66,12 @@
         (isscheme #f)
         (parens 0))
     (lambda (word)
-      
+
       (define (isnum? token)
         (let ((token-word (string->number (get-token-value token))))
           (and token-word
                (vector 'tag-num (get-token-coords token) token-word))))
-      
+
       (define (isnumber?)
         (let ((token-word (string->number word))
               (ws         (string->list word))
@@ -79,7 +80,7 @@
                ;(x-not-in-list #\/ ws)
                (++ position (length ws))
                (list (vector 'tag-num coords token-word)))))
-      
+
       (define (iskw-part? token)
         (define (helper kw w)
           (and (not (null? kw))
@@ -88,7 +89,7 @@
         (let ((word (get-token-value token)))
           (and (helper kw (string->symbol word))
                (vector 'tag-kw (get-token-coords token) word))))
-      
+
       (define (iskw?)
         (define (helper kw w)
           (and (not (null? kw))
@@ -100,7 +101,7 @@
                (or (not (equal? word "scheme"))
                    (set! isscheme #t))
                (list (vector 'tag-kw coords word)))))
-      
+
       (define (isstring?)
         (let* ((coords (vector line position))
                (ws (string->list word))
@@ -108,20 +109,20 @@
           (and (equal? w #\")
                (++ position (length ws))
                (list (vector 'tag-str coords word)))))
-      
+
       (define (tag-sym? s token)
         (and (eqv? (get-token-tag token) 'tag-sym)
              (helper s token)))
-      
+
       (define (new-tag? s token new-tag)
         (and (not (get-token-tag token))
              (set-token-tag token new-tag)
              (helper s token)))
-      
+
       (define (sym-or-new-tag s token new-tag)
         (or (tag-sym? s token)
             (new-tag? s token new-tag)))
-      
+
       (define (sym-old-or-new-tag s token old-new-tag)
         (or (tag-sym? s token)
             (let* ((old-tag      (get-token-tag token))
@@ -133,7 +134,7 @@
               (and (eq? new-tag 'tag-fls)
                    (set-token-value token #f))
               (helper s token))))
-      
+
       (define (cons-tags tag tag-token token s)
         (let* ((tail (helper s token))
                (tag-tail (car tail)))
@@ -147,7 +148,7 @@
               (if tag-tail
                   (cons tag-token (list tail))
                   (list tag-token)))))
-      
+
       (define (cut-token-by-word token word)
         (define (helper ws counter)
           (let ((w (car ws))
@@ -161,7 +162,7 @@
                       (vector #f (vector line position) (list->string s)))
                 (helper s (cons w counter)))))
         (helper (string->list (get-token-value token)) '()))
-      
+
       (define (cut-by-tag w s token cut-tag)
         (let* ((old-tag (get-token-tag token))
                (cuted-list (cut-token-by-word token w))
@@ -180,7 +181,7 @@
                         (set-token-tag before old-tag))
                     consed)
               consed)))
-      
+
       (define (helper ws token)
         (if (null? ws)
             (list token)
@@ -205,15 +206,15 @@
                                              (set-token-tag token 'tag-schm)
                                              (list token)))
                     (sont               (sym-or-new-tag s
-                                                        token 
+                                                        token
                                                         (cadr sont)))
                     (ssont              (sym-old-or-new-tag s
                                                             token
                                                             (cadr ssont)))
                     (ctag               (cut-by-tag w s token (cadr ctag)))
-                    (else               (helper s (set-token-tag token 
+                    (else               (helper s (set-token-tag token
                                                                  'tag-sym)))))))
-      
+
       (or (iskw?)
           (isnumber?)
           (isstring?)
@@ -297,7 +298,7 @@
               (and (trim? ch)
                    (read-words '() (cons (string ch) (add-word word words))))
               (read-words (cons ch word) words))))
-      
+
       (define (tokenize-words words tokens)
         (if (null? words)
             tokens

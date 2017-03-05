@@ -308,7 +308,7 @@
   (x-in-xs? t "+" "-" "/" "%" "*" "//" ">" "<" ">=" "<=" "=" "!=" "++" "&&" "||" "**"))
 
 (define (is-uop? x)
-  (x-in-xs? x "zero?" "null?" "odd?" "even?" "abs" "not" "round" "sqrt" "reverse"))
+  (x-in-xs? x "zero?" "null?" "odd?" "even?" "abs" "not" "round" "sqrt" "reverse" "last" "heads"))
 
 (define (op-in-xs? x . xs)
   (and (not-null? xs)

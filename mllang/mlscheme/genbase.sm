@@ -33,6 +33,18 @@
       (cons (car xs)
             (give-first xs (- n 1)))))
 
+(define (last xs)
+  (if (= 1 (length xs))
+      (car xs)
+      (last (cdr xs))))
+
+(define (heads xs)
+  (if (= 1 (length xs))
+      '()
+      (cons (car xs) (heads (cdr xs)))))
+
+(define (take n xs) (give-first xs n))
+
 (define (:not-null? xs) (not (null? xs)))
 
 (define (:multi-list->vector xs ml)

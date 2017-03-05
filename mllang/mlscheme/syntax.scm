@@ -12,7 +12,7 @@
 
       (define (add-error-rule rule)
         (set! errors
-              (cons (vector 'error: 
+              (cons (vector 'error:
                             (get-token-coords token)
                             '-
                             'expected
@@ -126,7 +126,7 @@
             (let ((first-rule (simple-rule start-pos 'open-braket 'tag-lbrk)))
               (and first-rule
                    (set! ast-list (cons first-rule
-                                        (syntax-arguments (get-simple-start-pos 
+                                        (syntax-arguments (get-simple-start-pos
                                                            first-rule)
                                                           ARGS-CANT-BE-EXPRS
                                                           ARGS-CANT-BE-FUNCS
@@ -135,7 +135,7 @@
                                                      'close-braket
                                                      'tag-rbrk)))
                          (and last-rule
-                              (set! ast-list (append ast-list 
+                              (set! ast-list (append ast-list
                                                      (list last-rule)))))
                        (add-error ERR_NO_CLOSE_BRK))
                    (list (vector 'array-simple ast-list))))
@@ -147,7 +147,7 @@
              (let ((first-rule (simple-rule start-pos 'open-braket 'tag-lbrk)))
                (and first-rule
                     (set! ast-list (cons first-rule
-                                         (syntax-arguments (get-simple-start-pos 
+                                         (syntax-arguments (get-simple-start-pos
                                                             first-rule)
                                                            (and array-in-expr?
                                                                 ARGS-WITHOUT-F-CALLS)
@@ -156,7 +156,7 @@
                                                       'close-braket
                                                       'tag-rbrk)))
                           (and last-rule
-                               (set! ast-list (append ast-list 
+                               (set! ast-list (append ast-list
                                                      (list last-rule)))))
                         (add-error ERR_NO_CLOSE_BRK))
                     (vector 'array-simple ast-list)))))
@@ -289,7 +289,7 @@
       (define (syntax-func-declaration start-pos
                                        decl-in-expr?
                                        args-can-be-cont?)
-        
+
         (syntax-func-lambda-decl start-pos
                                  '(func-name tag-sym)
                                  'func-decl
@@ -388,12 +388,12 @@
                  (x-in-xs? val "sin" "cos" "tg" "ctg"))))
 
         (define (is-unar-func? val)
-          (or (x-in-xs? val "zero?" "odd?" "even?" "null?" "not" "abs" "!" 
-                            "round" "sqrt" "reverse")
+          (or (x-in-xs? val "zero?" "odd?" "even?" "null?" "not" "abs" "!"
+                            "round" "sqrt" "reverse" "last" "heads")
               (trigonometric)))
 
         (define (is-binar-func? val)
-          (x-in-xs? val "eq?" "eqv?" "equal?" "gcd" "lcm" "expt"))
+          (x-in-xs? val "eq?" "eqv?" "equal?" "gcd" "lcm" "expt" "take" "give-first"))
 
         (define (is-nar-func? val)
           (x-in-xs? val "and" "or"))
@@ -473,14 +473,14 @@
                       (flag #f)
                       (end-flag #f))
                  (and (cond (valid-op             (op-to-out op)
-                                                  (set! stack 
+                                                  (set! stack
                                                         (cons token stack)))
                             (proc                 (set! flag #t)
                                                   (set! out (cons proc out)))
                             (arr                  (set! flag #t)
                                                   (set! out (cons arr out)))
                             (to-out?              (set! out (cons token out)))
-                            (can-be-lprn?         (set! stack 
+                            (can-be-lprn?         (set! stack
                                                         (cons token stack)))
                             ((eqv? tag 'tag-rprn) (or (and (not-null? stack)
                                                            (op-before-laren-to-out 0)
@@ -512,7 +512,7 @@
               (let ((cur (car stack)))
                 (cond ((eqv? (get-token-tag cur) 'tag-lprn)
                        (set! stack (cdr stack)))
-                      ((op? cur) (from-stack-to-out cur 
+                      ((op? cur) (from-stack-to-out cur
                                                     op-before-laren-to-out
                                                     p))
                       (else      (add-error ERROR_EXPR_ARENS))))))
