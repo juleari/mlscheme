@@ -60,3 +60,5 @@ report/Novy_zagolovok.pdf
 *.gz
 
 *.tif
+
+*.pyc

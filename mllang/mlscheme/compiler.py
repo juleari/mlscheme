@@ -5,8 +5,8 @@ import sys
 import os
 import re
 
-PATH_COMPILE = 'compile.scm'
-PATH_BUILD   = 'build.scm'
+PATH_COMPILE = 'mlscheme/compile.scm'
+PATH_BUILD   = 'mlscheme/build.scm'
 PATH_TESTS   = 'tests.scm'
 RE_INCLUE    = '\(import \"([a-z]+.scm)\"\)'
 
@@ -20,8 +20,8 @@ PATH_TESTS_OUT = '../tests/out'
 
 DEFAULT_IN     = '../examples/1.sm'
 DEFAULT_OUT_DIR= ''
-DEFAULT_OUT    = 'build.scm'
-DEFAULT_GEN    = 'gen.scm'
+DEFAULT_OUT    = 'mlscheme/build.scm'
+DEFAULT_GEN    = 'mlscheme/gen.scm'
 DEFAULT_MODULE = 'modules'
 DEFAULT_TESTS  = 'tests.scm'
 DEFAULT_ECHO   = 'guile'
