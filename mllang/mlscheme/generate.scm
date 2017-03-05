@@ -1,8 +1,3 @@
-(define (prepare-gen-file)
-  (let ((lib-funcs-file (open-input-file "genbase.sm")))
-    (while (not (eof-object? (peek-char lib-funcs-file)))
-           (display (read-char lib-funcs-file) gen-file))))
-
 (define (to-gen-file text)
   (display text gen-file)
   (newline gen-file))
@@ -124,7 +119,7 @@
     (to-gen-file (if (:and-fold (map check-expr-or-func types))
                      (let* ((type (car (reverse types)))
                             (exprs (get-exprs-from-type type)))
-                       (if (not-null? exprs)  
+                       (if (not-null? exprs)
                            `(define ,name
                               ,(generate-let (get-defs-from-type type)
                                              type))

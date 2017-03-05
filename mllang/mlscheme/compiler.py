@@ -7,11 +7,13 @@ import re
 
 PATH_COMPILE = 'compile.scm'
 PATH_BUILD   = 'build.scm'
+PATH_GENBASE = os.path.join(os.path.sep, os.path.dirname(os.path.abspath(__file__)), 'genbase.sm')
 PATH_TESTS   = 'tests.scm'
 RE_INCLUE    = '\(import \"([a-z]+.scm)\"\)'
 
 REPLACE_PATH     = '###PATH-TO-INPUT-FILE###'
 REPLACE_GEN      = '###PATH-TO-GEN-FILE###'
+REPLACE_GENBASE  = '###PATH-TO-GENBASE-FILE###'
 REPLACE_TESTS_IN = '###TESTS-INPUT###'
 REPLACE_TESTS_OUT= '###TESTS-OUTPUT###'
 
@@ -93,6 +95,7 @@ def get_files_inner(files):
 
 def get_compile(path_in, path_out):
     return get_file_inner(PATH_COMPILE).replace(REPLACE_PATH, '\"%s\"' % path_in)\
+                                       .replace(REPLACE_GENBASE, '\"%s\"' % PATH_GENBASE)\
                                        .replace(REPLACE_GEN, '\"%s\"' % path_out)
 
 def global_concat(compile_):

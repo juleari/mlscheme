@@ -5,6 +5,11 @@
 ;(import "semantic.scm")
 ;(import "generate.scm")
 
+(define (prepare-gen-file)
+  (let ((lib-funcs-file (open-input-file ###PATH-TO-GENBASE-FILE###)))
+    (while (not (eof-object? (peek-char lib-funcs-file)))
+           (display (read-char lib-funcs-file) gen-file))))
+
 (define gen-file (open-output-file ###PATH-TO-GEN-FILE###))
 (prepare-gen-file)
 (define port (open-input-file ###PATH-TO-INPUT-FILE###))
