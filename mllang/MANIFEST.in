@@ -1,1 +1,1 @@
-recursive-include mlscheme/ *.scm
+recursive-include mlscheme *.scm

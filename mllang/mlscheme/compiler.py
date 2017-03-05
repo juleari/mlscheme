@@ -5,8 +5,8 @@ import sys
 import os
 import re
 
-PATH_COMPILE = 'mlscheme/compile.scm'
-PATH_BUILD   = 'mlscheme/build.scm'
+PATH_COMPILE = 'compile.scm'
+PATH_BUILD   = 'build.scm'
 PATH_TESTS   = 'tests.scm'
 RE_INCLUE    = '\(import \"([a-z]+.scm)\"\)'
 
@@ -20,8 +20,8 @@ PATH_TESTS_OUT = '../tests/out'
 
 DEFAULT_IN     = '../examples/1.sm'
 DEFAULT_OUT_DIR= ''
-DEFAULT_OUT    = 'mlscheme/build.scm'
-DEFAULT_GEN    = 'mlscheme/gen.scm'
+DEFAULT_OUT    = 'build.scm'
+DEFAULT_GEN    = 'gen.scm'
 DEFAULT_MODULE = 'modules'
 DEFAULT_TESTS  = 'tests.scm'
 DEFAULT_ECHO   = 'guile'
@@ -86,13 +86,12 @@ def get_normal_path(path):
     return os.path.normpath(os.path.join(os.getcwd(), path))
 
 def get_file_inner(path):
-    return open(path).read()
+    return open(os.path.join(os.path.sep, os.path.dirname(os.path.abspath(__file__)), path)).read()
 
 def get_files_inner(files):
     return map(get_file_inner, files)
 
 def get_compile(path_in, path_out):
-    #print path, get_file_inner(PATH_COMPILE).replace(REPLACE_PATH, '\"%s\"' % path)
     return get_file_inner(PATH_COMPILE).replace(REPLACE_PATH, '\"%s\"' % path_in)\
                                        .replace(REPLACE_GEN, '\"%s\"' % path_out)
 
@@ -161,6 +160,3 @@ def main():
         compiler.run()
     else:
         print_usage()
-
-#if __name__ == '__main__':
-#    main()
