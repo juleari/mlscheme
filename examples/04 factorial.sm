@@ -1,7 +1,10 @@
+; finds factorial
 n! 0 <- 1
 n! n <- n * n! (n - 1)
 
+; memoize factorial
 memo n!
 
-n! 5
-n! 10
+print "factorial results:"
+	  (n! 5)	; 120 
+	  (n! 10)	; 3628800

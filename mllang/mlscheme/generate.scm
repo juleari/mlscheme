@@ -115,25 +115,25 @@
          (memo-and-types (cdr def))
          (is-memo? (car memo-and-types))
          (types (cdr memo-and-types)))
-    ;(print name types)
-    (to-gen-file (if (:and-fold (map check-expr-or-func types))
-                     (let* ((type (car (reverse types)))
-                            (exprs (get-exprs-from-type type)))
-                       (if (not-null? exprs)
-                           `(define ,name
-                              ,(generate-let (get-defs-from-type type)
-                                             type))
-                           ""))
-                     (if is-memo?
-                         `(define ,name
-                            (let ,(generate-memo-let is-memo?)
-                              ,(if (and (list? is-memo?)
-                                        (not (x-in-xs? ':memo is-memo?)))
-                                   `(lambda :args ,(generate-func-types types))
-                                   (generate-memo-lambda ':memo
-                                                         (generate-func-types types)))))
-                         `(define (,name . :args)
-                            ,(generate-func-types types)))))))
+    (and (not (equal? name "print"))
+         (to-gen-file (if (:and-fold (map check-expr-or-func types))
+                           (let* ((type (car (reverse types)))
+                                  (exprs (get-exprs-from-type type)))
+                             (if (not-null? exprs)
+                                 `(define ,name
+                                    ,(generate-let (get-defs-from-type type)
+                                                   type))
+                                 ""))
+                           (if is-memo?
+                               `(define ,name
+                                  (let ,(generate-memo-let is-memo?)
+                                    ,(if (and (list? is-memo?)
+                                              (not (x-in-xs? ':memo is-memo?)))
+                                         `(lambda :args ,(generate-func-types types))
+                                         (generate-memo-lambda ':memo
+                                                               (generate-func-types types)))))
+                               `(define (,name . :args)
+                                  ,(generate-func-types types))))))))
 
 (define (generate-defs defs)
   (map generate-def defs))

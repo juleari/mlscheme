@@ -93,7 +93,7 @@
 
                (func-val (vector args-vector f-defs f-exprs))
                (add-list (list model func-name memo-list func-val)))
-          ;(print 'semantic-func-def func-name f-exprs in-model)
+          ;(print 'add-list func-name memo-list func-val)
           (apply (if in-model
                      add-type-in-model
                      add-func-in-model)
@@ -234,6 +234,7 @@
 
       (define (semantic-expr-elem elem model)
         (let ((type (get-rule-name elem)))
+          ;(print type elem)
           (cond ((eq? type 'func-decl)      (semantic-var (get-rule-terms elem) model))
                 ((eq? type 'array-simple)   (semantic-expr-arr (get-rule-terms elem) model))
                 ((eq? type 'if-expression)  (semantic-if-expr (get-rule-terms elem) model))
@@ -299,5 +300,10 @@
                                        (semantic-export terms model)
                                        exprs))))))
 
-      (let ((m (semantic-program ast '() '())))
+      ;(print 'ast ast)
+      (let* ((model (add-func-in-model '()
+                                        "print"
+                                        #f
+                                        (vector (vector `(lambda (:x) #t) '() '() `(lambda :args #t)) '() '())))
+             (m (semantic-program ast model '())))
         (and (print-errors) m)))))

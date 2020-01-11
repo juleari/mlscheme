@@ -62,3 +62,6 @@ report/Novy_zagolovok.pdf
 *.tif
 
 *.pyc
+*/.DS_Store
+**/.DS_Store
+mllang/1.scm

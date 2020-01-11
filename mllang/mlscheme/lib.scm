@@ -212,6 +212,7 @@
             `(lambda (:x) (= :x ,num))))))
 
 (define (add-func-in-model model name memo-list obj)
+  ;(print 'add-func-in-model model name memo-list obj)
   (cons (list name memo-list obj) model))
 
 (define (add-type-in-model model name memo-list val)
@@ -244,6 +245,7 @@
        (let* ((first  (car model))
               (f-par (car first))
               (f-val  (cdr first)))
+         ;(print 'find-in-model func-name f-par)
          (or (and (find-in-params func-name f-par)
                   (append f-val
                           (or (find-in-model func-name (cdr model))
@@ -264,6 +266,7 @@
            (x-in-xs x (cdr xs)))))
 
 (define (find-in-params func-name param)
+  ;(print 'find-in-params func-name param (equal? func-name param))
   (or (and (list? param)
            (x-in-xs func-name param))
       (equal? func-name param)))
@@ -308,7 +311,7 @@
   (x-in-xs? t "+" "-" "/" "%" "*" "//" ">" "<" ">=" "<=" "=" "!=" "++" "&&" "||" "**"))
 
 (define (is-uop? x)
-  (x-in-xs? x "zero?" "null?" "odd?" "even?" "abs" "not" "round" "sqrt" "reverse" "last" "heads"))
+  (x-in-xs? x "zero?" "null?" "odd?" "even?" "abs" "not" "round" "sqrt" "reverse" "last" "heads" "exp"))
 
 (define (op-in-xs? x . xs)
   (and (not-null? xs)
@@ -434,7 +437,7 @@
     ((_ args) (let ((:similar-pairs (find-similar-in-args args)))
                 (if (not-null? :similar-pairs)
                     `(lambda :args
-                       (let ((:v-args (multi-list->vector :args)))
+                       (let ((:v-args (:multi-list->vector :args)))
                          (:and-fold-s ,(map (lambda (:similar-pair)
                                              `(equal? (vector-ref :v-args ,(car :similar-pair))
                                                       (vector-ref :v-args ,(cadr :similar-pair))))

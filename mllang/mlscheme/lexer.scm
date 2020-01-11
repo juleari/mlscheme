@@ -1,5 +1,5 @@
 (define kw '(scheme export mod if zero? eval abs odd? even? div round reverse
-             null? not sin cos tg ctg eq? eqv? equal? gcd lcm expt sqrt memo
+             null? not sin cos tg ctg eq? eqv? equal? gcd lcm exp expt sqrt memo
              last heads take give-first))
 
 (define (trim? s)
@@ -76,7 +76,8 @@
         (let ((token-word (string->number word))
               (ws         (string->list word))
               (coords     (vector line position)))
-          (and token-word
+          (and (not iscomment)
+               token-word
                ;(x-not-in-list #\/ ws)
                (++ position (length ws))
                (list (vector 'tag-num coords token-word)))))
@@ -96,7 +97,8 @@
                (or (eq? w (car kw))
                    (helper (cdr kw) w))))
         (let ((coords (vector line position)))
-          (and (helper kw (string->symbol word))
+          (and (not iscomment)
+               (helper kw (string->symbol word))
                (++ position (length (string->list word)))
                (or (not (equal? word "scheme"))
                    (set! isscheme #t))
@@ -106,7 +108,8 @@
         (let* ((coords (vector line position))
                (ws (string->list word))
                (w  (car ws)))
-          (and (equal? w #\")
+          (and (not iscomment)
+               (equal? w #\")
                (++ position (length ws))
                (list (vector 'tag-str coords word)))))
 

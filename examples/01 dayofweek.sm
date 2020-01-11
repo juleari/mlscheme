@@ -7,7 +7,17 @@ day-of-week day month year <-
     (7000 + day + y + (y // 4) + (y // 400) + (31 * m // 12) 
         - (y // 100)) % 7
 
-day-of-week 17 5 2016
-day-of-week 10 4 2016
-day-of-week 29 3 2016
-day-of-week 20 4 2016
+name-of-day 0 <- "sunday"
+name-of-day 1 <- "monday"
+name-of-day 2 <- "tuesday"
+name-of-day 3 <- "wednesday"
+name-of-day 4 <- "thursday"
+name-of-day 5 <- "friday"
+name-of-day 6 <- "saturday"
+
+print "day-of-week results:"
+	  (name-of-day (day-of-week 17 5 2016))  ;tuesday
+	  (name-of-day (day-of-week 10 4 2016))  ;sunday
+	  (name-of-day (day-of-week 29 3 2016))  ;tuesday
+	  (name-of-day (day-of-week 20 4 2016))  ;wednesday
+	  (name-of-day (day-of-week 13 12 2016)) ;tuesday
